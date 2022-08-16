@@ -1,28 +1,22 @@
 %lang starknet
-from src.main import balance, increase_balance
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-@external
-func test_increase_balance{syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*}():
-    let (result_before) = balance.read()
-    assert result_before = 0
-
-    increase_balance(42)
-
-    let (result_after) = balance.read()
-    assert result_after = 42
-    return ()
-end
 
 @external
-func test_cannot_increase_balance_with_negative_value{
-    syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*
-}():
-    let (result_before) = balance.read()
-    assert result_before = 0
+func test_init{
+        syscall_ptr : felt*,
+        range_check_ptr,
+        pedersen_ptr : HashBuiltin*
+    }():
+    alloc_locals
+    let root_address = 0x26345BDa8A8Fe248a094a12e517C0c32a2e11b3B3ca2A1be46e9A76DBfD6b65c
+    local contract_address: felt
 
-    %{ expect_revert("TRANSACTION_FAILED", "Amount must be positive") %}
-    increase_balance(-42)
+    %{
+        ids.contract_address = deploy_contract("./src/main.cairo", [ids.root_address]).contract_address
+        felt_val = load(ids.contract_address, "root", "felt")
+        assert felt_val[0] == ids.root_address
+    %}
 
     return ()
 end

@@ -1,32 +1,30 @@
 %lang starknet
-from starkware.cairo.common.math import assert_nn
+
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.starknet.common.syscalls import (
+        get_caller_address,
+        get_contract_address,
+        library_call,
+    )
 
+
+# @dev Store the address of the factory contract
+# @return Address of its parent smart contract
 @storage_var
-func balance() -> (res : felt):
+func root() -> (res: felt):
 end
 
-@external
-func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        amount : felt):
-    with_attr error_message("Amount must be positive. Got: {amount}."):
-        assert_nn(amount)
-    end
 
-    let (res) = balance.read()
-    balance.write(res + amount)
-    return ()
-end
-
-@view
-func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
-        res : felt):
-    let (res) = balance.read()
-    return (res)
-end
-
+# @param _root: Address of deploying contract
 @constructor
-func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
-    balance.write(0)
-    return ()
+func constructor{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        _root: felt,
+    ):
+        root.write(_root)
+
+        return ()
 end
