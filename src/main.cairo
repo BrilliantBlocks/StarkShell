@@ -15,6 +15,14 @@ func root() -> (res: felt):
 end
 
 
+# @dev Use bitmap of facet configuration in facet flyweight
+# @return Bitmap
+@storage_var
+func facet_map() -> (res: felt):
+end
+
+
+# @dev
 # @param _root: Address of deploying contract
 @constructor
 func constructor{
@@ -28,6 +36,38 @@ func constructor{
 
         return ()
 end
+
+
+# # @dev
+# # @param
+# # @return
+# @external
+# @raw_input
+# @raw_output
+# func __default__{
+#         syscall_ptr: felt*,
+#         pedersen_ptr: HashBuiltin*,
+#         range_check_ptr
+#     }(
+#         selector: felt,
+#         calldata_size: felt,
+#         calldata: felt*
+#     ) -> (
+#         retdata_size: felt,
+#         retdata: felt*
+#     ):
+# 
+#     let (facet: felt) = find_matching_facet(my_facets_len, my_facets)
+# 
+#     let (retdata_size: felt, retdata: felt*) = library_call(
+#         class_hash=facet,
+#         function_selector=selector,
+#         calldata_size=calldata_size,
+#         calldata=calldata
+#     )
+# 
+#     return (retdata_size=retdata_size, retdata=retdata)
+# end
 
 
 # @dev Support ERC-165
