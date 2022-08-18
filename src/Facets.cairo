@@ -1,77 +1,75 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
+from starkware.cairo.common.bool import FALSE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.bitwise import bitwise_and
-from starkware.cairo.common.math import assert_le, assert_not_equal
+from starkware.cairo.common.math import (
+        assert_le,
+        assert_not_equal,
+        assert_not_zero,
+    )
 
 from src.Power2 import power_of_2
+
 
 const MAX_BITMAP_LENGTH = 251
 
 
 @event
-func AddMapping(bit_id: felt, class_hash):
+func Register(_bitId: felt, _element: felt):
 end
 
 
 @storage_var
-func bitmap(bit_id: felt) -> (res: felt):
+func bitmap(_bitId: felt) -> (res: felt):
 end
 
 
 @external
-func addElementToBitmap{
+func register{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr,
     }(
-        element: felt,    
+        _element: felt,    
     ) -> ():
+    alloc_locals
 
-    let (first_free_slot_id) = _find_first_zero()
+    let (e) = _find_first(_element)
+    let (first_free_bit) = _find_first(0)
 
-    with_attr error_msg("FULL BITMAP"):
-        assert_le(first_free_slot_id, MAX_BITMAP_LENGTH)
+    with_attr error_message("ELEMENT ALREADY EXISTS"):
+        assert e = first_free_bit
     end
 
-    bitmap.write(first_free_slot_id, element)
-    AddMapping.emit(first_free_slot_id, element)
+    with_attr error_message("FULL REGISTRY"):
+        assert_le(first_free_bit, MAX_BITMAP_LENGTH - 1)
+    end
+
+    bitmap.write(first_free_bit, _element)
+    Register.emit(first_free_bit, _element)
 
     return ()
 end
 
 
-@view
-func getBitmapLength{
+func _find_first{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr,
-    }() -> (
-        res: felt
-    ):
+    }(target: felt) -> (res: felt):
 
-    let (bitmap_length) = _find_first_zero()
-    
-    return (bitmap_length)
+    return _find_first_helper(target, 0)
 end
 
 
-func _find_first_zero{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
-    }() -> (res: felt):
-
-    return _find_first_zero_helper(0)
-end
-
-
-func _find_first_zero_helper{
+func _find_first_helper{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr,
     }(
-        _id: felt    
+        target: felt,
+        _id: felt,
     ) -> (
         res: felt
     ):
@@ -82,31 +80,35 @@ func _find_first_zero_helper{
         return (_id)
     end
 
-    return _find_first_zero_helper(_id + 1)
+    if el == target:
+        return (_id)
+    end
+
+    return _find_first_helper(target, _id + 1)
 end
 
 
 @view
-func resolveBitWord{
+func resolve{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
-        bit_word: felt,
+        _key: felt,
     ) -> (
         res_len: felt,
         res: felt*,
     ):
     alloc_locals
 
-    let (bitmap_length) = getBitmapLength()
+    let (bitmap_len) = _find_first(0)
 
     let (local res: felt*) = alloc()
 
     tempvar i = 0
     tempvar len = 0
-    let (res_len) = _resolve_bit_word(bit_word, len, res, i, bitmap_length)
+    let (res_len) = _resolve_bit_word(_key, len, res, i, bitmap_len)
 
     return (res_len, res)
 end
@@ -137,23 +139,32 @@ end
 
 
 @view
-func calculateBitWord{
+func calculateKey{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
-        el_len: felt,
-        el: felt*,
+        _el_len: felt,
+        _el: felt*,
     ) -> (
         res: felt,
     ):
 
-    return  _calculate_bitword(el_len, el, 0)
+    with_attr error_message("EMPTY ARRAY"):
+        assert_not_zero(_el_len)
+    end
+
+    let (bitmap_len) = _find_first(0)
+    with_attr error_message("TOO MANY ELEMENTS"):
+        assert_le(_el_len, bitmap_len)
+    end
+
+    return  _calculate_key(_el_len, _el, 0)
 end
 
 
-func _calculate_bitword{
+func _calculate_key{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         bitwise_ptr: BitwiseBuiltin*,
@@ -170,9 +181,18 @@ func _calculate_bitword{
         return (sum + 0)
     end
 
+    with_attr error_message("ZERO ELEMENT"):
+        assert_not_zero(el[0])
+    end
+
     let (a) = _find_el(el[0], 0)
 
-    return _calculate_bitword(el_len - 1, el + 1, sum + a)
+    let (is_duplicate) = bitwise_and(a, sum)
+    with_attr error_message("DUPLICATE ELEMENT"):
+        assert is_duplicate = FALSE
+    end
+
+    return _calculate_key(el_len - 1, el + 1, sum + a)
 end
 
 
@@ -184,8 +204,8 @@ func _find_el{
     }(_el: felt, _id: felt) -> (res_len: felt):
     alloc_locals
 
-    with_attr error_msg("WORD NOT IN LANGUAGE"):
-        let (l) = getBitmapLength()
+    let (l) = _find_first(0) # Bitmap length
+    with_attr error_message("UNKNOWN ELEMENT"):
         assert_not_equal(_id, l)
     end
 

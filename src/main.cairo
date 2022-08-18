@@ -18,7 +18,7 @@ end
 # @dev Use bitmap of facet configuration in facet flyweight
 # @return Bitmap
 @storage_var
-func facet_map() -> (res: felt):
+func facets() -> (res: felt):
 end
 
 
