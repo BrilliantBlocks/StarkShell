@@ -7,20 +7,7 @@ from starkware.starknet.common.syscalls import (
         library_call,
     )
 
-
-# @dev Store the address of the factory contract
-# @return Address of its parent smart contract
-@storage_var
-func root() -> (res: felt):
-end
-
-
-# @dev Use bitmap of facet configuration in facet flyweight
-# @return Bitmap
-@storage_var
-func facets() -> (res: felt):
-end
-
+from src.StorageVars import facet_key, root
 
 # @dev
 # @param _root: Address of deploying contract

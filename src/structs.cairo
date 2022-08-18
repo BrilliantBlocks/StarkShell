@@ -6,6 +6,5 @@ const REMOVE = 2
 struct FacetCut:
     member address : felt
     member FacetCutAction : felt
-    member functionSelectors_len : felt
-    member functionSelectors : felt*
+    # Remove function selelctors on purpose
 end
