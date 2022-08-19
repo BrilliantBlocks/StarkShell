@@ -18,8 +18,10 @@ func constructor{
         range_check_ptr,
     }(
         _root: felt,
+        _facet_key: felt,
     ):
         root.write(_root)
+        facet_key.write(_facet_key)
 
         return ()
 end
@@ -79,3 +81,13 @@ func supportsInterface{
 
         return (FALSE)
 end
+
+
+# @view
+# func getImplementation{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+#     }() -> (res: felt):
+#     
+#     const ERC721_CLASS_HASH = 0x2d5a747eff15bc9e086ecdf7fde0008b29c5321d3eb37bd8e1fac769dee33c6
+# 
+#     return (ERC721_CLASS_HASH)
+# end

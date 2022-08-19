@@ -1,0 +1,12 @@
+const ALL_ONES = 2**251-1
+const IERC165_ID = 0x01ffc9a7
+
+
+namespace FUNCTION_SELECTORS:
+    const mint = 1329909728320632088402217562277154056711815095720684343816173432540100887380
+
+
+    namespace ERC721:
+        const safeTransferFrom = 1
+    end
+end

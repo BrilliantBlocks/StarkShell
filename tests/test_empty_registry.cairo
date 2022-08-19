@@ -6,7 +6,7 @@ from src.Register import (
         resolve,
     )
 
-from tests.constants import ALL_ONES
+from src.constants import ALL_ONES
 
 from protostar.asserts import (
         assert_eq,
