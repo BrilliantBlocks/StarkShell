@@ -6,15 +6,8 @@ from protostar.asserts import (
         assert_eq,
     )
 
-from src.DiamondCut import diamondCut, facetAddresses
 from src.IRegistry import IRegistry
-
-
-@contract_interface
-namespace IDiamondLoupe:
-    func facetAddresses() -> (res_len: felt, res: felt*):
-    end
-end
+from src.IDiamondLoupe import IDiamondLoupe
 
 
 @external
@@ -27,7 +20,7 @@ func __setup__{
 
     local registry_address: felt
     %{
-        ids.registry_address = deploy_contract("./src/Facets.cairo").contract_address
+        ids.registry_address = deploy_contract("./src/Register.cairo").contract_address
         context.diamondCut_address = deploy_contract("./src/DiamondCut.cairo", [ids.registry_address, 15]).contract_address
     %}
 
@@ -51,6 +44,24 @@ func test_facetAddresses{
         ids.diamondCut_address = context.diamondCut_address
     %}
     let (f_len, f) = IDiamondLoupe.facetAddresses(diamondCut_address)
+
+    assert_eq(f_len, 4)
+
+    return ()
+end
+
+
+@external
+func test_facets{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+    }():
+    tempvar diamondCut_address
+    %{
+        ids.diamondCut_address = context.diamondCut_address
+    %}
+    let (f_len, f) = IDiamondLoupe.facets(diamondCut_address)
 
     assert_eq(f_len, 4)
 

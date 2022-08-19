@@ -7,7 +7,7 @@ from starkware.starknet.common.syscalls import (
         library_call,
     )
 
-from src.StorageVars import facet_key, root
+from src.storage import facet_key, root
 
 # @dev
 # @param _root: Address of deploying contract

@@ -1,7 +1,7 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
-from src.Facets import (
+from src.Register import (
         register,
         resolve,
         calculateKey,

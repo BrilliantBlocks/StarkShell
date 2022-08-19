@@ -10,7 +10,7 @@ from starkware.starknet.common.syscalls import (
 
 from src.structs import FacetCut
 from src.IRegistry import IRegistry
-from src.StorageVars import facet_key, root
+from src.storage import facet_key, root
 
 
 @event
@@ -286,17 +286,17 @@ func facetFunctionSelectors{
 end
 
 
-# # @dev what purpose in implementing if the resulting datastructure is not possible
-# # @return
-# @view
-# func facets{
-#         syscall_ptr: felt*,
-#         pedersen_ptr: HashBuiltin*,
-#         range_check_ptr,
-#     }() -> (
-#         res_len: felt,
-#         res: felt*,
-#     ):
-# 
-#     return facetAddresses()
-# end
+# @dev what purpose in implementing if the resulting datastructure is not possible
+# @return
+@view
+func facets{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr,
+    }() -> (
+        res_len: felt,
+        res: felt*,
+    ):
+
+    return facetAddresses()
+end

@@ -6,7 +6,7 @@ from protostar.asserts import (
         assert_eq,
     )
 
-from src.main import supportsInterface
+from src.Diamond import supportsInterface
 
 
 @external
@@ -18,7 +18,7 @@ func test_constructor{
 
     %{
         root_address = 231409781234079812347142714327123471437474123978913427
-        contract_address = deploy_contract("./src/main.cairo", [root_address]).contract_address
+        contract_address = deploy_contract("./src/Diamond.cairo", [root_address]).contract_address
         felt_val = load(contract_address, "root", "felt")
         assert felt_val[0] == root_address
     %}

@@ -9,7 +9,7 @@ from starkware.cairo.common.math import (
         assert_not_zero,
     )
 
-from src.Power2 import power_of_2
+from src.power_of_two import power_of_2
 
 
 const MAX_BITMAP_LENGTH = 251

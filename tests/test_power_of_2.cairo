@@ -5,7 +5,7 @@ from protostar.asserts import (
         assert_eq,
     )
 
-from src.Power2 import power_of_2
+from src.power_of_two import power_of_2
 
 
 @external
