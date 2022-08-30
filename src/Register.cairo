@@ -15,16 +15,25 @@ from src.power_of_two import power_of_2
 const MAX_BITMAP_LENGTH = 251
 
 
+# @dev Emit when new element is added to storage
+# @param id in bitmap, stored element
 @event
 func Register(_bitId: felt, _element: felt):
 end
 
 
+# @dev Map bit to element
+# @param id in bitmap
+# @return element
 @storage_var
 func bitmap(_bitId: felt) -> (res: felt):
 end
 
 
+# @dev Register element in bitmap
+# @revert Duplicate elements
+# @revert Full registry
+# @param Element to add
 @external
 func register{
         syscall_ptr: felt*,
@@ -88,6 +97,9 @@ func _find_first_helper{
 end
 
 
+# @dev Resolve bitword
+# @param bitword
+# @return Array of stored elements
 @view
 func resolve{
         syscall_ptr: felt*,
@@ -138,6 +150,9 @@ func _resolve_bit_word{
 end
 
 
+# @dev Calculate bitword given an array of elements
+# @param Array of ELEMENTS
+# @return Bitword
 @view
 func calculateKey{
         syscall_ptr: felt*,
