@@ -4,6 +4,9 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import library_call
 
+from src.constants import(
+        FUNCTION_SELECTORS,
+    )
 from src.storage import facet_key, root
 from src.IRegistry import IRegistry
 
@@ -131,7 +134,7 @@ func facetFunctionSelectors{
 
     let (r_len, r) = library_call(
         class_hash=_facet,
-        function_selector=0x3cc1ae64595e4bc082d3fd1ef7b6792d5d08143d44bbaf4ac96c3bcab576099, # getFunctionSelectors
+        function_selector=FUNCTION_SELECTORS.getFunctionSelectors,
         calldata_size=no_param_len,
         calldata=no_param,
     )
