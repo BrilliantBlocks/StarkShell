@@ -33,22 +33,6 @@ func DiamondCut(
 end
 
 
-@constructor
-func constructor{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
-    }(
-       _root: felt,
-       _facet_key: felt,
-    ):
-       root.write(_root)
-       facet_key.write(_facet_key)
-
-       return ()
-end
-
-
 # Enum
 struct FacetCutAction:
     member Add: felt

@@ -71,11 +71,7 @@ func __default__{
         retdata: felt*
     ):
     
-    # assert 2 = 0
-
     let (facet: felt) = facetAddress(selector)
-
-    assert 3 = 0
 
     let (retdata_size: felt, retdata: felt*) = library_call(
         class_hash=facet,

@@ -1,10 +1,12 @@
 %lang starknet
+from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 from src.IERC165 import IERC165
 from src.constants import IERC165_ID
 from src.FacetRegistry.IRegistry import IRegistry
+from src.ERC2535.IDiamondCut import IDiamondCut
 
 from protostar.asserts import (
     assert_eq,
@@ -75,6 +77,13 @@ func test_register_facet{
     let (x_len, x) = IRegistry.resolve(diamond, 1)
     assert_eq(x_len, 1)
     assert_eq(x[0], diamondCut_class_hash)
+
+    let (local dummy: felt*) = alloc()
+    # Test that diamondCut is not working
+    %{
+        expect_revert()
+    %}
+    IDiamondCut.diamondCut(diamond, 0, 0, 0, 0, dummy)
 
     return ()
 end
