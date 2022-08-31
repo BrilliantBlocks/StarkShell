@@ -215,18 +215,18 @@ end
 # @param interface_id
 # @return success (0 or 1)
 @view
-func supportsInterface{
+func __supports_interface__{
 # TODO remove implicit arguments?
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr,
     }(
-        interface_id: felt
+        _interface_id: felt
     ) -> (
         success: felt
     ):
 
-    if interface_id == IDIAMONDCUT_ID:
+    if _interface_id == IDIAMONDCUT_ID:
         return (TRUE)
     end
 

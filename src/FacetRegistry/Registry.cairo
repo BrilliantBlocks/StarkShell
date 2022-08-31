@@ -37,12 +37,13 @@ end
 func register{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
         bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(
         _element: felt,    
     ) -> ():
     alloc_locals
+    # TODO only valid facets can be stored
 
     let (self) = get_contract_address()
     let (caller) = get_caller_address()

@@ -38,7 +38,6 @@ func facetAddresses{
     # is root diamond
     if r == 0:
         let (self) = get_contract_address()
-        # assert 1 = 0
         # let (f_len, f) = IRegistry.resolve(self, key)
         let (f_len, f) =  resolve(key)
         return (f_len, f)

@@ -22,9 +22,10 @@ from src.ERC2535.DiamondLoupe import (
         facetFunctionSelectors,
         facets,
     )
-from src.storage import facet_key, root
+from src.storage import facet_key, root, bitmap
 from src.token.ERC721.ERC721 import _mint
 from src.FacetRegistry.IRegistry import IRegistry
+from src.FacetRegistry.Registry import register, Register
 
 
 # @dev
@@ -33,15 +34,20 @@ from src.FacetRegistry.IRegistry import IRegistry
 func constructor{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         _root: felt,
         _facet_key: felt,
+        _root_erc721_facet: felt,
     ):
+        alloc_locals
         facet_key.write(_facet_key)
         root.write(_root)
-        
+
         if _root == 0:
+            bitmap.write(0, _root_erc721_facet)
+            Register.emit(0, _root_erc721_facet)
             let (caller) = get_caller_address()
            _mint(caller, Uint256(0,0))
             return ()
@@ -201,7 +207,7 @@ func _supportsInterfaceLibrary{
 
     let (r_len, r) = library_call(
         class_hash=_facet,
-        function_selector=FUNCTION_SELECTORS.ERC165.supportsInterface,
+        function_selector=FUNCTION_SELECTORS.ERC165.__supports_interface__,
         calldata_size=1,
         calldata=param,
     )

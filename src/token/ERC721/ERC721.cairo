@@ -12,13 +12,14 @@ from starkware.starknet.common.syscalls import (
     )
 
 from starkware.cairo.common.uint256 import Uint256, uint256_check
+from starkware.cairo.common.registers import get_label_location
 from lib.Assertions import assert_uint256_is_not_zero, felt_is_boolean
 from lib.Safemath import SafeUint256
 from lib.ShortString import uint256_to_ss
 
 from src.token.ERC721.IERC721_Receiver import IERC721_Receiver
 from src.IERC165 import IERC165
-from lib.Constants import IERC721_RECEIVER_ID, IACCOUNT_ID
+from lib.Constants import IERC721_RECEIVER_ID, IACCOUNT_ID, IERC721_ID
 from lib.Array import concat_arr
 
 #
@@ -517,4 +518,56 @@ func _populateBaseTokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range
     base_token_uri.write(index=tokenURI_len, value=[tokenURI])
     _populateBaseTokenURI(tokenURI_len=tokenURI_len - 1, tokenURI=tokenURI + 1)
     return ()
+end
+
+
+@external
+func __init_facet__{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*,
+        range_check_ptr,
+    }() -> ():
+
+    return ()
+end
+
+
+@view
+func __get_function_selectors__{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*,
+        range_check_ptr,
+    }() -> (
+        res_len: felt,
+        res: felt*,
+    ):
+    let (func_selectors) = get_label_location(selectors_start)
+    return (res_len = 1, res=cast(func_selectors, felt*))
+
+    selectors_start:
+    dw 0
+    # TODO
+end
+
+
+# @dev Support ERC-165
+# @param interface_id
+# @return success (0 or 1)
+@view
+func __supports_interface__{
+# TODO remove implicit arguments?
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr,
+    }(
+        _interface_id: felt
+    ) -> (
+        success: felt
+    ):
+
+    if _interface_id == IERC721_ID:
+        return (TRUE)
+    end
+
+    return (FALSE)
 end
