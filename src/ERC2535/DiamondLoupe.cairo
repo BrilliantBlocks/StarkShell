@@ -1,7 +1,7 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
 from starkware.starknet.common.syscalls import (
     get_contract_address,
     library_call,
@@ -10,6 +10,9 @@ from starkware.starknet.common.syscalls import (
 from src.constants import(
         FUNCTION_SELECTORS,
         IDIAMONDLOUPE_ID,
+    )
+from src.FacetRegistry.Registry import (
+        resolve,
     )
 from src.storage import facet_key, root
 from src.FacetRegistry.IRegistry import IRegistry
@@ -21,6 +24,7 @@ from src.FacetRegistry.IRegistry import IRegistry
 func facetAddresses{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }() -> (
         res_len: felt,
@@ -34,12 +38,14 @@ func facetAddresses{
     # is root diamond
     if r == 0:
         let (self) = get_contract_address()
-        let (f_len, f) = IRegistry.resolve(self, key)
+        # assert 1 = 0
+        # let (f_len, f) = IRegistry.resolve(self, key)
+        let (f_len, f) =  resolve(key)
+        return (f_len, f)
     else:
         let (f_len, f) = IRegistry.resolve(r, key)
+        return (f_len, f)
     end
-
-    return (f_len, f)
 end
 
 
@@ -49,6 +55,7 @@ end
 func facetAddress{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         _functionSelector: felt,
@@ -160,6 +167,7 @@ end
 func facets{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }() -> (
         res_len: felt,

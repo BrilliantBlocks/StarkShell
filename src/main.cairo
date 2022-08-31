@@ -1,7 +1,7 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
 from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import (
         get_caller_address,
@@ -59,6 +59,7 @@ end
 func __default__{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr
     }(
         selector: felt,
@@ -68,8 +69,12 @@ func __default__{
         retdata_size: felt,
         retdata: felt*
     ):
+    
+    # assert 2 = 0
 
     let (facet: felt) = facetAddress(selector)
+
+    assert 3 = 0
 
     let (retdata_size: felt, retdata: felt*) = library_call(
         class_hash=facet,
@@ -89,13 +94,14 @@ end
 func supportsInterface{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         interface_id: felt
     ) -> (
         res: felt
     ):
-
+    alloc_locals
     if interface_id == IERC165_ID:
         return (TRUE)
     end
@@ -111,6 +117,7 @@ end
 func _supportsInterface{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         interface_id: felt,
@@ -119,6 +126,7 @@ func _supportsInterface{
     ) -> (
         res: felt,
     ):
+    alloc_locals
     if facets_len == 0:
         return (FALSE)
     end
@@ -140,6 +148,7 @@ end
 func _find_token_facet{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         facets_len: felt,
@@ -211,6 +220,7 @@ end
 func getImplementation{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr
     }() -> (
         res: felt

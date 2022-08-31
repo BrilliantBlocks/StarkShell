@@ -8,9 +8,15 @@ from starkware.cairo.common.math import (
         assert_not_equal,
         assert_not_zero,
     )
+from starkware.starknet.common.syscalls import (
+        get_caller_address,
+        get_contract_address,
+    )
+from starkware.cairo.common.uint256 import Uint256
 
 from src.power_of_two import power_of_2
 from src.storage import bitmap
+from src.token.ERC721.IERC721 import IERC721
 
 
 const MAX_BITMAP_LENGTH = 251
@@ -32,6 +38,7 @@ func register{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         range_check_ptr,
+        bitwise_ptr: BitwiseBuiltin*,
     }(
         _element: felt,    
     ) -> ():
@@ -39,7 +46,7 @@ func register{
 
     let (self) = get_contract_address()
     let (caller) = get_caller_address()
-    let (owner) = IERC721.ownerOf(self, (0,0))
+    let (owner) = IERC721.ownerOf(self, Uint256(0,0))
 
     with_attr error_message("You must be the owner to call the function"):
         assert caller = owner
@@ -115,6 +122,7 @@ func resolve{
     ):
     alloc_locals
 
+    # assert 4 = 0
     let (bitmap_len) = _find_first(0)
 
     let (local res: felt*) = alloc()
