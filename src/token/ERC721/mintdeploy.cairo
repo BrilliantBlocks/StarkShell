@@ -13,7 +13,7 @@ from starkware.starknet.common.syscalls import (
 from starkware.cairo.common.math import assert_not_equal, split_felt
 from starkware.cairo.common.uint256 import Uint256
 
-from src.ERC721 import _mint
+from src.token.ERC721.ERC721 import _mint
 from src.constants import FUNCTION_SELECTORS
 
 
@@ -66,7 +66,7 @@ func mint{
     let (high, low) = split_felt(pool_address)
     let token_id = Uint256(low, high)
 
-    _mint(self, owner, token_id)
+    _mint(owner, token_id)
     MintDeploy.emit(token_id, owner,_facet_key)
     return (pool_address)
 end
@@ -91,7 +91,10 @@ func __get_function_selectors__{
         pedersen_ptr: HashBuiltin*,
         syscall_ptr : felt*,
         range_check_ptr,
-    }() -> (res_len: felt, res: felt):
+    }() -> (
+        res_len: felt,
+        res: felt*,
+    ):
     let (func_selectors) = get_label_location(selectors_start)
     return (res_len = 1, data=cast(func_address, felt*))
 

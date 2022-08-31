@@ -12,15 +12,14 @@ from starkware.starknet.common.syscalls import (
     )
 
 from starkware.cairo.common.uint256 import Uint256, uint256_check
-from contracts.lib.Assertions import assert_uint256_is_not_zero, felt_is_boolean, assert_only_diamond
-from contracts.lib.Safemath import SafeUint256
-from contracts.lib.ShortString import uint256_to_ss
+from lib.Assertions import assert_uint256_is_not_zero, felt_is_boolean
+from lib.Safemath import SafeUint256
+from lib.ShortString import uint256_to_ss
 
-from contracts.facets.token.ERC721.IERC721_Receiver import IERC721_Receiver
-from contracts.facets.diamond.IERC165 import IERC165
-from contracts.lib.Constants import IERC721_RECEIVER_ID, IACCOUNT_ID
-
-from contracts.lib.Array import concat_arr
+from src.token.ERC721.IERC721_Receiver import IERC721_Receiver
+from src.IERC165 import IERC165
+from lib.Constants import IERC721_RECEIVER_ID, IACCOUNT_ID
+from lib.Array import concat_arr
 
 #
 # Events
@@ -184,8 +183,6 @@ end
 func _mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr
     }(_to : felt, _tokenId : Uint256) -> ():
     
-    assert_only_diamond()
-
     with_attr error_message("Address cannot be zero."):
         assert_not_zero(_to)
     end
@@ -194,9 +191,10 @@ func _mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr
         uint256_check(_tokenId)
     end
 
-    with_attr error_message("Cannot mint token id 0"):
-        assert_uint256_is_not_zero(_tokenId)
-    end
+# TODO necessary? induces conflict with diamond init
+#     with_attr error_message("Cannot mint token id 0"):
+#         assert_uint256_is_not_zero(_tokenId)
+#     end
 
     let (exists) = _exists(_tokenId)
     with_attr error_message("Token already minted."):
@@ -215,8 +213,6 @@ end
 @external
 func _safeMint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
     }(_to: felt, _tokenId: Uint256, data_len: felt, data: felt*) -> ():
-
-    assert_only_diamond()
 
     with_attr error_message("Token ID is not valid."):
         uint256_check(_tokenId)
@@ -237,8 +233,6 @@ func _burn{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr
     }(_tokenId : Uint256) -> ():
     
     alloc_locals
-
-    assert_only_diamond()
 
     with_attr error_message("Token ID is not valid."):
         uint256_check(_tokenId)

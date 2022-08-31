@@ -2,24 +2,28 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import (
         get_caller_address,
         get_contract_address,
         library_call,
     )
-
 from src.constants import (
         IERC165_ID,
+        IERC20_ID,
+        IERC721_ID,
+        IERC1155_ID,
+        IERC5114_ID,
         FUNCTION_SELECTORS,
-        NULL,
     )
-from src.DiamondLoupe import (
+from src.ERC2535.DiamondLoupe import (
         facetAddress,
         facetAddresses,
         facetFunctionSelectors,
         facets,
     )
 from src.storage import facet_key, root
+from src.token.ERC721.ERC721 import _mint
 
 
 # @dev
@@ -33,8 +37,14 @@ func constructor{
         _root: felt,
         _facet_key: felt,
     ):
-        root.write(_root)
         facet_key.write(_facet_key)
+        root.write(_root)
+        
+        if _root == 0:
+            let (caller) = get_caller_address()
+           _mint(caller, Uint256(0,0))
+            return ()
+        end
 
         return ()
 end
@@ -83,7 +93,7 @@ func supportsInterface{
     }(
         interface_id: felt
     ) -> (
-        success: felt
+        res: felt
     ):
 
     if interface_id == IERC165_ID:
@@ -142,21 +152,29 @@ func _find_token_facet{
     end
 
     let (is_erc20_facet: felt) = _supportsInterfaceLibrary(IERC20_ID, facets[0])
-    let (is_erc721_facet: felt) = _supportsInterfaceLibrary(IERC721_ID, facets[0])
-    let (is_erc1155_facet: felt) = _supportsInterfaceLibrary(IERC1155_ID, facets[0])
-    let (is_erc5114_facet: felt) = _supportsInterfaceLibrary(IERC5114_ID, facets[0])
-
-    if is_erc20_facet == FALSE
-        and is_erc721_facet == FALSE
-        and is_erc1155_facet == FALSE
-        and is_erc5114_facet == FALSE:
-        return _find_token_facet(
-            facets_len - 1,
-            facets + 1,
-        )
+    if is_erc20_facet == TRUE:
+        return (facets[0])
     end
 
-    return (facets[0])
+    let (is_erc721_facet: felt) = _supportsInterfaceLibrary(IERC721_ID, facets[0])
+    if is_erc721_facet == TRUE:
+        return (facets[0])
+    end
+
+    let (is_erc1155_facet: felt) = _supportsInterfaceLibrary(IERC1155_ID, facets[0])
+    if is_erc1155_facet == TRUE:
+        return (facets[0])
+    end
+
+    let (is_erc5114_facet: felt) = _supportsInterfaceLibrary(IERC5114_ID, facets[0])
+    if is_erc5114_facet == TRUE:
+        return (facets[0])
+    end
+
+    return _find_token_facet(
+        facets_len - 1,
+        facets + 1,
+    )
 end
 
 
@@ -173,7 +191,7 @@ func _supportsInterfaceLibrary{
     alloc_locals
 
     let (local param: felt*) = alloc()
-    assert param[0] = interface_id
+    assert param[0] = _interface_id
 
     let (r_len, r) = library_call(
         class_hash=_facet,
@@ -182,7 +200,7 @@ func _supportsInterfaceLibrary{
         calldata=param,
     )
 
-    return r[0]
+    return (r[0])
 end
 
 

@@ -1,6 +1,11 @@
 const ALL_ONES = 2**251-1
 const NULL = 0
 const IERC165_ID = 0x01ffc9a7
+const IERC20_ID = 0x01ffc9a7
+const IERC721_ID = 0x01ffc9a7
+const IERC1155_ID = 0x01ffc9a7
+const IERC5114_ID = 0x01ffc9a7
+const IDIAMONDLOUPE_ID = 0x123 # TODO
 
 
 namespace FUNCTION_SELECTORS:

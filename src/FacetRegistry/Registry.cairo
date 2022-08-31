@@ -10,6 +10,7 @@ from starkware.cairo.common.math import (
     )
 
 from src.power_of_two import power_of_2
+from src.storage import bitmap
 
 
 const MAX_BITMAP_LENGTH = 251
@@ -19,14 +20,6 @@ const MAX_BITMAP_LENGTH = 251
 # @param id in bitmap, stored element
 @event
 func Register(_bitId: felt, _element: felt):
-end
-
-
-# @dev Map bit to element
-# @param id in bitmap
-# @return element
-@storage_var
-func bitmap(_bitId: felt) -> (res: felt):
 end
 
 
@@ -43,6 +36,14 @@ func register{
         _element: felt,    
     ) -> ():
     alloc_locals
+
+    let (self) = get_contract_address()
+    let (caller) = get_caller_address()
+    let (owner) = IERC721.ownerOf(self, (0,0))
+
+    with_attr error_message("You must be the owner to call the function"):
+        assert caller = owner
+    end
 
     let (e) = _find_first(_element)
     let (first_free_bit) = _find_first(0)

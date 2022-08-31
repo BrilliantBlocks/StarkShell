@@ -2,12 +2,19 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
+from starkware.cairo.common.math import split_felt
+from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import (
-    get_caller_address,
+    get_contract_address,
     library_call,
     )
 
+from src.constants import (
+        FUNCTION_SELECTORS,
+        IDIAMONDCUT_ID,
+    )
 from src.storage import facet_key, root
+from src.IERC721 import IERC721
 from src.IRegistry import IRegistry
 from src.DiamondLoupe import facetAddresses, facetAddress
 
@@ -39,6 +46,14 @@ func constructor{
 end
 
 
+# Enum
+struct FacetCutAction:
+    member Add: felt
+    member Replace: felt
+    member Remove: felt
+end
+
+
 # @dev
 # @return
 @external
@@ -53,9 +68,23 @@ func diamondCut{
         _calldata_len: felt,
         _calldata: felt*,
     ) -> ():
-    # TODO access control
+    let (r) = root.read()
+    let (self) = get_contract_address()
+    let (t: Uint256) = split_felt(self)
+    let (caller) = get_caller_address()
 
-    if _facetCutAction == 0:
+    # is root diamond
+    if r == 0:
+        let (owner) = IERC721.ownerOf(self, (0,0))
+    else:
+        let (owner) = IERC721.ownerOf(r, t)
+    end
+
+    with_attr error_message("You must be the owner to call the function"):
+        assert caller = owner
+    end
+
+    if _facetCutAction == FacetCutAction.Add:
         _add_facet(_address, _init, _calldata_len, _calldata)
     else:
         _remove_facet(_address)
@@ -83,7 +112,15 @@ func _add_facet{
     let (facets_len, facets) = facetAddresses()
 
     assert facets[facets_len] = _address
-    let (new_key) = IRegistry.calculateKey(r, facets_len + 1, facets)
+
+    # is root diamond
+    if r == 0:
+        let (self) = get_contract_address()
+        let (new_key) = IRegistry.calculateKey(self, facets_len + 1, facets)
+    else:
+        let (new_key) = IRegistry.calculateKey(r, facets_len + 1, facets)
+    end
+
     facet_key.write(new_key)
 
     if _init == 0:
@@ -152,4 +189,55 @@ func _remove_facet_helper{
         _target,
         _id + 1,
     )
+end
+
+
+@external
+func __init_facet__{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*,
+        range_check_ptr,
+    }() -> ():
+
+    return ()
+end
+
+
+@view
+func __get_function_selectors__{
+        pedersen_ptr: HashBuiltin*,
+        syscall_ptr : felt*,
+        range_check_ptr,
+    }() -> (
+        res_len: felt,
+        res: felt*,
+    ):
+    let (func_selectors) = get_label_location(selectors_start)
+    return (res_len = 1, data=cast(func_address, felt*))
+
+    selectors_start:
+    dw FUNCTION_SELECTORS.diamondCut
+end
+
+
+# @dev Support ERC-165
+# @param interface_id
+# @return success (0 or 1)
+@view
+func supportsInterface{
+# TODO remove implicit arguments?
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr,
+    }(
+        interface_id: felt
+    ) -> (
+        success: felt
+    ):
+
+    if interface_id == IDIAMONDCUT_ID:
+        return (TRUE)
+    end
+
+    return (FALSE)
 end

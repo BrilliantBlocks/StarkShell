@@ -2,13 +2,17 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.syscalls import library_call
+from starkware.starknet.common.syscalls import (
+    get_contract_address,
+    library_call,
+    )
 
 from src.constants import(
         FUNCTION_SELECTORS,
+        IDIAMONDLOUPE_ID,
     )
 from src.storage import facet_key, root
-from src.IRegistry import IRegistry
+from src.FacetRegistry.IRegistry import IRegistry
 
 
 # @dev
@@ -26,7 +30,14 @@ func facetAddresses{
 
     let (key) = facet_key.read()
     let (r) = root.read()
-    let (f_len, f) = IRegistry.resolve(r, key)
+    
+    # is root diamond
+    if r == 0:
+        let (self) = get_contract_address()
+        let (f_len, f) = IRegistry.resolve(self, key)
+    else:
+        let (f_len, f) = IRegistry.resolve(r, key)
+    end
 
     return (f_len, f)
 end
