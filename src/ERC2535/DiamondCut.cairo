@@ -1,22 +1,25 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.bool import FALSE, TRUE
+from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.math import split_felt
 from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import (
+    get_caller_address,
     get_contract_address,
     library_call,
     )
+from starkware.cairo.common.registers import get_label_location
 
 from src.constants import (
         FUNCTION_SELECTORS,
         IDIAMONDCUT_ID,
     )
 from src.storage import facet_key, root
-from src.IERC721 import IERC721
-from src.IRegistry import IRegistry
-from src.DiamondLoupe import facetAddresses, facetAddress
+from src.token.ERC721.IERC721 import IERC721
+from src.FacetRegistry.IRegistry import IRegistry
+from src.ERC2535.DiamondLoupe import facetAddresses, facetAddress
 
 
 @event
@@ -60,6 +63,7 @@ end
 func diamondCut{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         _address: felt,
@@ -70,14 +74,14 @@ func diamondCut{
     ) -> ():
     let (r) = root.read()
     let (self) = get_contract_address()
-    let (t: Uint256) = split_felt(self)
+    let (low, high) = split_felt(self)
     let (caller) = get_caller_address()
 
     # is root diamond
     if r == 0:
-        let (owner) = IERC721.ownerOf(self, (0,0))
+        let (owner) = IERC721.ownerOf(self, Uint256(low,high))
     else:
-        let (owner) = IERC721.ownerOf(r, t)
+        let (owner) = IERC721.ownerOf(r, Uint256(low, high))
     end
 
     with_attr error_message("You must be the owner to call the function"):
@@ -86,17 +90,19 @@ func diamondCut{
 
     if _facetCutAction == FacetCutAction.Add:
         _add_facet(_address, _init, _calldata_len, _calldata)
+        return ()
     else:
         _remove_facet(_address)
+        return ()
     end
 
-    return ()
 end
 
 
 func _add_facet{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         _address: felt,
@@ -141,6 +147,7 @@ end
 func _remove_facet{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
         _address: felt,
@@ -213,7 +220,7 @@ func __get_function_selectors__{
         res: felt*,
     ):
     let (func_selectors) = get_label_location(selectors_start)
-    return (res_len = 1, data=cast(func_address, felt*))
+    return (res_len = 1, res=cast(func_selectors, felt*))
 
     selectors_start:
     dw FUNCTION_SELECTORS.diamondCut

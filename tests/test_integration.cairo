@@ -4,6 +4,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 from src.IERC165 import IERC165
 from src.constants import IERC165_ID
+from src.FacetRegistry.IRegistry import IRegistry
 
 from protostar.asserts import (
     assert_eq,
@@ -50,6 +51,30 @@ func test_diamond_supports_ERC165{
 
     let (fff_is_false) = IERC165.supportsInterface(diamond, 0xffffffff)
     assert_eq(fff_is_false, FALSE)
+
+    return ()
+end
+
+
+@external
+func test_register_facet{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+    }():
+    alloc_locals
+
+    local diamond
+    local diamondCut_class_hash
+    %{
+        ids.diamond = context.diamond_address
+        ids.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
+    %}
+
+    IRegistry.register(diamond, diamondCut_class_hash)
+    let (x_len, x) = IRegistry.resolve(diamond, 1)
+    assert_eq(x_len, 1)
+    assert_eq(x[0], diamondCut_class_hash)
 
     return ()
 end

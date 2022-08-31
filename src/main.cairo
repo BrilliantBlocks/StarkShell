@@ -24,6 +24,7 @@ from src.ERC2535.DiamondLoupe import (
     )
 from src.storage import facet_key, root
 from src.token.ERC721.ERC721 import _mint
+from src.FacetRegistry.IRegistry import IRegistry
 
 
 # @dev
