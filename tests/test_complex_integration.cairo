@@ -3,7 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from src.constants import IERC165_ID
+from src.constants import IERC165_ID, IERC721_ID
 from src.FacetRegistry.IRegistry import IRegistry
 from src.IERC165 import IERC165
 from src.ERC2535.IDiamondCut import IDiamondCut
@@ -71,30 +71,34 @@ func test_getImplementation{
 end
 
 
-# @external
-# func test_diamond_supports_ERC165{
-#         syscall_ptr : felt*,
-#         pedersen_ptr : HashBuiltin*,
-#         range_check_ptr,
-#     }():
-#     alloc_locals
-# 
-#     local diamond
-#     %{
-#         ids.diamond = context.diamond_address
-#     %}
-# 
-#     let (supportsERC165) = IERC165.supportsInterface(diamond, IERC165_ID)
-# 
-#     assert_eq(supportsERC165, TRUE)
-# 
-#     let (fff_is_false) = IERC165.supportsInterface(diamond, 0xffffffff)
-#     assert_eq(fff_is_false, FALSE)
-# 
-#     return ()
-# end
-# 
-# 
+@external
+func test_diamond_supports_ERC165{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+    }():
+    alloc_locals
+
+    local diamond
+    %{
+        ids.diamond = context.diamond_address
+    %}
+
+    let (supportsERC165) = IERC165.supportsInterface(diamond, IERC165_ID)
+
+    assert_eq(supportsERC165, TRUE)
+
+    let (fff_is_false) = IERC165.supportsInterface(diamond, 0xffffffff)
+    assert_eq(fff_is_false, FALSE)
+
+    let (supportsERC721) = IERC165.supportsInterface(diamond, IERC721_ID)
+
+    assert_eq(supportsERC721, TRUE)
+
+    return ()
+end
+
+
 # @external
 # func test_register_facet{
 #         syscall_ptr : felt*,
