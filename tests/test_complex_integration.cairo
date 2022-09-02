@@ -54,12 +54,6 @@ func test_getImplementation{
         ids.erc721_class_hash = context.erc721_class_hash
     %}
 
-#     let (implementation) = ICompatibility.getImplementation(diamond)
-# 
-#     assert_eq(implementation, 0)
-# 
-#     IRegistry.register(diamond, erc721_class_hash)
-
     let (x_len, x) = IDiamondLoupe.facetAddresses(diamond)
     assert_eq(x_len, 1)
     assert_eq(x[0], erc721_class_hash)
@@ -99,32 +93,33 @@ func test_diamond_supports_ERC165{
 end
 
 
-# @external
-# func test_register_facet{
-#         syscall_ptr : felt*,
-#         pedersen_ptr : HashBuiltin*,
-#         range_check_ptr,
-#     }():
-#     alloc_locals
-# 
-#     local diamond
-#     local diamondCut_class_hash
-#     %{
-#         ids.diamond = context.diamond_address
-#         ids.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
-#     %}
-# 
-#     IRegistry.register(diamond, diamondCut_class_hash)
-#     let (x_len, x) = IRegistry.resolve(diamond, 1)
-#     assert_eq(x_len, 1)
-#     assert_eq(x[0], diamondCut_class_hash)
-# 
-#     let (local dummy: felt*) = alloc()
-#     # Test that diamondCut is not working
-#     %{
-#         expect_revert()
-#     %}
-#     IDiamondCut.diamondCut(diamond, 0, 0, 0, 0, dummy)
-# 
-#     return ()
-# end
+@external
+func test_register_facet{
+        syscall_ptr : felt*,
+        pedersen_ptr : HashBuiltin*,
+        range_check_ptr,
+    }():
+    alloc_locals
+
+    local diamond
+    local diamondCut_class_hash
+    %{
+        ids.diamond = context.diamond_address
+        ids.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
+    %}
+
+    # TODO access rights?
+    IRegistry.register(diamond, diamondCut_class_hash)
+    let (x_len, x) = IRegistry.resolve(diamond, 3)
+    assert_eq(x_len, 2)
+    assert_eq(x[1], diamondCut_class_hash)
+
+    let (local dummy: felt*) = alloc()
+    # Test that diamondCut is not working, because it is not included
+    %{
+        expect_revert()
+    %}
+    IDiamondCut.diamondCut(diamond, 0, 0, 0, 0, dummy)
+
+    return ()
+end
