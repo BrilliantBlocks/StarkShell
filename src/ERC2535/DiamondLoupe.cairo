@@ -151,7 +151,7 @@ func facetFunctionSelectors{
 
     let (r_len, r) = library_call(
         class_hash=_facet,
-        function_selector=FUNCTION_SELECTORS.getFunctionSelectors,
+        function_selector=FUNCTION_SELECTORS.__get_function_selectors__,
         calldata_size=no_param_len,
         calldata=no_param,
     )

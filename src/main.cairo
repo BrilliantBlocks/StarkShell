@@ -24,9 +24,9 @@ from src.ERC2535.DiamondLoupe import (
     )
 from src.storage import facet_key, root, bitmap
 from src.token.ERC721.ERC721 import _mint
-from src.FacetRegistry.IRegistry import IRegistry
-from src.FacetRegistry.Registry import register, Register
+from src.FacetRegistry.Registry import Register, register
 
+from starkware.cairo.common.math import assert_not_zero  # for testing purposes
 
 # @dev
 # @param _root: Address of deploying contract
@@ -38,6 +38,7 @@ func constructor{
         range_check_ptr,
     }(
         _root: felt,
+        _owner: felt,
         _facet_key: felt,
         _root_erc721_facet: felt,
     ):
@@ -48,8 +49,7 @@ func constructor{
         if _root == 0:
             bitmap.write(0, _root_erc721_facet)
             Register.emit(0, _root_erc721_facet)
-            let (caller) = get_caller_address()
-           _mint(caller, Uint256(0,0))
+            _mint(_owner, Uint256(0,0))
             return ()
         end
 
@@ -76,6 +76,7 @@ func __default__{
         retdata_size: felt,
         retdata: felt*
     ):
+    alloc_locals
     
     let (facet: felt) = facetAddress(selector)
 

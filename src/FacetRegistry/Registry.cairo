@@ -181,7 +181,7 @@ func calculateKey{
     end
 
     let (bitmap_len) = _find_first(0)
-    with_attr error_message("TOO MANY ELEMENTS"):
+    with_attr error_message("TOO MANY ELEMENTS {_el_len} {bitmap_len}"):
         assert_le(_el_len, bitmap_len)
     end
 

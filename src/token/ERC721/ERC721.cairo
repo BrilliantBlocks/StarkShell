@@ -17,6 +17,7 @@ from lib.Assertions import assert_uint256_is_not_zero, felt_is_boolean
 from lib.Safemath import SafeUint256
 from lib.ShortString import uint256_to_ss
 
+from src.constants import FUNCTION_SELECTORS
 from src.token.ERC721.IERC721_Receiver import IERC721_Receiver
 from src.IERC165 import IERC165
 from lib.Constants import IERC721_RECEIVER_ID, IACCOUNT_ID, IERC721_ID
@@ -545,7 +546,7 @@ func __get_function_selectors__{
     return (res_len = 1, res=cast(func_selectors, felt*))
 
     selectors_start:
-    dw 0
+    dw FUNCTION_SELECTORS.ERC721.ownerOf
     # TODO
 end
 

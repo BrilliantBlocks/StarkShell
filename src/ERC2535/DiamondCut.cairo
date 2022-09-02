@@ -63,12 +63,12 @@ func diamondCut{
 
     # is root diamond
     if r == 0:
-        let (owner) = IERC721.ownerOf(self, Uint256(low,high))
+        let (owner) = IERC721.ownerOf(self, Uint256(0,0))
     else:
         let (owner) = IERC721.ownerOf(r, Uint256(low, high))
     end
 
-    with_attr error_message("You must be the owner to call the function"):
+    with_attr error_message("YOU MUST BE THE OWNER TO CALL THE FUNCTION"):
         assert caller = owner
     end
 
@@ -101,6 +101,7 @@ func _add_facet{
 
     let (facets_len, facets) = facetAddresses()
 
+    # Write facet to next free slot
     assert facets[facets_len] = _address
 
     # is root diamond
@@ -147,8 +148,19 @@ func _remove_facet{
     let (x) = _remove_facet_helper(facets_len, facets, _address, 0)
     let (local ptr: felt*) = alloc()
     memcpy(dst=ptr, src=facets, len=x)
-    memcpy(dst=ptr + x, src=facets + x, len=facets_len -x)
-    let (new_key) = IRegistry.calculateKey(r, facets_len + 1, ptr)
+
+    # if non-tail element is removed
+    if facets_len != x + 1:
+        memcpy(dst=ptr + x, src=facets + x + 1, len=facets_len-x-1) # TODO
+    end
+
+    if r != 0:
+        let (new_key) = IRegistry.calculateKey(r, facets_len - 1, ptr)
+    else:
+        let (my_root) = get_contract_address()
+        let (new_key) = IRegistry.calculateKey(my_root, facets_len - 1, ptr)
+    end
+
     facet_key.write(new_key)
 
     return ()
