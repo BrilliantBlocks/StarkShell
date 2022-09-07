@@ -15,6 +15,7 @@ from src.constants import (
         IERC1155_ID,
         IERC5114_ID,
         FUNCTION_SELECTORS,
+        NULL,
     )
 from src.ERC2535.DiamondLoupe import (
         facetAddress,
@@ -26,7 +27,6 @@ from src.storage import facet_key, root, bitmap
 from src.token.ERC721.ERC721 import _mint
 from src.FacetRegistry.Registry import Register, register
 
-from starkware.cairo.common.math import assert_not_zero  # for testing purposes
 
 # @dev
 # @param _root: Address of deploying contract
@@ -161,26 +161,11 @@ func _find_token_facet{
         res: felt,
     ):
     if facets_len == 0:
-        return (FALSE)
+        return (NULL)
     end
 
-    let (is_erc20_facet: felt) = _supportsInterfaceLibrary(IERC20_ID, facets[0])
-    if is_erc20_facet == TRUE:
-        return (facets[0])
-    end
-
-    let (is_erc721_facet: felt) = _supportsInterfaceLibrary(IERC721_ID, facets[0])
-    if is_erc721_facet == TRUE:
-        return (facets[0])
-    end
-
-    let (is_erc1155_facet: felt) = _supportsInterfaceLibrary(IERC1155_ID, facets[0])
-    if is_erc1155_facet == TRUE:
-        return (facets[0])
-    end
-
-    let (is_erc5114_facet: felt) = _supportsInterfaceLibrary(IERC5114_ID, facets[0])
-    if is_erc5114_facet == TRUE:
+    let (is_token_facet) = _any_token_facet(facets[0])
+    if is_token_facet == TRUE:
         return (facets[0])
     end
 
@@ -188,6 +173,39 @@ func _find_token_facet{
         facets_len - 1,
         facets + 1,
     )
+end
+
+
+func _any_token_facet{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        range_check_ptr
+    }(
+        _facet: felt,
+    ) -> (
+        res: felt,
+    ):
+    let (is_erc20_facet: felt) = _supportsInterfaceLibrary(IERC20_ID, _facet)
+    if is_erc20_facet == TRUE:
+        return (TRUE)
+    end
+
+    let (is_erc721_facet: felt) = _supportsInterfaceLibrary(IERC721_ID, _facet)
+    if is_erc721_facet == TRUE:
+        return (TRUE)
+    end
+
+    let (is_erc1155_facet: felt) = _supportsInterfaceLibrary(IERC1155_ID, _facet)
+    if is_erc1155_facet == TRUE:
+        return (TRUE)
+    end
+
+    let (is_erc5114_facet: felt) = _supportsInterfaceLibrary(IERC5114_ID, _facet)
+    if is_erc5114_facet == TRUE:
+        return (TRUE)
+    end
+
+    return (FALSE)
 end
 
 
