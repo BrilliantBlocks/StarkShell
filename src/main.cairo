@@ -14,6 +14,7 @@ from src.constants import (
         IERC721_ID,
         IERC1155_ID,
         IERC5114_ID,
+        IDIAMONDLOUPE_ID,
         FUNCTION_SELECTORS,
         NULL,
     )
@@ -120,6 +121,10 @@ func supportsInterface{
     ):
     alloc_locals
     if interface_id == IERC165_ID:
+        return (TRUE)
+    end
+
+    if interface_id == IDIAMONDLOUPE_ID:
         return (TRUE)
     end
 
