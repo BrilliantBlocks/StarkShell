@@ -86,13 +86,11 @@ func __default__{
     }(
         selector: felt,
         calldata_size: felt,
-        calldata: felt*
+        calldata: felt*,
     ) -> (
         retdata_size: felt,
-        retdata: felt*
+        retdata: felt*,
     ):
-    alloc_locals
-    
     let (facet: felt) = facetAddress(selector)
 
     let (retdata_size: felt, retdata: felt*) = library_call(
@@ -102,7 +100,7 @@ func __default__{
         calldata=calldata
     )
 
-    return (retdata_size=retdata_size, retdata=retdata)
+    return (retdata_size, retdata)
 end
 
 
