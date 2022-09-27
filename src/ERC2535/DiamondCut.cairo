@@ -9,238 +9,170 @@ from starkware.starknet.common.syscalls import (
     get_caller_address,
     get_contract_address,
     library_call,
-    )
+)
 from starkware.cairo.common.registers import get_label_location
 
-from src.constants import (
-        FUNCTION_SELECTORS,
-        IDIAMONDCUT_ID,
-    )
+from src.constants import FUNCTION_SELECTORS, IDIAMONDCUT_ID
 from src.storage import facet_key, root
 from src.token.ERC721.IERC721 import IERC721
 from src.FacetRegistry.IRegistry import IRegistry
 from src.ERC2535.DiamondLoupe import facetAddresses, facetAddress
 
-
 @event
 func DiamondCut(
-    _address: felt,
-    _facetCutAction: felt,
-    _init: felt,
-    _calldata_len: felt,
-    _calldata: felt*
-    ):
-end
+    _address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*
+) {
+}
 
+// Enum
+struct FacetCutAction {
+    Add: felt,
+    Replace: felt,
+    Remove: felt,
+}
 
-# Enum
-struct FacetCutAction:
-    member Add: felt
-    member Replace: felt
-    member Remove: felt
-end
-
-
-# @dev
-# @return
+// @dev
+// @return
 @external
 func diamondCut{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        bitwise_ptr: BitwiseBuiltin*,
-        range_check_ptr,
-    }(
-        _address: felt,
-        _facetCutAction: felt,
-        _init: felt,
-        _calldata_len: felt,
-        _calldata: felt*,
-    ) -> ():
-    let (r) = root.read()
-    let (self) = get_contract_address()
-    let (low, high) = split_felt(self)
-    let (caller) = get_caller_address()
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
+    let (r) = root.read();
+    let (self) = get_contract_address();
+    let (low, high) = split_felt(self);
+    let (caller) = get_caller_address();
 
-    # is root diamond
-    if r == 0:
-        let (owner) = IERC721.ownerOf(self, Uint256(0,0))
-    else:
-        let (owner) = IERC721.ownerOf(r, Uint256(low, high))
-    end
+    // is root diamond
+    if (r == 0) {
+        let (owner) = IERC721.ownerOf(self, Uint256(0, 0));
+    } else {
+        let (owner) = IERC721.ownerOf(r, Uint256(low, high));
+    }
 
-    with_attr error_message("YOU MUST BE THE OWNER TO CALL THE FUNCTION"):
-        assert caller = owner
-    end
+    with_attr error_message("YOU MUST BE THE OWNER TO CALL THE FUNCTION") {
+        assert caller = owner;
+    }
 
-    if _facetCutAction == FacetCutAction.Add:
-        _add_facet(_address, _init, _calldata_len, _calldata)
-        return ()
-    else:
-        _remove_facet(_address)
-        return ()
-    end
-
-end
-
+    if (_facetCutAction == FacetCutAction.Add) {
+        _add_facet(_address, _init, _calldata_len, _calldata);
+        return ();
+    } else {
+        _remove_facet(_address);
+        return ();
+    }
+}
 
 func _add_facet{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        bitwise_ptr: BitwiseBuiltin*,
-        range_check_ptr,
-    }(
-        _address: felt,
-        _init: felt,
-        _calldata_len: felt,
-        _calldata: felt*,
-    ) -> ():
-    alloc_locals
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_address: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
+    alloc_locals;
 
-    let (key) = facet_key.read()
-    let (r) = root.read()
+    let (key) = facet_key.read();
+    let (r) = root.read();
 
-    let (facets_len, facets) = facetAddresses()
+    let (facets_len, facets) = facetAddresses();
 
-    # Write facet to next free slot
-    assert facets[facets_len] = _address
+    // Write facet to next free slot
+    assert facets[facets_len] = _address;
 
-    # is root diamond
-    if r == 0:
-        let (self) = get_contract_address()
-        let (new_key) = IRegistry.calculateKey(self, facets_len + 1, facets)
-    else:
-        let (new_key) = IRegistry.calculateKey(r, facets_len + 1, facets)
-    end
+    // is root diamond
+    if (r == 0) {
+        let (self) = get_contract_address();
+        let (new_key) = IRegistry.calculateKey(self, facets_len + 1, facets);
+    } else {
+        let (new_key) = IRegistry.calculateKey(r, facets_len + 1, facets);
+    }
 
-    facet_key.write(new_key)
+    facet_key.write(new_key);
 
-    if _init == 0:
-        return ()
-    end
+    if (_init == 0) {
+        return ();
+    }
 
+    // initFacet
     library_call(
         class_hash=_address,
-        function_selector=0x239ae22f052839d1eee46be543e9729fe75a8342c18f8d74b80ea7779426c2e, # initFacet
+        function_selector=0x239ae22f052839d1eee46be543e9729fe75a8342c18f8d74b80ea7779426c2e,
         calldata_size=_calldata_len,
         calldata=_calldata,
-    )
+    );
 
-    return ()
-end
-
+    return ();
+}
 
 func _remove_facet{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        bitwise_ptr: BitwiseBuiltin*,
-        range_check_ptr,
-    }(
-        _address: felt,
-    ) -> ():
-    alloc_locals
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_address: felt) -> () {
+    alloc_locals;
 
-    let (key) = facet_key.read()
-    let (r) = root.read()
+    let (key) = facet_key.read();
+    let (r) = root.read();
 
-    let (facets_len, facets) = facetAddresses()
+    let (facets_len, facets) = facetAddresses();
 
-    # find it
-    let (x) = _remove_facet_helper(facets_len, facets, _address, 0)
-    let (local ptr: felt*) = alloc()
-    memcpy(dst=ptr, src=facets, len=x)
+    // find it
+    let (x) = _remove_facet_helper(facets_len, facets, _address, 0);
+    let (local ptr: felt*) = alloc();
+    memcpy(dst=ptr, src=facets, len=x);
 
-    # if non-tail element is removed
-    if facets_len != x + 1:
-        memcpy(dst=ptr + x, src=facets + x + 1, len=facets_len-x-1) # TODO
-    end
+    // if non-tail element is removed
+    if (facets_len != x + 1) {
+        memcpy(dst=ptr + x, src=facets + x + 1, len=facets_len - x - 1);  // TODO
+    }
 
-    if r != 0:
-        let (new_key) = IRegistry.calculateKey(r, facets_len - 1, ptr)
-    else:
-        let (my_root) = get_contract_address()
-        let (new_key) = IRegistry.calculateKey(my_root, facets_len - 1, ptr)
-    end
+    if (r != 0) {
+        let (new_key) = IRegistry.calculateKey(r, facets_len - 1, ptr);
+    } else {
+        let (my_root) = get_contract_address();
+        let (new_key) = IRegistry.calculateKey(my_root, facets_len - 1, ptr);
+    }
 
-    facet_key.write(new_key)
+    facet_key.write(new_key);
 
-    return ()
-end
+    return ();
+}
 
+func _remove_facet_helper{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _f_len: felt, _f: felt*, _target: felt, _id: felt
+) -> (res: felt) {
+    if (_f_len == 0) {
+        with_attr error_message("FACET DOES NOT EXIST") {
+            assert 1 = 0;
+        }
+    }
+    if (_target == _f[0]) {
+        return (_id,);
+    }
 
-func _remove_facet_helper{
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
-    }(
-        _f_len: felt,
-        _f: felt*,
-        _target: felt,
-        _id: felt,
-    ) -> (res: felt):
-    if _f_len == 0:
-        with_attr error_message("FACET DOES NOT EXIST"):
-            assert 1 = 0
-        end
-    end
-    if _target == _f[0]:
-        return (_id)
-    end
-
-    return _remove_facet_helper(
-        _f_len - 1,
-        _f + 1,
-        _target,
-        _id + 1,
-    )
-end
-
+    return _remove_facet_helper(_f_len - 1, _f + 1, _target, _id + 1);
+}
 
 @external
-func __init_facet__{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr : felt*,
-        range_check_ptr,
-    }() -> ():
-
-    return ()
-end
-
+func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
+    return ();
+}
 
 @view
-func __get_function_selectors__{
-        pedersen_ptr: HashBuiltin*,
-        syscall_ptr : felt*,
-        range_check_ptr,
-    }() -> (
-        res_len: felt,
-        res: felt*,
-    ):
-    let (func_selectors) = get_label_location(selectors_start)
-    return (res_len = 1, res=cast(func_selectors, felt*))
+func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    ) -> (res_len: felt, res: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+    return (res_len=1, res=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.diamondCut
-end
+    dw FUNCTION_SELECTORS.diamondCut;
+}
 
-
-# @dev Support ERC-165
-# @param interface_id
-# @return success (0 or 1)
+// @dev Support ERC-165
+// @param interface_id
+// @return success (0 or 1)
+// TODO remove implicit arguments?
 @view
-func __supports_interface__{
-# TODO remove implicit arguments?
-        syscall_ptr: felt*,
-        pedersen_ptr: HashBuiltin*,
-        range_check_ptr,
-    }(
-        _interface_id: felt
-    ) -> (
-        success: felt
-    ):
+func __supports_interface__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _interface_id: felt
+) -> (success: felt) {
+    if (_interface_id == IDIAMONDCUT_ID) {
+        return (TRUE,);
+    }
 
-    if _interface_id == IDIAMONDCUT_ID:
-        return (TRUE)
-    end
-
-    return (FALSE)
-end
+    return (FALSE,);
+}

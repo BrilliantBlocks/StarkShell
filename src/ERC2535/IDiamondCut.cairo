@@ -1,14 +1,9 @@
 %lang starknet
 
-
 @contract_interface
-namespace IDiamondCut:
+namespace IDiamondCut {
     func diamondCut(
-            _address: felt,
-            _facetCutAction: felt,
-            _init: felt,
-            _calldata_len: felt,
-            _calldata: felt*,
-        ) -> ():
-    end
-end
+        _address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*
+    ) -> () {
+    }
+}

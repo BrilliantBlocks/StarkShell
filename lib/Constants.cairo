@@ -1,36 +1,36 @@
 %lang starknet
 
-#
-# Numbers
-#
+//
+// Numbers
+//
 
-const UINT8_MAX = 256
+const UINT8_MAX = 256;
 
-#
-# Interface Ids
-#
+//
+// Interface Ids
+//
 
-# ERC165
-const IERC165_ID = 0x01ffc9a7
-const INVALID_ID = 0xffffffff
+// ERC165
+const IERC165_ID = 0x01ffc9a7;
+const INVALID_ID = 0xffffffff;
 
-# Account
-const IACCOUNT_ID = 0xf10dbd44
+// Account
+const IACCOUNT_ID = 0xf10dbd44;
 
-# ERC721
-const IERC721_ID = 0x80ac58cd
-const IERC721_RECEIVER_ID = 0x150b7a02
-const IERC721_METADATA_ID = 0x5b5e139f
-const IERC721_ENUMERABLE_ID = 0x780e9d63
+// ERC721
+const IERC721_ID = 0x80ac58cd;
+const IERC721_RECEIVER_ID = 0x150b7a02;
+const IERC721_METADATA_ID = 0x5b5e139f;
+const IERC721_ENUMERABLE_ID = 0x780e9d63;
 
-#
-# Hashing Transactions
-#
+//
+// Hashing Transactions
+//
 
-const PREFIX_TRANSACTION = 'StarkNet Transaction'
+const PREFIX_TRANSACTION = 'StarkNet Transaction';
 
-#
-# Hashing Function Selectors
-#
+//
+// Hashing Function Selectors
+//
 
-const ASSERT_ONLY_SELF_SELECTOR = 1297012772726270808661062901915944227873098280705894360260733787753851509690
+const ASSERT_ONLY_SELF_SELECTOR = 1297012772726270808661062901915944227873098280705894360260733787753851509690;
