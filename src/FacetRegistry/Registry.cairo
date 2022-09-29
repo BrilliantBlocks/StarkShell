@@ -7,7 +7,7 @@ from starkware.cairo.common.math import assert_le, assert_not_equal, assert_not_
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 from starkware.cairo.common.uint256 import Uint256
 
-from src.power_of_two import power_of_2
+from lib.cairo_exponential_arrays.src.power_of_two import base_two_exp
 from src.storage import bitmap
 from src.token.ERC721.IERC721 import IERC721
 
@@ -118,7 +118,7 @@ func _resolve_bit_word{
         return (_res_len,);
     }
 
-    let (x) = power_of_2(_loop_var);
+    let x = base_two_exp(_loop_var);
     let (y) = bitwise_and(_bit_word, x);
 
     if (x == y) {
@@ -184,7 +184,7 @@ func _find_el{
     let (x) = bitmap.read(_id);
 
     if (x == _el) {
-        let (z) = power_of_2(_id);
+        let z = base_two_exp(_id);
         return (z,);
     }
 
