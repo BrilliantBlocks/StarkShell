@@ -15,6 +15,7 @@ from protostar.asserts import assert_eq, assert_not_eq
 
 
 const BrilliantBlocks = 123;
+const SOME_CLASS_HASH = 519237510293750912739472130470129740972134;
 
 namespace FacetConfigKey {
     const OOO = 0;
@@ -40,7 +41,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
                 [
                     0,  # _root A root diamond has no parent
                     ids.BrilliantBlocks,  # _owner BrilliantBlocks Account
-                    3,  # _facet_key  3 = bin(11)
+                    ids.FacetConfigKey.OII,  # Enable the first two registered facets
                     context.erc721_class_hash,
                 ],
             ).contract_address
@@ -63,9 +64,9 @@ func test_root_diamond_getImplementation{
         ids.erc721_class_hash = context.erc721_class_hash
     %}
 
-    let (x_len, x) = IDiamondLoupe.facetAddresses(diamond);
-    assert_eq(x_len, 1);
-    assert_eq(x[0], erc721_class_hash);
+    let (facets_len, facets) = IDiamondLoupe.facetAddresses(diamond);
+    assert_eq(facets_len, 1);
+    assert_eq(facets[0], erc721_class_hash);
 
     let (new_implementation) = ICompatibility.getImplementation(diamond);
     assert_eq(new_implementation, erc721_class_hash);
@@ -75,7 +76,7 @@ func test_root_diamond_getImplementation{
 
 
 @external
-func test_diamond_supports_ERC165{
+func test_root_diamond_supports_ERC165{
     syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr,
     }(){
     alloc_locals;
@@ -101,7 +102,7 @@ func test_diamond_supports_ERC165{
 
 
 @external
-func test_initial_root_diamond_is_ERC721{
+func test_root_diamond_is_ERC721{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr,
     }() {
     alloc_locals;
@@ -114,25 +115,48 @@ func test_initial_root_diamond_is_ERC721{
     %}
 
     // First element in registry is ERC721
-    let (x_len, x) = IRegistry.resolve(diamond, FacetConfigKey.OOI);
-    assert_eq(x_len, 1);
-    assert_eq(x[0], erc721_class_hash);
+    let (resOOI_len, resOOI) = IRegistry.resolve(diamond, FacetConfigKey.OOI);
+    assert_eq(resOOI_len, 1);
+    assert_eq(resOOI[0], erc721_class_hash);
 
     // Resolve two facets only returns ERC721
-    let (y_len, y) = IRegistry.resolve(diamond, FacetConfigKey.OII);
-    assert_eq(y_len, 1);
-    assert_eq(y[0], erc721_class_hash);
+    let (resOII_len, resOII) = IRegistry.resolve(diamond, FacetConfigKey.OII);
+    assert_eq(resOII_len, 1);
+    assert_eq(resOII[0], erc721_class_hash);
 
     // Resolving a key not containing ERC721 returns empty array
-    let (z_len, z) = IRegistry.resolve(diamond, FacetConfigKey.OIO);
-    assert_eq(z_len, 0);
+    let (resOIO_len, resOIO) = IRegistry.resolve(diamond, FacetConfigKey.OIO);
+    assert_eq(resOIO_len, 0);
 
     return ();
 }
 
 
 @external
-func test_register_facet{
+func test_root_diamond_has_ERC721_ownerOf{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+    }() { 
+    alloc_locals;
+
+    local diamond;
+    local erc721_class_hash;
+    %{
+        ids.diamond = context.diamond_address
+        ids.erc721_class_hash = context.erc721_class_hash
+    %}
+
+    // ownerOf
+    let (facet) = IDiamondLoupe.facetAddress(
+        diamond, 73122117822990066614852869276021392412342625629800410280609241172256672489
+    );
+    assert_eq(facet, erc721_class_hash);
+
+    return ();
+}
+
+
+@external
+func test_register_facets_in_root_and_diamondCut{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }() {
     alloc_locals;
@@ -146,40 +170,51 @@ func test_register_facet{
         ids.erc721_class_hash = context.erc721_class_hash
     %}
 
-    // ownerOf is included
-    let (facet) = IDiamondLoupe.facetAddress(
-        diamond, 73122117822990066614852869276021392412342625629800410280609241172256672489
-    );
-    assert_eq(facet, erc721_class_hash);
-
-    // TODO access rights?
-    %{ stop_prank_callable = start_prank(123, target_contract_address=context.diamond_address) %}
+    // Register diamondCut and some facet
+    %{
+        stop_prank_callable = start_prank(
+            ids.BrilliantBlocks, target_contract_address=context.diamond_address
+        )
+    %}
     IRegistry.register(diamond, diamondCut_class_hash);
-    IRegistry.register(diamond, 7);
-    %{ stop_prank_callable() %}
-    let (x_len, x) = IRegistry.resolve(diamond, 3);
-    assert_eq(x_len, 2);
-    assert_eq(x[1], diamondCut_class_hash);
+    IRegistry.register(diamond, SOME_CLASS_HASH);
+    %{
+        stop_prank_callable()
+    %}
 
+    // DiamondCut class is in the second entry
+    let (facets_len, facets) = IRegistry.resolve(diamond, 2);
+    assert_eq(facets[0], diamondCut_class_hash);
+
+    // Root diamond has diamondCut
     let (facet) = IDiamondLoupe.facetAddress(
         diamond, 430792745303880346585957116707317276189779144684897836036710359506025130056
     );
     assert_eq(facet, diamondCut_class_hash);
     
+    // Add some facet to root diamond
     let (local dummy: felt*) = alloc();
-    // %{
-    //         expect_revert()
-    //     %}
-    %{ stop_prank_callable = start_prank(123, target_contract_address=context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond, 7, 0, 0, 0, dummy);
-    %{ stop_prank_callable() %}
+    %{
+        stop_prank_callable = start_prank(
+            ids.BrilliantBlocks, target_contract_address=context.diamond_address
+        )
+    %}
+    IDiamondCut.diamondCut(diamond, SOME_CLASS_HASH, 0, 0, 0, dummy);
+    %{
+        stop_prank_callable()
+    %}
 
-    // TODO adding more facets than supported becomes tricky
-    // TODO what about duplicate facets?
+    // Remove some facet
+    %{
+        stop_prank_callable = start_prank(
+            ids.BrilliantBlocks, target_contract_address=context.diamond_address
+        )
+    %}
+    IDiamondCut.diamondCut(diamond, SOME_CLASS_HASH, 1, 0, 0, dummy);
+    %{
+        stop_prank_callable()
+    %}
 
-    %{ stop_prank_callable = start_prank(123, target_contract_address=context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond, 7, 1, 0, 0, dummy);
-    %{ stop_prank_callable() %}
     let (z_len, z) = IDiamondLoupe.facetAddresses(diamond);
     assert_eq(z_len, 2);
     assert_eq(z[0], erc721_class_hash);
