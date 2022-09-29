@@ -3,11 +3,11 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_equal, assert_not_zero
+from starkware.cairo.common.memcpy import memcpy
 from starkware.starknet.common.syscalls import get_caller_address, library_call
 
 from starkware.cairo.common.uint256 import Uint256, uint256_check
 from starkware.cairo.common.registers import get_label_location
-from lib.Assertions import assert_uint256_is_not_zero, felt_is_boolean
 from lib.Safemath import SafeUint256
 from lib.ShortString import uint256_to_ss
 
@@ -15,7 +15,6 @@ from src.constants import FUNCTION_SELECTORS
 from src.token.ERC721.IERC721_Receiver import IERC721_Receiver
 from src.IERC165 import IERC165
 from lib.Constants import IERC721_RECEIVER_ID, IACCOUNT_ID, IERC721_ID
-from lib.Array import concat_arr
 
 //
 // Events
@@ -263,9 +262,8 @@ func setApprovalForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
         assert_not_equal(caller, _operator);
     }
 
-    let (is_boolean) = felt_is_boolean(_approved);
     with_attr error_message("Approval parameter is not a boolean.") {
-        assert is_boolean = TRUE;
+        assert _approved * (1 - _approved) = 0;
     }
 
     operator_approvals.write(caller, _operator, _approved);
@@ -441,7 +439,7 @@ func _long_tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
     let (local base_tokenURI_len) = base_token_uri_len.read();
     _baseTokenURI(base_tokenURI_len, base_tokenURI);
     let (token_id_ss_len, token_id_ss) = uint256_to_ss(_tokenId);
-    let (tokenURI, tokenURI_len) = concat_arr(
+    let (tokenURI_len, tokenURI) = concat_arr(
         base_tokenURI_len, base_tokenURI, token_id_ss_len, token_id_ss
     );
     return (tokenURI_len, tokenURI);
@@ -507,4 +505,14 @@ func __supports_interface__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
     }
 
     return (FALSE,);
+}
+
+func concat_arr{range_check_ptr}(arr1_len: felt, arr1: felt*, arr2_len: felt, arr2: felt*) -> (
+    res_len: felt, res: felt*
+) {
+    alloc_locals;
+    let (local res: felt*) = alloc();
+    memcpy(res, arr1, arr1_len);
+    memcpy(res + arr1_len, arr2, arr2_len);
+    return (arr1_len + arr2_len, res);
 }
