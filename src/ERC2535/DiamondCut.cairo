@@ -92,7 +92,7 @@ func _add_facet{
     // initFacet
     library_call(
         class_hash=_address,
-        function_selector=0x239ae22f052839d1eee46be543e9729fe75a8342c18f8d74b80ea7779426c2e,
+        function_selector=FUNCTION_SELECTORS.__init_facet__,
         calldata_size=_calldata_len,
         calldata=_calldata,
     );

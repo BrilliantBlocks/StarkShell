@@ -36,7 +36,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{
         context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         context.erc721_class_hash = declare("./src/token/ERC721/ERC721.cairo").class_hash
-        context.mintdeploy = declare("./src/token/ERC721/mintdeploy.cairo").class_hash
+        context.mintdeploy_class_hash = declare("./src/token/ERC721/mintdeploy.cairo").class_hash
         context.diamond_address = deploy_contract(
                 "./src/main.cairo",
                 [
@@ -165,20 +165,22 @@ func test_register_facets_in_root_and_diamondCut{
     local diamond;
     local diamondCut_class_hash;
     local erc721_class_hash;
+    local mintdeploy_class_hash;
     %{
         ids.diamond = context.diamond_address
         ids.diamondCut_class_hash = context.diamondCut_class_hash
         ids.erc721_class_hash = context.erc721_class_hash
+        ids.mintdeploy_class_hash = context.mintdeploy_class_hash
     %}
 
-    // Register diamondCut and some facet
+    // Register diamondCut and mintdeploy facet
     %{
         stop_prank_callable = start_prank(
             ids.BrilliantBlocks, target_contract_address=context.diamond_address
         )
     %}
     IRegistry.register(diamond, diamondCut_class_hash);
-    IRegistry.register(diamond, SOME_CLASS_HASH);
+    IRegistry.register(diamond, mintdeploy_class_hash);
     %{
         stop_prank_callable()
     %}
@@ -195,23 +197,24 @@ func test_register_facets_in_root_and_diamondCut{
     
     // Add some facet to root diamond
     let (local dummy: felt*) = alloc();
+    assert dummy[0] = 0; // TODO class hash
     %{
         stop_prank_callable = start_prank(
             ids.BrilliantBlocks, target_contract_address=context.diamond_address
         )
     %}
-    IDiamondCut.diamondCut(diamond, SOME_CLASS_HASH, 0, 0, 0, dummy);
+    IDiamondCut.diamondCut(diamond, mintdeploy_class_hash, 0, 1, 1, dummy);
     %{
         stop_prank_callable()
     %}
 
-    // Remove some facet
+    // Remove some mintdeploy_class_hash
     %{
         stop_prank_callable = start_prank(
             ids.BrilliantBlocks, target_contract_address=context.diamond_address
         )
     %}
-    IDiamondCut.diamondCut(diamond, SOME_CLASS_HASH, 1, 0, 0, dummy);
+    IDiamondCut.diamondCut(diamond, mintdeploy_class_hash, 1, 0, 0, dummy);
     %{
         stop_prank_callable()
     %}
