@@ -5,6 +5,8 @@ const IERC20_ID = 0x01ffc9a7;
 const IERC721_ID = 0x80ac58cd;
 const IERC1155_ID = 0x01ffc9a7;
 const IERC5114_ID = 0x01ffc9a7;
+const IERC721_RECEIVER_ID = 0x150b7a02;
+const IACCOUNT_ID = 0xf10dbd44;
 const IDIAMONDLOUPE_ID = 0x123;  // TODO
 const IDIAMONDCUT_ID = 0x123;  // TODO
 

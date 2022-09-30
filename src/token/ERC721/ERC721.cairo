@@ -11,10 +11,9 @@ from starkware.cairo.common.registers import get_label_location
 from src.token.ERC721.util.ShortString import uint256_to_ss
 from src.token.ERC721.util.Safemath import SafeUint256
 
-from src.constants import FUNCTION_SELECTORS
+from src.constants import FUNCTION_SELECTORS, IERC721_RECEIVER_ID, IACCOUNT_ID, IERC721_ID
 from src.token.ERC721.IERC721_Receiver import IERC721_Receiver
 from src.IERC165 import IERC165
-from lib.Constants import IERC721_RECEIVER_ID, IACCOUNT_ID, IERC721_ID
 
 //
 // Events
