@@ -36,6 +36,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{
         context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         context.erc721_class_hash = declare("./src/token/ERC721/ERC721.cairo").class_hash
+        context.mintdeploy = declare("./src/token/ERC721/mintdeploy.cairo").class_hash
         context.diamond_address = deploy_contract(
                 "./src/main.cairo",
                 [

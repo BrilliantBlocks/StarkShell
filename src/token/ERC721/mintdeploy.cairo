@@ -71,7 +71,7 @@ func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
 func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     ) -> (res_len: felt, res: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (res_len=1, data=cast(func_address, felt*));
+    return (res_len=1, res=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.mint;
