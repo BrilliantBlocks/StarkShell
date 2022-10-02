@@ -225,10 +225,33 @@ func test_register_facets_in_root_and_diamondCut{
             ids.User, target_contract_address=context.diamond_address
         )
     %}
-    Imintdeploy.mint(diamond, FacetConfigKey.OII);
+    let (user_diamond) = Imintdeploy.mint(diamond, FacetConfigKey.OIO);
     %{
         stop_prank_callable()
     %}
+
+    // User diamond has diamondCut
+    let (facet) = IDiamondLoupe.facetAddress(
+        user_diamond, 430792745303880346585957116707317276189779144684897836036710359506025130056
+    );
+    assert_eq(facet, diamondCut_class_hash);
+
+    // User add ERC721 to diamond
+    %{
+        stop_prank_callable = start_prank(
+            ids.User, target_contract_address=ids.user_diamond
+        )
+    %}
+    IDiamondCut.diamondCut(user_diamond, erc721_class_hash, 0, 1, 0, init_params);
+    %{
+        stop_prank_callable()
+    %}
+
+    // User diamond ownerOf
+    let (facet) = IDiamondLoupe.facetAddress(
+        user_diamond, 73122117822990066614852869276021392412342625629800410280609241172256672489
+    );
+    assert_eq(facet, erc721_class_hash);
 
     // Remove some mintdeploy_class_hash
     %{

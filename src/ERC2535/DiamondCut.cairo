@@ -39,7 +39,7 @@ func diamondCut{
 }(_address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
     let (r) = root.read();
     let (self) = get_contract_address();
-    let (low, high) = split_felt(self);
+    let (high, low) = split_felt(self);
     let (caller) = get_caller_address();
 
     // is root diamond
