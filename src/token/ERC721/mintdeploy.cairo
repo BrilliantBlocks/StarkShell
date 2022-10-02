@@ -31,32 +31,55 @@ func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_face
     alloc_locals;
 
     let (owner) = get_caller_address();
-    let (root) = get_contract_address();
-    let (salt) = get_block_number();
     let (template_hash) = template.read();
 
-    let calldata_len = 2;
-    let (local calldata: felt*) = alloc();
-    assert calldata[0] = root;
-    assert calldata[1] = _facet_key;
+    let (calldata_len, calldata) = assemleCalldata(owner, _facet_key);
+    let diamond_address = deploy_diamond(template_hash, calldata_len, calldata);
 
-    with_attr error_message("Pool deployment failed") {
-        let (pool_address) = deploy(
-            class_hash=template_hash,
-            contract_address_salt=salt,
-            constructor_calldata_size=calldata_len,
-            constructor_calldata=calldata,
-            deploy_from_zero=FALSE,
-        );
-    }
-
-    let (high, low) = split_felt(pool_address);
+    let (high, low) = split_felt(diamond_address);
     let token_id = Uint256(low, high);
 
     _mint(owner, token_id);
     MintDeploy.emit(token_id, owner, _facet_key);
-    return (pool_address,);
+    return (diamond_address,);
 }
+
+
+func assemleCalldata{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    owner: felt, _facet_key: felt,
+) -> (calldata_len: felt, calldata: felt*) {
+    alloc_locals;
+
+    let (root) = get_contract_address();
+
+    let (local calldata: felt*) = alloc();
+    assert calldata[0] = root;
+    assert calldata[1] = owner;  // only required for root
+    assert calldata[2] = _facet_key;
+    assert calldata[3] = 0;  // _get_implementation_facet?
+
+    return (4, calldata);
+}
+
+
+func deploy_diamond{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    class_hash: felt, constructor_calldata_len: felt, constructor_calldata: felt*,    
+) -> felt {
+    let (salt) = get_block_number();
+
+    with_attr error_message("Diamond deployment failed") {
+        let (diamond_address) = deploy(
+            class_hash=class_hash,
+            contract_address_salt=salt,
+            constructor_calldata_size=constructor_calldata_len,
+            constructor_calldata=constructor_calldata,
+            deploy_from_zero=FALSE,
+        );
+    }
+
+    return diamond_address;
+}
+
 
 @external
 func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(

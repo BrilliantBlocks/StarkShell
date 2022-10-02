@@ -6,6 +6,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from src.constants import IERC165_ID, IERC721_ID
 from src.FacetRegistry.IRegistry import IRegistry
 from src.IERC165 import IERC165
+from src.token.ERC721.Imintdeploy import Imintdeploy
 from src.ERC2535.IDiamondCut import IDiamondCut
 from src.ERC2535.IDiamondLoupe import IDiamondLoupe
 from src.ERC2535.IDiamond import ICompatibility
@@ -15,7 +16,7 @@ from protostar.asserts import assert_eq, assert_not_eq
 
 
 const BrilliantBlocks = 123;
-const SOME_CLASS_HASH = 519237510293750912739472130470129740972134;
+const User = 456;
 
 namespace FacetConfigKey {
     const OOO = 0;
@@ -34,6 +35,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     alloc_locals;
 
     %{
+        context.diamond_class_hash = declare("./src/main.cairo").class_hash
         context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         context.erc721_class_hash = declare("./src/token/ERC721/ERC721.cairo").class_hash
         context.mintdeploy_class_hash = declare("./src/token/ERC721/mintdeploy.cairo").class_hash
@@ -163,11 +165,13 @@ func test_register_facets_in_root_and_diamondCut{
     alloc_locals;
 
     local diamond;
+    local diamond_class_hash;
     local diamondCut_class_hash;
     local erc721_class_hash;
     local mintdeploy_class_hash;
     %{
         ids.diamond = context.diamond_address
+        ids.diamond_class_hash = context.diamond_class_hash
         ids.diamondCut_class_hash = context.diamondCut_class_hash
         ids.erc721_class_hash = context.erc721_class_hash
         ids.mintdeploy_class_hash = context.mintdeploy_class_hash
@@ -196,14 +200,32 @@ func test_register_facets_in_root_and_diamondCut{
     assert_eq(facet, diamondCut_class_hash);
     
     // Add some facet to root diamond
-    let (local dummy: felt*) = alloc();
-    assert dummy[0] = 0; // TODO class hash
+    let (local init_params: felt*) = alloc();
+    assert init_params[0] = diamond_class_hash;
+
     %{
         stop_prank_callable = start_prank(
             ids.BrilliantBlocks, target_contract_address=context.diamond_address
         )
     %}
-    IDiamondCut.diamondCut(diamond, mintdeploy_class_hash, 0, 1, 1, dummy);
+    IDiamondCut.diamondCut(diamond, mintdeploy_class_hash, 0, 1, 1, init_params);
+    %{
+        stop_prank_callable()
+    %}
+
+    // Has a mint function
+    let (facet) = IDiamondLoupe.facetAddress(
+        diamond, 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354
+    );
+    assert_eq(facet, mintdeploy_class_hash);
+
+    // A user can mint / deploy new  diamond
+    %{
+        stop_prank_callable = start_prank(
+            ids.User, target_contract_address=context.diamond_address
+        )
+    %}
+    Imintdeploy.mint(diamond, FacetConfigKey.OII);
     %{
         stop_prank_callable()
     %}
@@ -214,7 +236,7 @@ func test_register_facets_in_root_and_diamondCut{
             ids.BrilliantBlocks, target_contract_address=context.diamond_address
         )
     %}
-    IDiamondCut.diamondCut(diamond, mintdeploy_class_hash, 1, 0, 0, dummy);
+    IDiamondCut.diamondCut(diamond, mintdeploy_class_hash, 1, 0, 0, init_params);  // ToDo exit params
     %{
         stop_prank_callable()
     %}
