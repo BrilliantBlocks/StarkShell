@@ -37,30 +37,63 @@ struct FacetCutAction {
 func diamondCut{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(_address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
-    let (r) = root.read();
-    let (self) = get_contract_address();
-    let (high, low) = split_felt(self);
-    let (caller) = get_caller_address();
+    alloc_locals;
 
-    // is root diamond
-    if (r == 0) {
-        let (owner) = IERC721.ownerOf(self, Uint256(0, 0));
-    } else {
-        let (owner) = IERC721.ownerOf(r, Uint256(low, high));
-    }
+    let (caller) = get_caller_address();
+    let  owner = get_owner();
 
     with_attr error_message("YOU MUST BE THE OWNER TO CALL THE FUNCTION") {
         assert caller = owner;
     }
 
     if (_facetCutAction == FacetCutAction.Add) {
-        _add_facet(_address, _init, _calldata_len, _calldata);
-        return ();
+        return _add_facet(_address, _init, _calldata_len, _calldata);
     } else {
-        _remove_facet(_address);
-        return ();
+        return _remove_facet(_address);
     }
 }
+
+
+func get_owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
+    alloc_locals;
+
+    let root = getRootDiamond();
+    let tokenId = getRootTokenId();
+    let (owner) = IERC721.ownerOf(root, tokenId);
+
+    return owner;
+}
+
+
+func getRootDiamond{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt{
+    let (r) = root.read();
+    let (self) = get_contract_address();
+
+    if (r == 0) {
+        return self;
+    } else {
+        return r;
+    }
+}
+
+
+func getRootTokenId{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> Uint256 {
+    alloc_locals;
+    let (r) = root.read();
+
+    if (r == 0) {
+        local tokenId: Uint256 = Uint256(0, 0);
+
+        return tokenId;
+    } else {
+        let (self) = get_contract_address();
+        let (high, low) = split_felt(self);
+        local tokenId: Uint256 = Uint256(low, high);
+
+        return tokenId;
+    }
+}
+
 
 func _add_facet{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -93,18 +126,6 @@ func initFacet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     );
 
     return ();
-}
-
-
-func getRootDiamond{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt{
-    let (r) = root.read();
-    let (self) = get_contract_address();
-
-    if (r == 0) {
-        return self;
-    } else {
-        return r;
-    }
 }
 
 
@@ -156,7 +177,7 @@ func _remove_facet_helper{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
 }
 
 @external
-func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
+func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(x: felt) -> () {
     return ();
 }
 
