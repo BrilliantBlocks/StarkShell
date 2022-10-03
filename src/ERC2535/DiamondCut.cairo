@@ -66,39 +66,47 @@ func _add_facet{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(_address: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
     alloc_locals;
+    let root = getRootDiamond();
 
-    let (key) = facet_key.read();
-    let (r) = root.read();
-
+    // Get facets and append new facet
     let (facets_len, facets) = facetAddresses();
-
-    // Write facet to next free slot
     assert facets[facets_len] = _address;
 
-    // is root diamond
-    if (r == 0) {
-        let (self) = get_contract_address();
-        let (new_key) = IRegistry.calculateKey(self, facets_len + 1, facets);
-    } else {
-        let (new_key) = IRegistry.calculateKey(r, facets_len + 1, facets);
-    }
+    let (new_key) = IRegistry.calculateKey(root, facets_len + 1, facets);
 
     facet_key.write(new_key);
 
-    if (_init == 0) {
-        return ();
-    }
+    initFacet(_address, _calldata_len, _calldata);
 
-    // initFacet
+    return ();
+}
+
+
+func initFacet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    class_hash: felt, calldata_len: felt, calldata: felt*
+    ) -> () {
     library_call(
-        class_hash=_address,
+        class_hash=class_hash,
         function_selector=FUNCTION_SELECTORS.__init_facet__,
-        calldata_size=_calldata_len,
-        calldata=_calldata,
+        calldata_size=calldata_len,
+        calldata=calldata,
     );
 
     return ();
 }
+
+
+func getRootDiamond{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt{
+    let (r) = root.read();
+    let (self) = get_contract_address();
+
+    if (r == 0) {
+        return self;
+    } else {
+        return r;
+    }
+}
+
 
 func _remove_facet{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
