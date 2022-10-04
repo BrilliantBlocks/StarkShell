@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 from src.constants import IERC165_ID, IERC721_ID
 from src.FacetRegistry.IRegistry import IRegistry
-from src.IERC165 import IERC165
+from src.ERC165.IERC165 import IERC165
 from src.token.ERC721.Imintdeploy import Imintdeploy
 from src.ERC2535.IDiamondCut import IDiamondCut
 from src.ERC2535.IDiamondLoupe import IDiamondLoupe
