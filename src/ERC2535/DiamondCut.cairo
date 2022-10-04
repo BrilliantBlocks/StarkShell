@@ -188,7 +188,7 @@ func _remove_facet_helper{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
 }
 
 @external
-func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(x: felt) -> () {
+func __init_facet__() -> () {
     return ();
 }
 

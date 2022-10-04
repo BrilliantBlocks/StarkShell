@@ -33,7 +33,7 @@ func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_face
     let (owner) = get_caller_address();
     let (template_hash) = template.read();
 
-    let (calldata_len, calldata) = assemleCalldata(owner, _facet_key);
+    let (calldata_len, calldata) = assembleCalldata(owner, _facet_key);
     let diamond_address = deploy_diamond(template_hash, calldata_len, calldata);
 
     let (high, low) = split_felt(diamond_address);
@@ -45,7 +45,7 @@ func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_face
 }
 
 
-func assemleCalldata{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func assembleCalldata{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     owner: felt, _facet_key: felt,
 ) -> (calldata_len: felt, calldata: felt*) {
     alloc_locals;

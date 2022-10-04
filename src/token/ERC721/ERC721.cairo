@@ -476,7 +476,7 @@ func _populateBaseTokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range
 }
 
 @external
-func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
+func __init_facet__() -> () {
     return ();
 }
 
