@@ -42,15 +42,26 @@ func diamondCut{
     let (caller) = get_caller_address();
     let  owner = get_owner();
 
-    with_attr error_message("YOU MUST BE THE OWNER TO CALL THE FUNCTION") {
+    with_attr error_message("YOU MUST BE THE OWNER") {
         assert caller = owner;
     }
 
+    _diamondCut(_address, _facetCutAction, _init, _calldata_len, _calldata);
+
+    return ();
+}
+
+
+func _diamondCut{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
     if (_facetCutAction == FacetCutAction.Add) {
-        return _add_facet(_address, _init, _calldata_len, _calldata);
+        _add_facet(_address, _init, _calldata_len, _calldata);
     } else {
-        return _remove_facet(_address);
+        _remove_facet(_address);
     }
+
+    return ();
 }
 
 
