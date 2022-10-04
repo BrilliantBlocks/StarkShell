@@ -57,15 +57,6 @@ func register{
 }
 
 
-func BREAKPOINT{}() {
-    with_attr error_message("BREAKPOINT") {
-        assert 1 = 0;
-    }
-
-    return ();
-}
-
-
 func _find_first{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(target: felt) -> (
     res: felt
 ) {
