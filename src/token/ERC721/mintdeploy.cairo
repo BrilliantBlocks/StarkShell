@@ -90,6 +90,7 @@ func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
     return ();
 }
 
+
 @view
 func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     ) -> (res_len: felt, res: felt*) {
@@ -98,4 +99,14 @@ func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, 
 
     selectors_start:
     dw FUNCTION_SELECTORS.MINTDEPLOY.mint;
+}
+
+
+// @dev Support ERC-165
+// @param interface_id
+// @return success (0 or 1)
+@view
+func __supports_interface__(_interface_id: felt) -> (success: felt) {
+
+    return (FALSE,);
 }

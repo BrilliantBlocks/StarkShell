@@ -205,11 +205,8 @@ func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, 
 // @dev Support ERC-165
 // @param interface_id
 // @return success (0 or 1)
-// TODO remove implicit arguments?
 @view
-func __supports_interface__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _interface_id: felt
-) -> (success: felt) {
+func __supports_interface__(_interface_id: felt) -> (success: felt) {
     if (_interface_id == IDIAMONDCUT_ID) {
         return (TRUE,);
     }

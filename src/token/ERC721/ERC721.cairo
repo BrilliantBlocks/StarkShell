@@ -501,10 +501,7 @@ func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, 
 // @param interface_id
 // @return success (0 or 1)
 @view
-func __supports_interface__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _interface_id: felt
-) -> (success: felt) {
-    // TODO remove implicit arguments?
+func __supports_interface__(_interface_id: felt) -> (success: felt) {
     if (_interface_id == IERC721_ID) {
         return (TRUE,);
     }
