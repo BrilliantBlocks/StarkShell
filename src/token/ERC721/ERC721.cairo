@@ -484,11 +484,17 @@ func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
 func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     ) -> (res_len: felt, res: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (res_len=1, res=cast(func_selectors, felt*));
+    return (res_len=8, res=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.ERC721.ownerOf;
-    // TODO
+    dw FUNCTION_SELECTORS.ERC721.balanceOf;
+    dw FUNCTION_SELECTORS.ERC721.safeTransferFrom;
+    dw FUNCTION_SELECTORS.ERC721.transferFrom;
+    dw FUNCTION_SELECTORS.ERC721.approve;
+    dw FUNCTION_SELECTORS.ERC721.setApprovalForAll;
+    dw FUNCTION_SELECTORS.ERC721.getApproved;
+    dw FUNCTION_SELECTORS.ERC721.isApprovedForAll;
 }
 
 // @dev Support ERC-165
