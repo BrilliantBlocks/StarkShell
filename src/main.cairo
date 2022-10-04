@@ -2,6 +2,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
+from starkware.cairo.common.math import assert_le, assert_not_equal, assert_not_zero
 from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import (
     get_caller_address,
@@ -33,7 +34,6 @@ from src.FacetRegistry.Registry import (
     resolve,
 )
 
-from starkware.cairo.common.math import assert_le, assert_not_equal, assert_not_zero
 
 // @dev Initializes as root diamond iff _root is not specified
 // @dev A root diamond requires an ERC721 facet class hash
@@ -75,7 +75,7 @@ func __default__{
 }(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
     let (facet: felt) = facetAddress(selector);
 
-    with_attr error_message("Facet not found for selector {selector}") {
+    with_attr error_message("FACET NOT FOUND") {
         assert_not_zero(facet);
     }
 
