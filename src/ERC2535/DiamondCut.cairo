@@ -120,7 +120,7 @@ func initFacet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     ) -> () {
     library_call(
         class_hash=class_hash,
-        function_selector=FUNCTION_SELECTORS.__init_facet__,
+        function_selector=FUNCTION_SELECTORS.FACET.__init_facet__,
         calldata_size=calldata_len,
         calldata=calldata,
     );
@@ -188,7 +188,7 @@ func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, 
     return (res_len=1, res=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.diamondCut;
+    dw FUNCTION_SELECTORS.DIAMONDCUT.diamondCut;
 }
 
 // @dev Support ERC-165

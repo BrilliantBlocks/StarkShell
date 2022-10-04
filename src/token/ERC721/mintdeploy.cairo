@@ -97,5 +97,5 @@ func __get_function_selectors__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, 
     return (res_len=1, res=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.mint;
+    dw FUNCTION_SELECTORS.MINTDEPLOY.mint;
 }

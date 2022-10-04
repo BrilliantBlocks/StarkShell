@@ -93,7 +93,7 @@ func facetFunctionSelectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
 
     let (r_len, r) = library_call(
         class_hash=_facet,
-        function_selector=FUNCTION_SELECTORS.__get_function_selectors__,
+        function_selector=FUNCTION_SELECTORS.FACET.__get_function_selectors__,
         calldata_size=no_param_len,
         calldata=no_param,
     );

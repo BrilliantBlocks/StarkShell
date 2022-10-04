@@ -10,15 +10,10 @@ const IACCOUNT_ID = 0xf10dbd44;
 const IDIAMONDLOUPE_ID = 0x123;  // TODO
 const IDIAMONDCUT_ID = 0x123;  // TODO
 
+
 namespace FUNCTION_SELECTORS {
-    const mint = 1329909728320632088402217562277154056711815095720684343816173432540100887380;
-    const __init_facet__ = 0x101d2ba76f87b0ae8750c488387d702c0b092c6c6e91348ccf5d6dc2d734818;
-
-    const __get_function_selectors__ = 1512441085964722374952022796893127750645761723326055054060620822669917618390;
-    const diamondCut = 430792745303880346585957116707317276189779144684897836036710359506025130056;
-
-    namespace ERC165 {
-        const __supports_interface__ = 931805622773425597786679106116934086420304240757827569899985084286984705937;
+    namespace DIAMONDCUT {
+        const diamondCut = 0xf3d1ef016a3319b5c905f7ed8ae0708b96b732c565c6058e6a4f0291032848;
     }
 
     namespace ERC721 {
@@ -30,5 +25,15 @@ namespace FUNCTION_SELECTORS {
         const safeTransferFrom = 0x19d59d013d4aa1a8b1ce4c8299086f070733b453c02d0dc46e735edc04d6444;
         const setApprovalForAll = 0x2d4c8ea4c8fb9f571d1f6f9b7692fff8e5ceaf73b1df98e7da8c1109b39ae9a;
         const transferFrom = 0x41b033f4a31df8067c24d1e9b550a2ce75fd4a29e1147af9752174f0e6cb20;
+    }
+
+    namespace FACET {
+        const __get_function_selectors__ = 0x35802e5c93fa05f42af0eb6d6ed857d69b8010fe9d917bfd51f60ffcd2300d6;
+        const __init_facet__ = 0x101d2ba76f87b0ae8750c488387d702c0b092c6c6e91348ccf5d6dc2d734818;
+        const __supports_interface__ = 0x20f621f78ecca5435389efa53ca29525b75fe9745044ce3b56b4b1e6056d791;
+    }
+
+    namespace MINTDEPLOY {
+        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
     }
 }

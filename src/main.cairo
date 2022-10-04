@@ -177,7 +177,7 @@ func _supportsInterfaceLibrary{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, r
 
     let (r_len, r) = library_call(
         class_hash=_facet,
-        function_selector=FUNCTION_SELECTORS.ERC165.__supports_interface__,
+        function_selector=FUNCTION_SELECTORS.FACET.__supports_interface__,
         calldata_size=1,
         calldata=param,
     );
