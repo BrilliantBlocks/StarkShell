@@ -9,6 +9,7 @@ from starkware.cairo.common.registers import get_label_location
 from starkware.cairo.common.memcpy import memcpy
 
 from src.constants import FUNCTION_SELECTORS, IERC5114_ID
+from src.token.ERC721.util.ShortString import uint256_to_ss, felt_to_ss
 
 
 struct NFT {
@@ -86,8 +87,8 @@ func ownerOf{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
 @view
 func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     sbt_id: Uint256
-) -> (sbt_uri: felt) {
-    
+) -> (sbt_uri_len: felt, sbt_uri: felt*) {
+    alloc_locals;
     assert_initialized();
 
     let (exists) = _exists(sbt_id);
@@ -96,9 +97,24 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     }
 
     let (collection_uri) = _collection_uri.read();
+    let (collection_uri_ss_len, collection_uri_ss) = felt_to_ss(collection_uri);
+    let (sbt_id_ss_len, sbt_id_ss) = uint256_to_ss(sbt_id);
 
-    //Fetch SBT URI
-    return (1, );
+    let (sbt_uri_len, sbt_uri) = concat_array(
+        collection_uri_ss_len, collection_uri_ss, sbt_id_ss_len, sbt_id_ss);
+
+    return (sbt_uri_len, sbt_uri);
+}
+
+
+func concat_array{range_check_ptr}(
+    arr1_len: felt, arr1: felt*, arr2_len: felt, arr2: felt*
+) -> (res_len: felt, res: felt*) {
+    alloc_locals;
+    let (local res: felt*) = alloc();
+    memcpy(res, arr1, arr1_len);
+    memcpy(res + arr1_len, arr2, arr2_len);
+    return (arr1_len + arr2_len, res);
 }
 
 
