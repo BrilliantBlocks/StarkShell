@@ -36,4 +36,12 @@ namespace FUNCTION_SELECTORS {
     namespace MINTDEPLOY {
         const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
     }
+
+    namespace ERC5114 {
+        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
+        const ownerOf = 0x2962ba17806af798afa6eaf4aa8c93a9fb60a3e305045b6eea33435086cae9;
+        const tokenURI = 0x12a7823b0c6bee58f8c694888f32f862c6584caa8afa0242de046d298ba684d;
+        const collectionURI = 0x6a352658a32e01c5dbbbae068301f1fc133e2072829fc9d349f4f75d64c3b;
+        const metadataFormat = 0x1ca90dda6287e49240ebea9347c5f16889c3d322c63f56cb9b41049ff8d8d4c;
+    }
 }
