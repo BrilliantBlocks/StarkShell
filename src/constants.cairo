@@ -5,10 +5,12 @@ const IERC20_ID = 0x01ffc9a7;
 const IERC721_ID = 0x80ac58cd;
 const IERC1155_ID = 0x01ffc9a7;
 const IERC5114_ID = 0x01ffc9a7;
+const IERC2981_ID = 0x2a55205a;
 const IERC721_RECEIVER_ID = 0x150b7a02;
 const IACCOUNT_ID = 0xf10dbd44;
 const IDIAMONDLOUPE_ID = 0x123;  // TODO
 const IDIAMONDCUT_ID = 0x123;  // TODO
+const FEE_DENOMINATOR = 10000;
 
 
 namespace FUNCTION_SELECTORS {
@@ -43,5 +45,9 @@ namespace FUNCTION_SELECTORS {
         const tokenURI = 0x12a7823b0c6bee58f8c694888f32f862c6584caa8afa0242de046d298ba684d;
         const collectionURI = 0x6a352658a32e01c5dbbbae068301f1fc133e2072829fc9d349f4f75d64c3b;
         const metadataFormat = 0x1ca90dda6287e49240ebea9347c5f16889c3d322c63f56cb9b41049ff8d8d4c;
+    }
+
+    namespace ERC2981 {
+        const royaltyInfo = 0xfd0f1dab5939609a69ab50ab7865a11834a0c52e41ca72e4e943447b9d3bf0;
     }
 }
