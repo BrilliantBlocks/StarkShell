@@ -6,6 +6,7 @@ const IERC721_ID = 0x80ac58cd;
 const IERC1155_ID = 0x01ffc9a7;
 const IERC5114_ID = 0x01ffc9a7;
 const IERC2981_ID = 0x2a55205a;
+const IERC4906_ID = 0x49064906;
 const IERC721_RECEIVER_ID = 0x150b7a02;
 const IACCOUNT_ID = 0xf10dbd44;
 const IDIAMONDLOUPE_ID = 0x123;  // TODO
@@ -49,5 +50,10 @@ namespace FUNCTION_SELECTORS {
 
     namespace ERC2981 {
         const royaltyInfo = 0xfd0f1dab5939609a69ab50ab7865a11834a0c52e41ca72e4e943447b9d3bf0;
+    }
+
+    namespace ERC4906 {
+        const updateTokenURI = 0x2ce2072fc0e89a2053fac74913af88590b52e043d8a71a775737487a427e3d0;
+        const updateTokenBatchURI = 0x3c6f820fdee2e32345dc4f820b22fcdf1e015a504eabc9d9478aa24ce57e480;
     }
 }
