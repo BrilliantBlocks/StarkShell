@@ -76,6 +76,23 @@ func userExpires{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_p
 }
 
 
+func beforeTokenTransfer{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+    from_: felt, to: felt, token_id: Uint256
+) -> () {
+
+    let (user) = _users.read(token_id);
+    if (from_ != to) {
+        if (user.address != 0) {
+            _users.write(token_id, UserInfo(0, 0));
+            UpdateUser.emit(token_id, UserInfo(0, 0));
+            return ();
+        }
+    }
+    
+    return ();
+}
+
+
 @external
 func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
     
