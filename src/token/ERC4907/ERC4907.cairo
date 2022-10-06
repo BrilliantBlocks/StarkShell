@@ -3,12 +3,12 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.uint256 import Uint256, uint256_check
-from starkware.cairo.common.math import assert_not_zero, assert_le
+from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.registers import get_label_location
 from starkware.starknet.common.syscalls import get_block_timestamp
 
-from src.constants import FUNCTION_SELECTORS
+from src.constants import FUNCTION_SELECTORS, IERC4907_ID
 
 
 struct UserInfo {
@@ -73,6 +73,38 @@ func userExpires{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_p
     let (user) = _users.read(token_id);
 
     return (user.expires,);
+}
+
+
+@external
+func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
+    
+    return ();
+}
+
+
+@view
+func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+    return (res_len=3, res=cast(func_selectors, felt*));
+
+    selectors_start:
+    dw FUNCTION_SELECTORS.ERC4907.setUser;
+    dw FUNCTION_SELECTORS.ERC4907.userOf;
+    dw FUNCTION_SELECTORS.ERC4907.userExpires;
+}
+
+
+// @dev Support ERC-165
+// @param interface_id
+// @return success (0 or 1)
+@view
+func __supports_interface__(_interface_id: felt) -> (success: felt) {
+    if (_interface_id == IERC4907_ID) {
+        return (TRUE,);
+    }
+
+    return (FALSE,);
 }
 
 
