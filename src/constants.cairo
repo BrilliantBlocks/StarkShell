@@ -8,6 +8,7 @@ const IERC5114_ID = 0x01ffc9a7;
 const IERC2981_ID = 0x2a55205a;
 const IERC4906_ID = 0x49064906;
 const IERC5007_ID = 0x7a0cdf92;
+const IERC5185_ID = 0x00000001; // TODO
 const IERC721_RECEIVER_ID = 0x150b7a02;
 const IACCOUNT_ID = 0xf10dbd44;
 const IDIAMONDLOUPE_ID = 0x123;  // TODO
@@ -65,4 +66,7 @@ namespace FUNCTION_SELECTORS {
         const checkTimePeriod = 0x56ba2240ba596b97c6ddee7d72a7d2d4e9789096f17c8f1e47cf98ef54918e;
     }
 
+    namespace ERC5185 {
+        const updateMetadata = 0xd1df127d90a37687d0a986a667f4f88eebc4437582fa7bff7d6955ab689037;
+    }
 }
