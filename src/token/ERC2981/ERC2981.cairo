@@ -27,7 +27,7 @@ func royaltyInfo{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     token_id: Uint256, sale_price: Uint256
 ) -> (receiver: felt, royalty_amount: Uint256) {
     alloc_locals;
-    with_attr error_message("ERC2981: token_id is not a valid Uint256") {
+    with_attr error_message("Token ID is not a valid Uint256") {
         uint256_check(token_id);
     }
 

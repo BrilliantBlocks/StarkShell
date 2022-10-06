@@ -4,7 +4,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_sub, uint256_eq, uint256_add
 from starkware.cairo.common.registers import get_label_location
-from starkware.cairo.common.math import split_felt
+from starkware.cairo.common.math import split_felt, assert_not_zero
 
 from src.constants import FUNCTION_SELECTORS, IERC4906_ID
 
@@ -27,7 +27,15 @@ func _token_uri(token_id: Uint256) -> (token_uri: felt) {
 func updateTokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256, token_uri: felt
 ) -> () {
-    uint256_check(token_id);
+    
+    with_attr error_message("Token is not a valid Uint256") {
+        uint256_check(token_id);
+    }
+    
+    with_attr error_message("Token URI must not be zero") {
+        assert_not_zero(token_uri);
+    }
+
     let (exists) = _exists(token_id);
     with_attr error_message("Token is nonexistent") {
         assert exists = TRUE;
@@ -63,10 +71,17 @@ func update_token_batch_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
     current_token_id: Uint256, token_id_to: Uint256, token_uri_len: felt, token_uri: felt*
 ) -> () {
     alloc_locals;
-    uint256_check(current_token_id);
+
+    with_attr error_message("Token from range is not a valid Uint256") {
+        uint256_check(current_token_id);
+    }
+
+    with_attr error_message("Token URI from range must not be zero") {
+        assert_not_zero(token_uri[0]);
+    }
 
     let (exists) = _exists(current_token_id);
-    with_attr error_message("Token of range is nonexistent") {
+    with_attr error_message("Token from range is nonexistent") {
         assert exists = TRUE;
     }
 

@@ -42,8 +42,6 @@ func _metadata_format() -> (res: felt) {
 func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     sbt_id: Uint256, nft: NFT
 ) -> () {
-
-    assert_initialized();
     
     with_attr error_message("SBT is not a valid Uint256") {
         uint256_check(sbt_id);
@@ -69,8 +67,6 @@ func ownerOf{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     sbt_id: Uint256
 ) -> (nft: NFT) {
 
-    assert_initialized();
-
     with_attr error_message("SBT input must be a Uint256") {
         uint256_check(sbt_id);
     }
@@ -89,7 +85,6 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     sbt_id: Uint256
 ) -> (sbt_uri_len: felt, sbt_uri: felt*) {
     alloc_locals;
-    assert_initialized();
 
     let (exists) = _exists(sbt_id);
     with_attr error_message("SBT is nonexistent") {
@@ -122,8 +117,6 @@ func concat_array{range_check_ptr}(
 func collectionURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     collection_uri: felt
 ) {
-    assert_initialized();
-
     let (collection_uri) = _collection_uri.read();
 
     return (collection_uri,);
@@ -134,8 +127,6 @@ func collectionURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 func metadataFormat{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     metadata_format: felt
 ) {
-    assert_initialized();
-
     let (metadata_format) = _metadata_format.read();
 
     return (metadata_format,);
