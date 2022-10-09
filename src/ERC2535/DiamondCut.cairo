@@ -14,9 +14,9 @@ from starkware.cairo.common.registers import get_label_location
 
 from src.constants import FUNCTION_SELECTORS, IDIAMONDCUT_ID
 from src.storage import facet_key, root
-from src.token.ERC721.IERC721 import IERC721
-from src.FacetRegistry.IRegistry import IRegistry
-from src.ERC2535.DiamondLoupe import facetAddresses, facetAddress
+from src.IERC721 import IERC721
+from src.IFeltMap import IFeltMap
+from src.ERC2535.DiamondLoupe import facetAddresses
 
 @event
 func DiamondCut(
@@ -42,7 +42,7 @@ func diamondCut{
     let (caller) = get_caller_address();
     let  owner = get_owner();
 
-    with_attr error_message("YOU MUST BE THE OWNER") {
+    with_attr error_message("UNAUTHORIZED") {
         assert caller = owner;
     }
 
@@ -68,41 +68,20 @@ func _diamondCut{
 func get_owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
     alloc_locals;
 
-    let root = getRootDiamond();
+    let (r) = root.read();
     let tokenId = getRootTokenId();
-    let (owner) = IERC721.ownerOf(root, tokenId);
+    let (owner) = IERC721.ownerOf(r, tokenId);
 
     return owner;
 }
 
 
-func getRootDiamond{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt{
-    let (r) = root.read();
-    let (self) = get_contract_address();
-
-    if (r == 0) {
-        return self;
-    } else {
-        return r;
-    }
-}
-
-
 func getRootTokenId{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> Uint256 {
     alloc_locals;
-    let (r) = root.read();
-
-    if (r == 0) {
-        local tokenId: Uint256 = Uint256(0, 0);
-
-        return tokenId;
-    } else {
-        let (self) = get_contract_address();
-        let (high, low) = split_felt(self);
-        local tokenId: Uint256 = Uint256(low, high);
-
-        return tokenId;
-    }
+    let (self) = get_contract_address();
+    let (high, low) = split_felt(self);
+    local tokenId: Uint256 = Uint256(low, high);
+    return tokenId;
 }
 
 
@@ -110,13 +89,13 @@ func _add_facet{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(_address: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
     alloc_locals;
-    let root = getRootDiamond();
+    let (r) = root.read();
 
     // Get facets and append new facet
     let (facets_len, facets) = facetAddresses();
     assert facets[facets_len] = _address;
 
-    let (new_key) = IRegistry.calculateKey(root, facets_len + 1, facets);
+    let (new_key) = IFeltMap.calculateKey(r, facets_len + 1, facets);
 
     facet_key.write(new_key);
 
@@ -135,7 +114,6 @@ func initFacet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         calldata_size=calldata_len,
         calldata=calldata,
     );
-
     return ();
 }
 
@@ -161,10 +139,10 @@ func _remove_facet{
     }
 
     if (r != 0) {
-        let (new_key) = IRegistry.calculateKey(r, facets_len - 1, ptr);
+        let (new_key) = IFeltMap.calculateKey(r, facets_len - 1, ptr);
     } else {
         let (my_root) = get_contract_address();
-        let (new_key) = IRegistry.calculateKey(my_root, facets_len - 1, ptr);
+        let (new_key) = IFeltMap.calculateKey(my_root, facets_len - 1, ptr);
     }
 
     facet_key.write(new_key);

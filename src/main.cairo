@@ -25,44 +25,19 @@ from src.ERC2535.DiamondLoupe import (
     facetFunctionSelectors,
     facets,
 )
-from src.storage import facet_key, root, bitmap
-from src.token.ERC721.ERC721 import _mint
-from src.FacetRegistry.Registry import (
-    calculateKey,
-    Register,
-    register,
-    resolve,
-)
+from src.storage import facet_key, root
 
 
-// @dev Initializes as root diamond iff _root is not specified
-// @dev A root diamond requires an ERC721 facet class hash
-// @param _root: Address of deploying contract
+// @param _root: Address of TCF
 @constructor
 func constructor{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
-}(_root: felt, _owner: felt, _facet_key: felt, _erc721_facet: felt) {
+}(_root: felt, _facet_key: felt) {
     facet_key.write(_facet_key);
     root.write(_root);
-
-    if (_root == 0) {
-        _init_as_root_diamond(_owner, _erc721_facet);
-    }
-
     return ();
 }
 
-func _init_as_root_diamond{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _owner: felt, _erc721_facet: felt
-) {
-    bitmap.write(0, _erc721_facet);
-
-    Register.emit(0, _erc721_facet);
-
-    _mint(_owner, Uint256(0, 0));
-
-    return ();
-}
 
 // @dev
 // @param

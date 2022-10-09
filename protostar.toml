@@ -8,3 +8,6 @@ libs_path = "lib"
 main = [
     "src/main.cairo",
 ]
+DiamondCut = [
+    "src/ERC2535/DiamondCut.cairo",
+]

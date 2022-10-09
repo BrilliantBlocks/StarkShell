@@ -1,7 +1,8 @@
 %lang starknet
 
+
 @contract_interface
-namespace IRegistry {
+namespace IFeltMap {
     func register(_element: felt) -> () {
     }
 
