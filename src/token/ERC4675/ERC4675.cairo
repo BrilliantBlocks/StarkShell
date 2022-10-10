@@ -10,7 +10,7 @@ from starkware.starknet.common.syscalls import get_caller_address, get_block_tim
 
 from src.token.ERC721.IERC721 import IERC721
 
-from src.constants import FUNCTION_SELECTORS
+from src.constants import FUNCTION_SELECTORS, IERC4675_ID
 
 
 @event
@@ -25,6 +25,10 @@ func Approval(owner: felt, spender: felt, id: Uint256, amount: Uint256) {
 func TokenAddition(parent_token: felt, parent_token_id: Uint256, id: Uint256, total_supply: Uint256) {
 }
 
+
+@storage_var
+func _admin() -> (address: felt) {
+}
 
 @storage_var
 func _balances(owner: felt, id: Uint256) -> (res: Uint256) {
@@ -326,6 +330,47 @@ func _spend_allowance{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
     _allowances.write(owner, spender, id, new_allowance);
 
     return ();
+}
+
+
+@external
+func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    admin_address: felt
+) -> () {
+
+    _admin.write(admin_address);
+    
+    return ();
+}
+
+
+@view
+func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+    return (res_len=8, res=cast(func_selectors, felt*));
+
+    selectors_start:
+    dw FUNCTION_SELECTORS.ERC4675.setParentNFT;
+    dw FUNCTION_SELECTORS.ERC4675.totalSupply;
+    dw FUNCTION_SELECTORS.ERC4675.balanceOf;
+    dw FUNCTION_SELECTORS.ERC4675.approve;
+    dw FUNCTION_SELECTORS.ERC4675.allowance;
+    dw FUNCTION_SELECTORS.ERC4675.isRegistered;
+    dw FUNCTION_SELECTORS.ERC4675.transfer;
+    dw FUNCTION_SELECTORS.ERC4675.transferFrom;
+}
+
+
+// @dev Support ERC-165
+// @param interface_id
+// @return success (0 or 1)
+@view
+func __supports_interface__(_interface_id: felt) -> (success: felt) {
+    if (_interface_id == IERC4675_ID) {
+        return (TRUE,);
+    }
+
+    return (FALSE,);
 }
 
 

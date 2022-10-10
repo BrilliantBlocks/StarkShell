@@ -9,6 +9,7 @@ const IERC2981_ID = 0x2a55205a;
 const IERC4906_ID = 0x49064906;
 const IERC5007_ID = 0x7a0cdf92;
 const IERC4907_ID = 0xad092b5c;
+const IERC4675_ID = 0x83f5d35f;
 const IERC5185_ID = 0x00000001; // TODO
 const IERC721_RECEIVER_ID = 0x150b7a02;
 const IACCOUNT_ID = 0xf10dbd44;
@@ -75,5 +76,16 @@ namespace FUNCTION_SELECTORS {
         const setUser = 0x390ad5baaccaa89f2506f2a4d742c7f3e1faca465bb358810156d68b69786c;
         const userOf = 0x3bd45318b11387257d49743e18e91d0bacdddd87fddd9528e1432b9a93fd7ab;
         const userExpires = 0x3c0a79768a8c497262c18c4602a67ff7059be721041195f8dfa0ba74028894b;
+    }
+
+    namespace ERC4675 {
+        const setParentNFT = 0x1fa8bc0752d6e906425fe2e500badd45d6a671a1c35f2f1a60f30b06a809395;
+        const totalSupply = 0x80aa9fdbfaf9615e4afc7f5f722e265daca5ccc655360fa5ccacf9c267936d;
+        const balanceOf = 0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e;
+        const approve = 0x219209e083275171774dab1df80982e9df2096516f06319c5c6d71ae0a8480c;
+        const allowance = 0x1e888a1026b19c8c0b57c72d63ed1737106aa10034105b980ba117bd0c29fe1;
+        const isRegistered = 0xe67252e1eb7d86710def42b0b608424428dffb6810c123a41f9b22d4b564ec;
+        const transfer = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
+        const transferFrom = 0x41b033f4a31df8067c24d1e9b550a2ce75fd4a29e1147af9752174f0e6cb20;
     }
 }
