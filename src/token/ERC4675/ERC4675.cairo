@@ -3,7 +3,7 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.uint256 import Uint256, uint256_check, assert_uint256_le, uint256_add, uint256_sub, uint256_eq
-from starkware.cairo.common.math import assert_not_zero
+from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.registers import get_label_location
 from starkware.starknet.common.syscalls import get_caller_address, get_block_timestamp, get_contract_address
@@ -262,6 +262,11 @@ func transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 func transferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     from_: felt, to: felt, id: Uint256, amount: Uint256
 ) -> (bool: felt) {
+
+    let (caller) = get_caller_address();
+    with_attr error_message("Use transfer function to transfer funds from your own address") {
+        assert_not_equal(from_, caller);
+    }
     
     with_attr error_message("Sender must not be the zero address") {
         assert_not_zero(from_);
@@ -283,11 +288,8 @@ func transferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
     with_attr error_message("NFT is not registered") {
         assert_not_zero(entry[0]);
     }
-    
-    let (sender_balance) = _balances.read(from_, id);
-    with_attr error_message("Token balance is unsufficient") {
-        assert_uint256_le(amount, sender_balance);
-    }
+
+    _spend_allowance(from_, caller, id, amount);
 
     _transfer(from_, to, id, amount);
 
@@ -306,6 +308,22 @@ func _transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 
     _balances.write(from_, id, new_sender_balance);
     _balances.write(to, id, new_recipient_balance);
+
+    return ();
+}
+
+
+func _spend_allowance{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    owner: felt, spender: felt, id: Uint256, amount: Uint256
+) -> () {
+
+    let (allowance) = _allowances.read(owner, spender, id);
+    with_attr error_message("Allowance is unsufficient") {
+        assert_uint256_le(amount, allowance);
+    }
+
+    let (new_allowance) = uint256_sub(allowance, amount);
+    _allowances.write(owner, spender, id, new_allowance);
 
     return ();
 }
