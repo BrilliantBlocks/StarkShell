@@ -1,9 +1,10 @@
-[submodule "cairo_contracts"]
-	url = https://github.com/OpenZeppelin/cairo-contracts
-	path = lib/cairo_contracts
 [submodule "cairo_exponential_arrays"]
 	path = lib/cairo_exponential_arrays
 	url = git@github.com:BrilliantBlocks/cairo-exponential-arrays.git
 [submodule "cairo_math_64x61"]
 	url = https://github.com/influenceth/cairo-math-64x61
 	path = lib/cairo_math_64x61
+[submodule "cairo_contracts"]
+	url = https://github.com/OpenZeppelin/cairo-contracts
+	path = lib/cairo_contracts
+	branch = refs/heads/v0.4.0
