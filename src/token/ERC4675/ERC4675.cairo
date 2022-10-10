@@ -41,7 +41,6 @@ func _allowances(owner: felt, spender: felt, id: Uint256) -> (amount: Uint256) {
 func setParentNFT{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     parent_nft_contract_address: felt, parent_nft_token_id: Uint256, total_supply: Uint256
 ) -> () {
-    alloc_locals;
 
     with_attr error_message("Parent contract address must not be the zero address") {
         assert_not_zero(parent_nft_contract_address);
@@ -54,7 +53,7 @@ func setParentNFT{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
 
     // Add assertions
 
-    let (next_free_id) = get_next_free_id(0);
+    let (next_free_id) = get_next_free_id(Uint256(0,0));
     
     _token_registry.write(next_free_id, (parent_nft_contract_address, parent_nft_token_id, total_supply));
 
@@ -72,29 +71,30 @@ func check_if_registered{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_c
         return (FALSE,);
     }
 
-    if (entry[0] == parent_nft_contract_address) {
-        let (token_is_equal) = uint256_eq(entry[1], parent_nft_token_id);
-        if (token_is_equal == TRUE) {
-            return (TRUE,);
-        }
+    let (token_is_equal) = uint256_eq(entry[1], parent_nft_token_id);
+    if (entry[0] == parent_nft_contract_address and token_is_equal == TRUE) {
+        return (TRUE,);
     }
 
-    let (next_id,_) = uint256_add(current_id, Uint256(1,0));
+    let (next_id, _) = uint256_add(current_id, Uint256(1,0));
     return check_if_registered(parent_nft_contract_address, parent_nft_token_id, next_id);
 }
 
 
 func get_next_free_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    current_id: felt
+    current_id: Uint256
 ) -> (next_free_id: Uint256) {
     let (entry) = _token_registry.read(current_id);
+    let zero_id = Uint256(0,0);
 
     if (entry[0] == 0) {
-        return Uint256(0,0);
+        return (zero_id,);
     }
 
-    let (sum) = get_next_free_id(current_id + 1);
-    return (sum + 1,);
+    let (next_id, _) = uint256_add(current_id, Uint256(1,0));
+    let (sum) = get_next_free_id(next_id);
+    let (sum_ret, _) = uint256_add(sum, Uint256(1,0));
+    return (sum_ret,);
 }
 
 
@@ -102,15 +102,15 @@ func get_next_free_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 func totalSupply{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     id: Uint256
 ) -> (res: Uint256) {
-    
+    alloc_locals;
     with_attr error_message("Token ID is not a valid Uint256") {
         uint256_check(id);
     }
     
     let (entry) = _token_registry.read(id);
-    let (total_supply) = entry[2];
+    local total_supply: Uint256 = entry[2];
 
-    return total_supply;
+    return (total_supply,);
 }
 
 
@@ -130,6 +130,37 @@ func balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     let balance = _balances.read(owner, id);
 
     return balance;
+}
+
+
+@external
+func approve{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    spender: felt, id: Uint256, amount: Uint256
+) -> (bool: felt) {
+    
+    with_attr error_message("Token ID is not a valid Uint256") {
+        uint256_check(id);
+    }
+
+    with_attr error_message("Token ID is not a valid Uint256") {
+        uint256_check(amount);
+    }
+
+    with_attr error_message("Owner address must not be the zero address") {
+        assert_not_zero(spender);
+    }
+
+    let (caller) = get_caller_address();
+    let (caller_balance) = _balances.read(caller, id);
+
+    with_attr error_message("Token balance is unsufficient") {
+        assert_uint256_le(amount, caller_balance);
+    }
+    
+    _allowances.write(caller, spender, id, amount);
+    Approval.emit(caller, spender, id, amount);
+
+    return (TRUE,);
 }
 
 
@@ -171,7 +202,7 @@ func isRegistered{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
 
     let (is_registered) = check_if_registered(parent_nft_contract_address, parent_nft_token_id, Uint256(0,0));
 
-    return is_registered;
+    return (is_registered,);
 }
 
 
