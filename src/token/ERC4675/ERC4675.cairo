@@ -6,17 +6,19 @@ from starkware.cairo.common.uint256 import Uint256, uint256_check, assert_uint25
 from starkware.cairo.common.math import assert_not_zero
 from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.registers import get_label_location
-from starkware.starknet.common.syscalls import get_caller_address, get_block_timestamp
+from starkware.starknet.common.syscalls import get_caller_address, get_block_timestamp, get_contract_address
+
+from src.token.ERC721.IERC721 import IERC721
 
 from src.constants import FUNCTION_SELECTORS
 
 
 @event
-func Transfer(from_: felt, to: felt, id: Uint256, value: Uint256) {
+func Transfer(from_: felt, to: felt, id: Uint256, amount: Uint256) {
 }
 
 @event
-func Approval(owner: felt, spender: felt, id: Uint256, value: Uint256) {
+func Approval(owner: felt, spender: felt, id: Uint256, amount: Uint256) {
 }
 
 @event
@@ -46,12 +48,26 @@ func setParentNFT{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
         assert_not_zero(parent_nft_contract_address);
     }
 
+    with_attr error_message("Parent NFT token ID is not a valid Uint256") {
+        uint256_check(parent_nft_token_id);
+    }
+
+    with_attr error_message("Total supply is not a valid Uint256") {
+        uint256_check(total_supply);
+    }
+
     let (is_registered) = check_if_registered(parent_nft_contract_address, parent_nft_token_id, Uint256(0,0));
     with_attr error_message("NFT is already registered") {
         assert is_registered = FALSE;
     }
 
-    // Add assertions
+    let (caller_address) = get_caller_address();
+    let (contract_address) = get_contract_address();
+    let (approved_address) = IERC721.getApproved(parent_nft_contract_address, parent_nft_token_id);
+    with_attr error_message("Fractional contract must be approved for token") {
+        assert approved_address = contract_address;
+    }
+    IERC721.transferFrom(parent_nft_contract_address, caller_address, contract_address, parent_nft_token_id);
 
     let (next_free_id) = get_next_free_id(Uint256(0,0));
     
@@ -209,23 +225,34 @@ func isRegistered{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
 
 @external
 func transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    to: felt, id: Uint256, value: Uint256
+    to: felt, id: Uint256, amount: Uint256
 ) -> (bool: felt) {
     
     with_attr error_message("Receiver must not be the zero address") {
         assert_not_zero(to);
+    }
+
+    with_attr error_message("Token ID is not a valid Uint256") {
+        uint256_check(id);
+    }
+
+    with_attr error_message("Amount is not a valid Uint256") {
+        uint256_check(amount);
+    }
+
+    let (entry) = _token_registry.read(id);
+    with_attr error_message("NFT is not registered") {
+        assert_not_zero(entry[0]);
     }
     
     let (caller) = get_caller_address();
     let (caller_balance) = _balances.read(caller, id);
 
     with_attr error_message("Token balance is unsufficient") {
-        assert_uint256_le(value, caller_balance);
+        assert_uint256_le(amount, caller_balance);
     }
 
-    //Check if ID registered
-
-    _transfer(caller, to, id, value);
+    _transfer(caller, to, id, amount);
 
     return (TRUE,);
 }
@@ -233,36 +260,49 @@ func transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 
 @external
 func transferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    from_: felt, to: felt, id: Uint256, value: Uint256
+    from_: felt, to: felt, id: Uint256, amount: Uint256
 ) -> (bool: felt) {
     
+    with_attr error_message("Sender must not be the zero address") {
+        assert_not_zero(from_);
+    }
+
     with_attr error_message("Receiver must not be the zero address") {
         assert_not_zero(to);
     }
 
+    with_attr error_message("Token ID is not a valid Uint256") {
+        uint256_check(id);
+    }
 
+    with_attr error_message("Amount is not a valid Uint256") {
+        uint256_check(amount);
+    }
+
+    let (entry) = _token_registry.read(id);
+    with_attr error_message("NFT is not registered") {
+        assert_not_zero(entry[0]);
+    }
     
     let (sender_balance) = _balances.read(from_, id);
     with_attr error_message("Token balance is unsufficient") {
-        assert_uint256_le(value, sender_balance);
+        assert_uint256_le(amount, sender_balance);
     }
 
-    //Check if ID registered
-
-    _transfer(from_, to, id, value);
+    _transfer(from_, to, id, amount);
 
     return (TRUE,);
 }
 
 
 func _transfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    from_: felt, to: felt, id: Uint256, value: Uint256
+    from_: felt, to: felt, id: Uint256, amount: Uint256
 ) -> () {
 
     let (sender_balance) = _balances.read(from_, id);
     let (recipient_balance) = _balances.read(to, id);
-    let (new_sender_balance) = uint256_sub(sender_balance, value);
-    let (new_recipient_balance, _) = uint256_add(recipient_balance, value);
+    let (new_sender_balance) = uint256_sub(sender_balance, amount);
+    let (new_recipient_balance, _) = uint256_add(recipient_balance, amount);
 
     _balances.write(from_, id, new_sender_balance);
     _balances.write(to, id, new_recipient_balance);
