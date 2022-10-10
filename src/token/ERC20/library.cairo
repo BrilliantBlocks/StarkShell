@@ -51,7 +51,7 @@ namespace ERC20 {
     ) {
         _name.write(name);
         _symbol.write(symbol);
-        with_attr error_message("Decimals exceed 2^8") {
+        with_attr error_message("Decimals exceed 256") {
             assert_le(decimals, UINT8_MAX);
         }
         _decimals.write(decimals);
@@ -149,7 +149,7 @@ namespace ERC20 {
         let (caller) = get_caller_address();
         let (current_allowance) = _allowances.read(caller, spender);
 
-        with_attr error_message("ERC20: allowance overflow") {
+        with_attr error_message("Allowance overflow") {
             let (new_allowance) = SafeUint256.add(current_allowance, added_amount);
         }
 
@@ -169,7 +169,7 @@ namespace ERC20 {
         let (caller) = get_caller_address();
         let (current_allowance) = _allowances.read(caller, spender);
 
-        with_attr error_message("Allowance below zero") {
+        with_attr error_message("Allowance must not be below zero") {
             let (new_allowance) = SafeUint256.sub_le(current_allowance, subtracted_amount);
         }
 
