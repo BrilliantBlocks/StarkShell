@@ -48,6 +48,8 @@ func setParentNFT{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
     parent_nft_contract_address: felt, parent_nft_token_id: Uint256, total_supply: Uint256
 ) -> () {
 
+    assert_only_admin();
+
     with_attr error_message("Parent contract address must not be the zero address") {
         assert_not_zero(parent_nft_contract_address);
     }
@@ -65,13 +67,11 @@ func setParentNFT{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
         assert is_registered = FALSE;
     }
 
-    let (caller_address) = get_caller_address();
     let (contract_address) = get_contract_address();
-    let (approved_address) = IERC721.getApproved(parent_nft_contract_address, parent_nft_token_id);
-    with_attr error_message("Fractional contract must be approved for token") {
-        assert approved_address = contract_address;
+    let (nft_owner) = IERC721.ownerOf(parent_nft_contract_address, parent_nft_token_id);
+    with_attr error_message("Contract must be NFT owner") {
+        assert contract_address = nft_owner;
     }
-    IERC721.transferFrom(parent_nft_contract_address, caller_address, contract_address, parent_nft_token_id);
 
     let (next_free_id) = get_next_free_id(Uint256(0,0));
     
@@ -328,6 +328,18 @@ func _spend_allowance{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 
     let (new_allowance) = uint256_sub(allowance, amount);
     _allowances.write(owner, spender, id, new_allowance);
+
+    return ();
+}
+
+
+func assert_only_admin{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
+
+    let (admin) = _admin.read();
+    let (caller) = get_caller_address();
+    with_attr error_message("You must be the admin to call this function") {
+        assert caller = admin;
+    }
 
     return ();
 }
