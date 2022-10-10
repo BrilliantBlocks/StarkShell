@@ -11,7 +11,6 @@ from starkware.cairo.common.uint256 import (
     uint256_eq
 )
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
-from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.registers import get_label_location
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
