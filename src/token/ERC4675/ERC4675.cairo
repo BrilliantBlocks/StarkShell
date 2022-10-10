@@ -2,11 +2,18 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import FALSE, TRUE
-from starkware.cairo.common.uint256 import Uint256, uint256_check, assert_uint256_le, uint256_add, uint256_sub, uint256_eq
+from starkware.cairo.common.uint256 import (
+    Uint256, 
+    uint256_check, 
+    assert_uint256_le, 
+    uint256_add, 
+    uint256_sub, 
+    uint256_eq
+)
 from starkware.cairo.common.math import assert_not_zero, assert_not_equal
 from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.registers import get_label_location
-from starkware.starknet.common.syscalls import get_caller_address, get_block_timestamp, get_contract_address
+from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
 from src.token.ERC721.IERC721 import IERC721
 
@@ -118,7 +125,7 @@ func get_next_free_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 }
 
 
-@external
+@view
 func totalSupply{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     id: Uint256
 ) -> (res: Uint256) {
@@ -134,7 +141,7 @@ func totalSupply{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
 }
 
 
-@external
+@view
 func balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     owner: felt, id: Uint256
 ) -> (res: Uint256) {
@@ -184,7 +191,7 @@ func approve{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 }
 
 
-@external
+@view
 func allowance{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     owner: felt, spender: felt, id: Uint256
 ) -> (amount: Uint256) {
@@ -207,7 +214,7 @@ func allowance{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 }
 
 
-@external
+@view
 func isRegistered{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     parent_nft_contract_address: felt, parent_nft_token_id: Uint256
 ) -> (bool: felt) {
