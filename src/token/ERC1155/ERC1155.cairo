@@ -1,9 +1,12 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.uint256 import Uint256 
+from starkware.cairo.common.registers import get_label_location
 
 from src.token.ERC1155.library import ERC1155
+from src.constants import FUNCTION_SELECTORS, IERC1155_ID
 
 
 @view
@@ -57,4 +60,39 @@ func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range
 ) {
 
     return ERC1155.safe_batch_transfer_from(from_, to, tokens_id_len, tokens_id, amounts_len, amounts);
+}
+
+
+@external
+func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
+
+    return ();
+}
+
+
+@view
+func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+    return (res_len=6, res=cast(func_selectors, felt*));
+
+    selectors_start:
+    dw FUNCTION_SELECTORS.ERC1155.balanceOf;
+    dw FUNCTION_SELECTORS.ERC1155.balanceOfBatch;
+    dw FUNCTION_SELECTORS.ERC1155.isApprovedForAll;
+    dw FUNCTION_SELECTORS.ERC1155.setApprovalForAll;
+    dw FUNCTION_SELECTORS.ERC1155.safeTransferFrom;
+    dw FUNCTION_SELECTORS.ERC1155.safeBatchTransferFrom;
+}
+
+
+// @dev Support ERC-165
+// @param interface_id
+// @return success (0 or 1)
+@view
+func __supports_interface__(_interface_id: felt) -> (success: felt) {
+    if (_interface_id == IERC1155_ID) {
+        return (TRUE,);
+    }
+
+    return (FALSE,);
 }
