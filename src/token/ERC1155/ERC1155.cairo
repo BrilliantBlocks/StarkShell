@@ -1,6 +1,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import (
     assert_nn_le,
@@ -10,172 +11,62 @@ from starkware.cairo.common.math import (
     assert_nn,
 )
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.uint256 import Uint256
+from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_le
 from starkware.cairo.common.memcpy import memcpy
 
 from src.token.ERC721.util.ShortString import uint256_to_ss
-
-
-//from starkware.cairo.common.bitwise import bitwise_and
-
-//from contracts.lib.Assertions import assert_only_diamond
-
-//const MASK = 2 ** 251 - 2 ** 128;
+from src.token.ERC721.util.Safemath import SafeUint256
 
 
 @event
-func TransferSingle(operator: felt, from_: felt, to: felt, id: felt, amount: felt) {
+func TransferSingle(operator: felt, from_: felt, to: felt, id: Uint256, amount: Uint256) {
 }
 
 @event
-func TransferBatch(operator: felt, from_: felt, to: felt, ids: felt, amounts: felt) {
+func TransferBatch(operator: felt, from_: felt, to: felt, ids_len: felt, ids: Uint256*, amounts_len: felt, amounts: Uint256*) {
 }
 
 @event
 func ApprovalForAll(owner: felt, operator: felt, approved: felt) {
 }
 
-// ToDo Find solution for caip-29 format
-// @event
-// func URI(endpoint: felt, id: felt) {
-// }
-
 
 @storage_var
-func _balances(owner: felt, token_id: felt) -> (res: felt) {
+func _balances(owner: felt, token_id: Uint256) -> (balance: Uint256) {
 }
 
 @storage_var
 func _operator_approvals(owner: felt, operator: felt) -> (res: felt) {
 }
 
-@storage_var
-func _base_token_uri(index: felt) -> (res: felt) {
-}
-
-@storage_var
-func _base_token_uri_len() -> (res: felt) {
-}
-
-
-@view
-func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: Uint256
-) -> (token_uri_len: felt, token_uri: felt*) {
-    let (token_uri_len: felt, token_uri: felt*) = long_token_uri(token_id);
-    return (token_uri_len, token_uri);
-}
-
-
-func long_token_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: Uint256
-) -> (token_uri_len: felt, token_uri: felt*) {
-    alloc_locals;
-
-    // let (exists) = _exists(token_id);
-    // with_attr error_message("Token is nonexistent.") {
-    //     assert exists = TRUE;
-    // }
-
-    // Return tokenURI with an array of felts, `${base_token_uri}/${token_id}`
-    let (local base_token_uri) = alloc();
-    let (local base_token_uri_len) = _base_token_uri_len.read();
-    base_token_uri_(base_token_uri_len, base_token_uri);
-    let (token_id_ss_len, token_id_ss) = uint256_to_ss(token_id);
-    let (token_uri_len, token_uri) = concat_array(
-        base_token_uri_len, base_token_uri, token_id_ss_len, token_id_ss);
-    return (token_uri_len, token_uri);
-}
-
-
-func base_token_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    base_token_uri_len: felt, base_token_uri: felt*
-) -> () {
-    if (base_token_uri_len == 0) {
-        return ();
-    }
-    let (base) = _base_token_uri.read(base_token_uri_len);
-    assert base_token_uri[0] = base;
-    base_token_uri_(base_token_uri_len - 1, base_token_uri + 1);
-    return ();
-}
-
-
-func set_base_token_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_uri_len: felt, token_uri: felt*
-) -> () {
-    populate_base_token_uri(token_uri_len, token_uri);
-    _base_token_uri_len.write(token_uri_len);
-    return ();
-}
-
-
-func populate_base_token_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_uri_len: felt, token_uri: felt*
-) -> () {
-    if (token_uri_len == 0) {
-        return ();
-    }
-    _base_token_uri.write(token_uri_len, token_uri[0]);
-    populate_base_token_uri(token_uri_len - 1, token_uri + 1);
-    return ();
-}
-
-
-func concat_array{range_check_ptr}(
-    arr1_len: felt, arr1: felt*, arr2_len: felt, arr2: felt*
-) -> (res_len: felt, res: felt*) {
-    alloc_locals;
-    let (local res: felt*) = alloc();
-    memcpy(res, arr1, arr1_len);
-    memcpy(res + arr1_len, arr2, arr2_len);
-    return (arr1_len + arr2_len, res);
-}
-
-
-
-// func _set_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-//     collectionId: felt, uri_: felt
-// ) {
-//     let (old_uri) = _uri.read(collectionId);
-
-//     if (old_uri != uri_) {
-//         with_attr error_message("URI for existing collection ID cannot be changed.") {
-//             assert old_uri = 0;
-//         }
-//     }
-//     // Todo: too noisy event emissions. emits even if URI did not change.
-//     _uri.write(collectionId, uri_);
-//     URI.emit(uri_, collectionId);
-//     return ();
-// }
 
 
 @external
 func _mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    to: felt, token_id: felt, amount: felt, collectionId: felt, uri_: felt
+    to: felt, token_id: Uint256, amount: Uint256
 ) -> () {
-    //assert_only_diamond();
 
     with_attr error_message("Address cannot be zero.") {
         assert_not_zero(to);
     }
-    with_attr error_message("Amount cannot be negative.") {
-        assert_nn(amount);
+    with_attr error_message("Token ID is not a valid Uint256") {
+        uint256_check(token_id);
     }
+    with_attr error_message("Amount is not a valid Uint256") {
+        uint256_check(amount);
+    }
+
     let (balance) = _balances.read(to, token_id);
-    _balances.write(to, token_id, balance + amount);
-    //_set_uri(collectionId, uri_);
+    let (new_balance) = SafeUint256.add(balance, amount);
+    _balances.write(to, token_id, new_balance);
     return ();
 }
 
 
 @external
 func _mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    to: felt, tokens_id_len: felt, tokens_id: felt*, amounts_len: felt, amounts: felt*,
-    collections_id_len: felt, collections_id: felt*, uris_len: felt, uris: felt*,
+    to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
 ) -> () {
-    //assert_only_diamond();
 
     with_attr error_message("Address cannot be zero.") {
         assert_not_zero(to);
@@ -188,64 +79,57 @@ func _mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
         return ();
     }
 
-    _mint(to, tokens_id[0], amounts[0], collections_id[0], uris[0]);
-    return _mint_batch(to, tokens_id_len - 1, tokens_id + 1, amounts_len - 1, amounts + 1,
-        collections_id_len - 1, collections_id + 1, uris_len - 1, uris + 1,
-    );
+    _mint(to, tokens_id[0], amounts[0]);
+    return _mint_batch(to, tokens_id_len - 1, tokens_id + Uint256.SIZE, amounts_len - 1, amounts + Uint256.SIZE);
 }
 
 //
 // Getters
 //
 
-// @view
-// func uri{
-//     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-// }(tokenId: felt) -> (tokenUri: felt) {
-//     let (collectionId) = bitwise_and(tokenId, MASK);
-//     let (res) = _uri.read(collectionId);
-//     return (res,);
-// }
-
-
 @view
 func balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    owner: felt, token_id: felt
-) -> (res: felt) {
+    owner: felt, token_id: Uint256
+) -> (balance: Uint256) {
     with_attr error_message("Address cannot be zero.") {
         assert_not_zero(owner);
     }
-    let (balance) = _balances.read(owner, token_id);
-    return (balance,);
+    let balance = _balances.read(owner, token_id);
+    return balance;
 }
 
 
 @view
 func balanceOfBatch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    owners_len: felt, owners: felt*, tokens_id_len: felt, tokens_id: felt*
-) -> (res_len: felt, res: felt*) {
+    owners_len: felt, owners: felt*, tokens_id_len: felt, tokens_id: Uint256*
+) -> (balances_len: felt, balances: Uint256*) {
+    alloc_locals;
+    with_attr error_message("Owners array must not be empty") {
+        assert_not_zero(owners_len);
+    }
     with_attr error_message("Address and token id array lenghts don't match.") {
         assert owners_len = tokens_id_len;
     }
-    alloc_locals;
-    local max = owners_len;
-    let (local ret_array: felt*) = alloc();
-    local ret_index = 0;
-    populate_balance_of_batch(owners, tokens_id, ret_array, ret_index, max);
-    return (max, ret_array);
+
+    let (balance_array: Uint256*) = alloc();
+    local balance_array_len = owners_len;
+    tempvar current_id = 0;
+
+    populate_balance_of_batch(owners, tokens_id, balance_array, balance_array_len, current_id);
+    return (balance_array_len, balance_array);
 }
 
 
 func populate_balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    owners: felt*, tokens_id: felt*, rett: felt*, ret_index: felt, max: felt
+    owners: felt*, tokens_id: Uint256*, balance_array: Uint256*, balance_array_len: felt, current_id: felt
 ) {
     alloc_locals;
-    if (ret_index == max) {
+    if (current_id == balance_array_len) {
         return ();
     }
-    let (local retval0: felt) = _balances.read(owners[0], tokens_id[0]);
-    rett[0] = retval0;
-    populate_balance_of_batch(owners + 1, tokens_id + 1, rett + 1, ret_index + 1, max);
+    let (balance) = _balances.read(owners[0], tokens_id[0]);
+    assert balance_array[0] = balance;
+    populate_balance_of_batch(owners + 1, tokens_id + Uint256.SIZE, balance_array + Uint256.SIZE, balance_array_len, current_id + 1);
     return ();
 }
 
@@ -270,10 +154,10 @@ func setApprovalForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
     with_attr error_message("You cannot set approval for yourself.") {
         assert_not_equal(caller, operator);
     }
-    // ensure approved is a boolean (0 or 1)
     with_attr error_message("Approval parameter is not a boolean.") {
         assert approved * (1 - approved) = 0;
     }
+
     _operator_approvals.write(caller, operator, approved);
     ApprovalForAll.emit(caller, operator, approved);
     return ();
@@ -285,10 +169,11 @@ func setApprovalForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
 
 @external
 func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    _from: felt, to: felt, token_id: felt, amount: felt
+    _from: felt, to: felt, token_id: Uint256, amount: Uint256
 ) {
     assert_is_owner_or_approved(_from);
     _transfer_from(_from, to, token_id, amount);
+    
     let (caller) = get_caller_address();
     TransferSingle.emit(caller, _from, to, token_id, amount);
     return ();
@@ -297,42 +182,43 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 
 @external
 func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    _from: felt, to: felt, tokens_id_len: felt, tokens_id: felt*, amounts_len: felt, amounts: felt*
+    _from: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
 ) {
+    alloc_locals;
     assert_is_owner_or_approved(_from);
     _batch_transfer_from(_from, to, tokens_id_len, tokens_id, amounts_len, amounts);
+    
     let (caller) = get_caller_address();
-    TransferBatch.emit(caller, _from, to, tokens_id_len, amounts_len);
+    TransferBatch.emit(caller, _from, to, tokens_id_len, tokens_id, amounts_len, amounts);
     return ();
 }
 
 
 func _transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    sender: felt, recipient: felt, token_id: felt, amount: felt
+    sender: felt, recipient: felt, token_id: Uint256, amount: Uint256
 ) {
-    // check recipient != 0
     with_attr error_message("Recipient address cannot be zero.") {
         assert_not_zero(recipient);
     }
 
-    // validate sender has enough funds
     let (sender_balance) = _balances.read(sender, token_id);
+    let (sufficient_balance) = uint256_le(amount, sender_balance);
     with_attr error_message("Sender has not enough funds.") {
-        assert_nn_le(amount, sender_balance);
+        assert sufficient_balance = TRUE;
     }
 
-    // substract from sender
-    _balances.write(sender, token_id, sender_balance - amount);
+    let (new_sender_balance) = SafeUint256.sub_le(sender_balance, amount);
+    _balances.write(sender, token_id, new_sender_balance);
 
-    // add to recipient
     let (recipient_balance) = _balances.read(recipient, token_id);
-    _balances.write(recipient, token_id, recipient_balance + amount);
+    let (new_recipient_balance) = SafeUint256.add(recipient_balance, amount);
+    _balances.write(recipient, token_id, new_recipient_balance);
     return ();
 }
 
 
 func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    _from: felt, to: felt, tokens_id_len: felt, tokens_id: felt*, amounts_len: felt, amounts: felt*
+    _from: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
 ) {
     with_attr error_message("Token id and amount array lenghts don't match.") {
         assert tokens_id_len = amounts_len;
@@ -375,7 +261,6 @@ func assert_is_owner_or_approved{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*,
 func _burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     _from: felt, token_id: felt, amount: felt
 ) {
-    //assert_only_diamond();
 
     with_attr error_message("Address cannot be zero") {
         assert_not_zero(_from);
@@ -397,7 +282,6 @@ func _burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 func _burn_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     _from: felt, tokens_id_len: felt, tokens_id: felt*, amounts_len: felt, amounts: felt*
 ) {
-    //assert_only_diamond();
 
     with_attr error_message("Address cannot be zero") {
         assert_not_zero(_from);
