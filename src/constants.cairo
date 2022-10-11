@@ -36,6 +36,7 @@ namespace FUNCTION_SELECTORS {
         const increaseAllowance = 0x16cc063b8338363cf388ce7fe1df408bf10f16cd51635d392e21d852fafb683;
         const decreaseAllowance = 0x1aaf3e6107dd1349c81543ff4221a326814f77dadcc5810807b74f1a49ded4e;
         const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
+        const burn = 0x3e8cfd4725c1e28fa4a6e3e468b4fcf75367166b850ac5f04e33ec843e82c1;
     }
 
     namespace ERC721 {
