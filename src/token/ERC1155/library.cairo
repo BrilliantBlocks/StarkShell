@@ -40,7 +40,7 @@ func _operator_approvals(owner: felt, operator: felt) -> (res: felt) {
 
 namespace ERC1155 {
 
-    func balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    func balance_of{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         owner: felt, token_id: Uint256
     ) -> (balance: Uint256) {
         with_attr error_message("Address cannot be zero") {
@@ -54,7 +54,7 @@ namespace ERC1155 {
     }
 
 
-    func balanceOfBatch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    func balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         owners_len: felt, owners: felt*, tokens_id_len: felt, tokens_id: Uint256*
     ) -> (balances_len: felt, balances: Uint256*) {
         alloc_locals;
@@ -81,14 +81,14 @@ namespace ERC1155 {
         if (current_id == balance_array_len) {
             return ();
         }
-        let (balance) = balanceOf(owners[0], tokens_id[0]);
+        let (balance) = balance_of(owners[0], tokens_id[0]);
         assert balance_array[0] = balance;
         populate_balance_of_batch(owners + 1, tokens_id + Uint256.SIZE, balance_array + Uint256.SIZE, balance_array_len, current_id + 1);
         return ();
     }
 
 
-    func isApprovedForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    func is_approved_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         owner: felt, operator: felt
     ) -> (bool: felt) {
         let (approved) = _operator_approvals.read(owner, operator);
@@ -96,7 +96,7 @@ namespace ERC1155 {
     }
 
 
-    func setApprovalForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    func set_approval_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         operator: felt, approved: felt
     ) {
         with_attr error_message("Operator address cannot be zero") {
@@ -116,7 +116,7 @@ namespace ERC1155 {
     }
 
 
-    func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    func safe_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, to: felt, token_id: Uint256, amount: Uint256
     ) {
         with_attr error_message("Sender address cannot be zero.") {
@@ -134,7 +134,7 @@ namespace ERC1155 {
     }
 
 
-    func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    func safe_batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
     ) {
         alloc_locals;

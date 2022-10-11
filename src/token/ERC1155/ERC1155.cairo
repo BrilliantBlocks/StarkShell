@@ -11,7 +11,7 @@ func balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     owner: felt, token_id: Uint256
 ) -> (balance: Uint256) {
 
-    return ERC1155.balanceOf(owner, token_id);
+    return ERC1155.balance_of(owner, token_id);
 }
 
 
@@ -20,7 +20,7 @@ func balanceOfBatch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
     owners_len: felt, owners: felt*, tokens_id_len: felt, tokens_id: Uint256*
 ) -> (balances_len: felt, balances: Uint256*) {
     
-    return ERC1155.balanceOfBatch(owners_len, owners, tokens_id_len, tokens_id);
+    return ERC1155.balance_of_batch(owners_len, owners, tokens_id_len, tokens_id);
 }
 
 
@@ -29,7 +29,7 @@ func isApprovedForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
     owner: felt, operator: felt
 ) -> (bool: felt) {
 
-    return ERC1155.isApprovedForAll(owner, operator);
+    return ERC1155.is_approved_for_all(owner, operator);
 }
 
 
@@ -38,7 +38,7 @@ func setApprovalForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
     operator: felt, approved: felt
 ) {
 
-    return ERC1155.setApprovalForAll(operator, approved);
+    return ERC1155.set_approval_for_all(operator, approved);
 }
 
 
@@ -47,7 +47,7 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
     from_: felt, to: felt, token_id: Uint256, amount: Uint256
 ) {
     
-    return ERC1155.safeTransferFrom(from_, to, token_id, amount);
+    return ERC1155.safe_transfer_from(from_, to, token_id, amount);
 }
 
 
@@ -56,12 +56,12 @@ func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range
     from_: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
 ) {
 
-    return ERC1155.safeBatchTransferFrom(from_, to, tokens_id_len, tokens_id, amounts_len, amounts);
+    return ERC1155.safe_batch_transfer_from(from_, to, tokens_id_len, tokens_id, amounts_len, amounts);
 }
 
 
 @external
-func _mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     to: felt, token_id: Uint256, amount: Uint256
 ) -> () {
 
@@ -70,7 +70,7 @@ func _mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 
 
 @external
-func _mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
 ) -> () {
 
@@ -79,7 +79,7 @@ func _mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
 
 
 @external
-func _burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     from_: felt, token_id: Uint256, amount: Uint256
 ) {
 
@@ -88,7 +88,7 @@ func _burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 
 
 @external
-func _burn_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func burn_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     from_: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
 ) {
     
