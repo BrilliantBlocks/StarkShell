@@ -41,8 +41,8 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     return (res_len=2, res=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.MintBurnERC20.mint;
-    dw FUNCTION_SELECTORS.MintBurnERC20.burn;
+    dw FUNCTION_SELECTORS.MINT_BURN_ERC20.mint;
+    dw FUNCTION_SELECTORS.MINT_BURN_ERC20.burn;
 }
 
 

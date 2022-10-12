@@ -58,10 +58,10 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     return (res_len=4, res=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.MintBurnERC1155.mint;
-    dw FUNCTION_SELECTORS.MintBurnERC1155.mintBatch;
-    dw FUNCTION_SELECTORS.MintBurnERC1155.burn;
-    dw FUNCTION_SELECTORS.MintBurnERC1155.burnBatch;
+    dw FUNCTION_SELECTORS.MINT_BURN_ERC1155.mint;
+    dw FUNCTION_SELECTORS.MINT_BURN_ERC1155.mintBatch;
+    dw FUNCTION_SELECTORS.MINT_BURN_ERC1155.burn;
+    dw FUNCTION_SELECTORS.MINT_BURN_ERC1155.burnBatch;
 }
 
 

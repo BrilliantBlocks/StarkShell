@@ -37,7 +37,7 @@ namespace FUNCTION_SELECTORS {
         const decreaseAllowance = 0x1aaf3e6107dd1349c81543ff4221a326814f77dadcc5810807b74f1a49ded4e;
     }
 
-    namespace MintBurnERC20 {
+    namespace MINT_BURN_ERC20 {
         const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
         const burn = 0x3e8cfd4725c1e28fa4a6e3e468b4fcf75367166b850ac5f04e33ec843e82c1;
     }
@@ -62,7 +62,7 @@ namespace FUNCTION_SELECTORS {
         const safeBatchTransferFrom = 0x23cc35d21c405aa7adf1f3afcf558aec0dbe6a45cade725420609aef87e9035;
     }
 
-    namespace MintBurnERC1155 {
+    namespace MINT_BURN_ERC1155 {
         const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
         const mintBatch = 0x348b9a6e049cc3f9f66737435ed36813556cc5be1cf9d5c64f429c32a17d88a;
         const burn = 0x3e8cfd4725c1e28fa4a6e3e468b4fcf75367166b850ac5f04e33ec843e82c1;
@@ -84,7 +84,7 @@ namespace FUNCTION_SELECTORS {
         const metadataFormat = 0x1ca90dda6287e49240ebea9347c5f16889c3d322c63f56cb9b41049ff8d8d4c;
     }
 
-    namespace MintERC5114 {
+    namespace MINT_ERC5114 {
         const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
     }
 
