@@ -46,7 +46,7 @@ func _allowances(owner: felt, spender: felt) -> (amount: Uint256) {
 
 namespace ERC20 {
 
-    func initialize{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         name: felt, symbol: felt, decimals: felt
     ) {
         _name.write(name);

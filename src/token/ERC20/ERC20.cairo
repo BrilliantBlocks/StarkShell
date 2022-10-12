@@ -105,7 +105,7 @@ func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
     name: felt, symbol: felt, decimals: felt, initial_supply: Uint256, recipient: felt
 ) -> () {
 
-    ERC20.initialize(name, symbol, decimals);
+    ERC20.initializer(name, symbol, decimals);
     ERC20._mint(recipient, initial_supply);
     
     return ();
