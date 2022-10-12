@@ -43,7 +43,7 @@ namespace ERC1155 {
     func balance_of{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         owner: felt, token_id: Uint256
     ) -> (balance: Uint256) {
-        with_attr error_message("Address cannot be zero") {
+        with_attr error_message("Owner address must not be zero") {
             assert_not_zero(owner);
         }
         with_attr error_message("Token ID is not a valid Uint256") {
@@ -99,14 +99,14 @@ namespace ERC1155 {
     func set_approval_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         operator: felt, approved: felt
     ) {
-        with_attr error_message("Operator address cannot be zero") {
+        with_attr error_message("Operator address must not be zero") {
             assert_not_zero(operator);
         }
         let (caller) = get_caller_address();
-        with_attr error_message("You cannot set approval for yourself.") {
+        with_attr error_message("You must not set approval for yourself") {
             assert_not_equal(caller, operator);
         }
-        with_attr error_message("Approval parameter is not a boolean.") {
+        with_attr error_message("Approval parameter must be a boolean") {
             assert approved * (1 - approved) = 0;
         }
 
@@ -119,10 +119,10 @@ namespace ERC1155 {
     func safe_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, to: felt, token_id: Uint256, amount: Uint256
     ) {
-        with_attr error_message("Sender address cannot be zero.") {
+        with_attr error_message("Sender address must not be zero") {
             assert_not_zero(from_);
         }
-        with_attr error_message("Recipient address cannot be zero.") {
+        with_attr error_message("Recipient address must not be zero") {
             assert_not_zero(to);
         }
         assert_is_owner_or_approved(from_);
@@ -138,10 +138,10 @@ namespace ERC1155 {
         from_: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
     ) {
         alloc_locals;
-        with_attr error_message("Sender address cannot be zero.") {
+        with_attr error_message("Sender address must not be zero") {
             assert_not_zero(from_);
         }
-        with_attr error_message("Recipient address cannot be zero.") {
+        with_attr error_message("Recipient address must not be zero") {
             assert_not_zero(to);
         }
         assert_is_owner_or_approved(from_);
@@ -164,7 +164,7 @@ namespace ERC1155 {
         }
         let (sender_balance) = _balances.read(sender, token_id);
         let (sufficient_balance) = uint256_le(amount, sender_balance);
-        with_attr error_message("Sender has not enough funds.") {
+        with_attr error_message("Sender has not enough funds") {
             assert sufficient_balance = TRUE;
         }
 
@@ -181,7 +181,7 @@ namespace ERC1155 {
     func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
     ) {
-        with_attr error_message("Token id and amount array lenghts don't match.") {
+        with_attr error_message("Token id and amount array lenghts don't match") {
             assert tokens_id_len = amounts_len;
         }
 
@@ -214,7 +214,7 @@ namespace ERC1155 {
     func _mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         to: felt, token_id: Uint256, amount: Uint256
     ) -> () {
-        with_attr error_message("Address cannot be zero.") {
+        with_attr error_message("Address must not be zero") {
             assert_not_zero(to);
         }
         with_attr error_message("Token ID is not a valid Uint256") {
@@ -234,7 +234,7 @@ namespace ERC1155 {
     func _mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
     ) -> () {
-        with_attr error_message("Token id and amount array lenghts don't match.") {
+        with_attr error_message("Token id and amount array lenghts don't match") {
             assert tokens_id_len = amounts_len;
         }
 
@@ -250,7 +250,7 @@ namespace ERC1155 {
     func _burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, token_id: Uint256, amount: Uint256
     ) {
-        with_attr error_message("Address cannot be zero") {
+        with_attr error_message("Owner address must not be zero") {
             assert_not_zero(from_);
         }
         with_attr error_message("Token ID is not a valid Uint256") {
@@ -262,7 +262,7 @@ namespace ERC1155 {
 
         let (owner_balance) = _balances.read(from_, token_id);
         let (sufficient_balance) = uint256_le(amount, owner_balance);
-        with_attr error_message("Owner has not enough funds.") {
+        with_attr error_message("Owner has not enough funds") {
             assert sufficient_balance = TRUE;
         }
         let (new_owner_balance) = SafeUint256.sub_le(owner_balance, amount);
@@ -275,7 +275,7 @@ namespace ERC1155 {
     func _burn_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
     ) {
-        with_attr error_message("Token id and amount array lenghts don't match.") {
+        with_attr error_message("Token id and amount array lenghts don't match") {
             assert tokens_id_len = amounts_len;
         }
         if (tokens_id_len == 0) {

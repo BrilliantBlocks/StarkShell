@@ -214,7 +214,7 @@ namespace ERC20 {
             uint256_check(amount);
         }
 
-        with_attr error_message("Cannot burn from the zero address") {
+        with_attr error_message("Owner address must not be zero") {
             assert_not_zero(owner);
         }
 
@@ -240,11 +240,11 @@ namespace ERC20 {
             uint256_check(amount);  
         }
 
-        with_attr error_message("Sender address must not be the zero address") {
+        with_attr error_message("Sender address must not be zero") {
             assert_not_zero(sender);
         }
 
-        with_attr error_message("Recipient address must not be the zero address") {
+        with_attr error_message("Recipient address must not be zero") {
             assert_not_zero(recipient);
         }
 
@@ -269,11 +269,11 @@ namespace ERC20 {
             uint256_check(amount);
         }
 
-        with_attr error_message("Owner address must not be the zero address") {
+        with_attr error_message("Owner address must not be zero") {
             assert_not_zero(owner);
         }
 
-        with_attr error_message("Spender address must not be the zero address") {
+        with_attr error_message("Spender address must not be zero") {
             assert_not_zero(spender);
         }
 
