@@ -124,4 +124,11 @@ namespace FUNCTION_SELECTORS {
         const transfer = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
         const transferFrom = 0x41b033f4a31df8067c24d1e9b550a2ce75fd4a29e1147af9752174f0e6cb20;
     }
+
+    namespace LAZYMINT {
+        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
+        const addToWhitelist = 0x1bd2f341b15c21adf730026e0c6072773a188c5098349929b39d7ea612f79f8;
+        const changeWhitelistSetting = 0x35020ce616815178e52c9588723c3dea479b11797a6836686cc6bfb54c23bfd;
+        const getWhitelistSetting = 0x8988d153b42bd8ad378926f7dfc81d2909200c7683953a04cc44718b2ca7dc;
+    }
 }
