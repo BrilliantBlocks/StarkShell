@@ -1,6 +1,3 @@
 [submodule "cairo_contracts"]
 	url = https://github.com/OpenZeppelin/cairo-contracts
 	path = lib/cairo_contracts
-[submodule "cairo_exponential_arrays"]
-	path = lib/cairo_exponential_arrays
-	url = git@github.com:BrilliantBlocks/cairo-exponential-arrays.git
