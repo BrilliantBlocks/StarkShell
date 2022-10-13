@@ -3,12 +3,20 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.math import assert_not_zero
-from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_eq
+from starkware.cairo.common.uint256 import Uint256, uint256_le, uint256_eq, uint256_check
 from starkware.cairo.common.registers import get_label_location
 
 from src.token.ERC721.util.Safemath import SafeUint256
-//from src.token.ERC721.library import ERC721
 from src.constants import FUNCTION_SELECTORS
+
+
+@storage_var
+func _owners(token_id: Uint256) -> (res: felt) {
+}
+
+@storage_var
+func _balances(owner: felt) -> (res: Uint256) {
+}
 
 
 @event
@@ -46,8 +54,7 @@ func mint_batch_consecutive{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
         return ();
     }
 
-    // Not emitting the Transfer event in _mint function (?)
-    //ERC721._mint(to_address, current_token_id);
+    _mint(to_address, current_token_id);
 
     let (next_token_id) = SafeUint256.add(current_token_id, Uint256(1, 0));
 
@@ -56,7 +63,38 @@ func mint_batch_consecutive{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
 }
 
 
+func _mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    to: felt, token_id: Uint256
+) -> () {
+    with_attr error_message("Token ID is not valid.") {
+        uint256_check(token_id);
+    }
 
+    let (exists) = _exists(token_id);
+    with_attr error_message("Token already minted.") {
+        assert exists = FALSE;
+    }
+
+    let (balance) = _balances.read(to);
+    let (new_balance) = SafeUint256.add(balance, Uint256(1, 0));
+    _balances.write(to, new_balance);
+    _owners.write(token_id, to);
+
+    return ();
+}
+
+
+func _exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    token_id: Uint256
+) -> (res: felt) {
+    let (res) = _owners.read(token_id);
+
+    if (res == 0) {
+        return (FALSE,);
+    } else {
+        return (TRUE,);
+    }
+}
 
 
 @external
