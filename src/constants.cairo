@@ -131,4 +131,8 @@ namespace FUNCTION_SELECTORS {
         const changeWhitelistSetting = 0x35020ce616815178e52c9588723c3dea479b11797a6836686cc6bfb54c23bfd;
         const getWhitelistSetting = 0x8988d153b42bd8ad378926f7dfc81d2909200c7683953a04cc44718b2ca7dc;
     }
+
+    namespace BATCHMINT {
+        const mintBatchConsecutive = 0x1c7d5f1f8b2fe560ddb59a71a1b6c4633502700a50a01a7adbcd5cef0b39a97;
+    }
 }
