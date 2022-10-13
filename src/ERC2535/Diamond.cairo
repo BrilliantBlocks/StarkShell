@@ -19,12 +19,7 @@ from src.constants import (
     FUNCTION_SELECTORS,
     NULL,
 )
-from src.ERC2535.DiamondLoupe import (
-    facetAddress,
-    facetAddresses,
-    facetFunctionSelectors,
-    facets,
-)
+from src.ERC2535.library import DiamondLoupe
 from src.storage import facet_key, root
 
 
@@ -59,6 +54,38 @@ func __default__{
     );
 
     return (retdata_size, retdata);
+}
+
+@view
+func facetAddresses{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}() -> (res_len: felt, res: felt*) {
+    let (facets_len, facets) = DiamondLoupe._facetAddresses();
+    return (facets_len, facets);
+}
+
+@view
+func facetAddress{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_functionSelector: felt) -> (res: felt) {
+    let (class_hash) = DiamondLoupe._facetAddress(_functionSelector);
+    return (class_hash,);
+}
+
+@view
+func facetFunctionSelectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _facet: felt
+) -> (res_len: felt, res: felt*) {
+    let (selectors_len, selectors) = DiamondLoupe._facetFunctionSelectors(_facet);
+
+    return (selectors_len, selectors);
+}
+
+@view
+func facets{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}() -> (res_len: felt, res: felt*) {
+    return facetAddresses();
 }
 
 // @dev Support ERC-165

@@ -16,7 +16,7 @@ from src.constants import FUNCTION_SELECTORS, IDIAMONDCUT_ID
 from src.storage import facet_key, root
 from src.IERC721 import IERC721
 from src.IFeltMap import IFeltMap
-from src.ERC2535.DiamondLoupe import facetAddresses
+from src.ERC2535.library import DiamondLoupe
 
 @event
 func DiamondCut(
@@ -92,7 +92,7 @@ func _add_facet{
     let (r) = root.read();
 
     // Get facets and append new facet
-    let (facets_len, facets) = facetAddresses();
+    let (facets_len, facets) = DiamondLoupe._facetAddresses();
     assert facets[facets_len] = _address;
 
     let (new_key) = IFeltMap.calculateKey(r, facets_len + 1, facets);
