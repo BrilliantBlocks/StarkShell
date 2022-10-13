@@ -5,8 +5,8 @@ protostar_version = "0.3.2"
 libs_path = "lib"
 
 ["protostar.contracts"]
-main = [
-    "src/main.cairo",
+Diamond = [
+    "src/ERC2535/Diamond.cairo",
 ]
 DiamondCut = [
     "src/ERC2535/DiamondCut.cairo",

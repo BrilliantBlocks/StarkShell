@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 @external
 func __setup__() {
     %{
-        context.MFP_address = deploy_contract("./src/main.cairo", [0, 0]).contract_address
+        context.MFP_address = deploy_contract("./src/ERC2535/Diamond.cairo", [0, 0]).contract_address
     %}
     return ();
 }
