@@ -29,7 +29,7 @@ func mintBatchConsecutive{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_
     from_token_id: Uint256, to_token_id: Uint256, to_address: felt
 ) -> () {
 
-    with_attr error_message("Receiver address cannot be zero.") {
+    with_attr error_message("Receiver address must not be zero") {
         assert_not_zero(to_address);
     }
 
@@ -66,12 +66,12 @@ func mint_batch_consecutive{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
 func _mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     to: felt, token_id: Uint256
 ) -> () {
-    with_attr error_message("Token ID is not valid.") {
+    with_attr error_message("Token ID is not valid") {
         uint256_check(token_id);
     }
 
     let (exists) = _exists(token_id);
-    with_attr error_message("Token already minted.") {
+    with_attr error_message("Token already minted") {
         assert exists = FALSE;
     }
 
