@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import split_felt
 from starkware.starknet.common.syscalls import deploy, get_block_timestamp
 
-from src.TCF.Factory.IFactory import DeployContract
+from src.Factory.IFactory import DeployContract
 
 @storage_var
 func contract_hash_() -> (felt) {

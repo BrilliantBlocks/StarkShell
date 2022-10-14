@@ -6,12 +6,12 @@ from starkware.cairo.common.math import assert_not_equal, assert_not_zero, split
 from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
-from src.TCF.constants import IERC721_ID, IERC721_METADATA_ID, IERC165_ID
-from src.TCF.ERC5185.library import ERC5185
-from src.TCF.ERC721.library import ERC721, ERC721Library
-from src.TCF.ERC721.Metadata.library import UniversalMetadata
-from src.TCF.Factory.library import Factory
-from src.TCF.Proxy.library import Proxy
+from src.constants import IERC721_ID, IERC721_METADATA_ID, IERC165_ID
+from src.ERC5185.library import ERC5185
+from src.ERC721.library import ERC721, ERC721Library
+from src.UniversalMetadata.library import UniversalMetadata
+from src.Factory.library import Factory
+from src.Proxy.library import Proxy
 
 
 /// @dev Set target proxy

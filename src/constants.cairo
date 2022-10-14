@@ -3,6 +3,7 @@ const NULL = 0;
 const IERC165_ID = 0x01ffc9a7;
 const IERC20_ID = 0x01ffc9a7;
 const IERC721_ID = 0x80ac58cd;
+const IERC721_METADATA_ID = 0x5b5e139f;
 const IERC1155_ID = 0x01ffc9a7;
 const IERC5114_ID = 0x01ffc9a7;
 const IERC2981_ID = 0x2a55205a;

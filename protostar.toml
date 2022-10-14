@@ -11,3 +11,9 @@ Diamond = [
 DiamondCut = [
     "src/ERC2535/DiamondCut.cairo",
 ]
+FacetRegistry = [
+    "src/main/BFR/BFR.cairo"
+]
+TokenizedDiamondFactory = [
+    "src/main/TCF/TCF.cairo"
+]

@@ -2,7 +2,7 @@
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 
 from src.BFR.library import BFR
-from src.BFR.Ownership.library import Ownership
+from src.AccessManagement.Ownership.library import Ownership
 
 // / @emit SetOwner(_owner)
 @constructor

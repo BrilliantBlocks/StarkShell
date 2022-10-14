@@ -8,10 +8,10 @@ from starkware.starknet.common.syscalls import get_caller_address
 
 from lib.cairo_contracts.src.openzeppelin.security.safemath.library import SafeUint256
 
-from src.TCF.constants import IERC721_RECEIVER_ID, IACCOUNT_ID
-from src.TCF.ERC165.IERC165 import IERC165
-from src.TCF.ERC721.IERC721 import Approval, ApprovalForAll, Transfer
-from src.TCF.ERC721.IERC721_Receiver import IERC721_Receiver
+from src.constants import IERC721_RECEIVER_ID, IACCOUNT_ID
+from src.ERC165.IERC165 import IERC165
+from src.ERC721.IERC721 import Approval, ApprovalForAll, Transfer
+from src.ERC721.IERC721_Receiver import IERC721_Receiver
 
 
 @storage_var
