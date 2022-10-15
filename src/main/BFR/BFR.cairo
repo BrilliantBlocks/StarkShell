@@ -24,6 +24,19 @@ func registerElement{
     return ();
 }
 
+// / @dev Register elements in bitmap
+// / @emit Register(_bitId, _element)
+// / @revert ZERO ELEMENT if _element is 0
+// / @revert DUPLICATE ELEMENT if _element is already in bitmap
+@external
+func registerElements{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_elements_len: felt, _elements: felt*) -> () {
+    Ownership._assert_only_owner();
+    BFR._register_elements(_elements_len, _elements);
+    return ();
+}
+
 // / @dev Resolve key from bitmap
 // / @revert TODO
 // / @return Array of stored elements
