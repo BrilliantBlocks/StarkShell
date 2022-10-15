@@ -1,45 +1,51 @@
 %lang starknet
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 
-from src.BFR.library import BFR
-from src.AccessManagement.Ownership.library import Ownership
+from lib.cairo_contracts.src.openzeppelin.access.ownable.library import Ownable
 
-// / @emit SetOwner(_owner)
+from src.BFR.library import BFR
+
+/// @emit OwnershipTransferred
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) {
-    Ownership._set_owner_(_owner);
+    Ownable.initializer(_owner);
     return ();
 }
 
-// / @dev Register element in bitmap
-// / @emit Register(_bitId, _element)
-// / @revert ZERO ELEMENT if _element is 0
-// / @revert DUPLICATE ELEMENT if _element is already in bitmap
+/// @dev Register element in bitmap
+/// @emit Register(_bitId, _element)
+/// @revert "Ownable: caller is the zero address"
+/// @revert "Ownable: caller is not the owner"
+/// @revert ZERO ELEMENT if _element is 0
+/// @revert DUPLICATE ELEMENT if _element is already in bitmap
+/// @revert FULL REGISTRY
 @external
 func registerElement{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(_element: felt) -> () {
-    Ownership._assert_only_owner();
+    Ownable.assert_only_owner();
     BFR._register_element(_element);
     return ();
 }
 
-// / @dev Register elements in bitmap
-// / @emit Register(_bitId, _element)
-// / @revert ZERO ELEMENT if _element is 0
-// / @revert DUPLICATE ELEMENT if _element is already in bitmap
+/// @dev Register elements in bitmap
+/// @emit Register(_bitId, _element)
+/// @revert "Ownable: caller is the zero address"
+/// @revert "Ownable: caller is not the owner"
+/// @revert ZERO ELEMENT if _element is 0
+/// @revert DUPLICATE ELEMENT if _element is already in bitmap
+/// @revert FULL REGISTRY
 @external
 func registerElements{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(_elements_len: felt, _elements: felt*) -> () {
-    Ownership._assert_only_owner();
+    Ownable.assert_only_owner();
     BFR._register_elements(_elements_len, _elements);
     return ();
 }
 
-// / @dev Resolve key from bitmap
-// / @revert TODO
-// / @return Array of stored elements
+/// @dev Resolve key from bitmap
+/// @return Array of stored elements
 @view
 func resolveKey{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -48,11 +54,11 @@ func resolveKey{
     return (res_len, res);
 }
 
-// / @dev Calculate key for array of elements
-// / @revert ZERO ELEMENT if 0 is in array
-// / @revert DUPLICATE ELEMENT if array is not a set
-// / @revert UNKNOWN ELEMENT if element not stored in bitmap
-// / @return Key for resolving array of elements
+/// @dev Calculate key for array of elements
+/// @revert ZERO ELEMENT if 0 is in array
+/// @revert DUPLICATE ELEMENT if array is not a set
+/// @revert UNKNOWN ELEMENT if element not stored in bitmap
+/// @return Key for resolving array of elements
 @view
 func calculateKey{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -62,16 +68,26 @@ func calculateKey{
 }
 
 @view
-func getOwner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
-    let owner = Ownership._get_owner_();
+func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
+    let (owner) = Ownable.owner();
     return (res=owner);
 }
 
-// / @emit SetOwner(_owner)
-// / @revert UNAUTHORIZED iff caller is not owner
+/// @emit OwnershipTransferred
+/// @revert "Ownable: new owner is the zero address"
+/// @revert "Ownable: caller is the zero address"
+/// @revert "Ownable: caller is not the owner"
 @external
-func setOwner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) {
-    Ownership._assert_only_owner();
-    Ownership._set_owner_(_owner);
+func transferOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_new_owner: felt) -> () {
+    Ownable.transfer_ownership(_new_owner);
+    return ();
+}
+
+/// @emit OwnershipTransferred
+/// @revert "Ownable: caller is the zero address"
+/// @revert "Ownable: caller is not the owner"
+@external
+func renounceOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+    Ownable.renounce_ownership();
     return ();
 }
