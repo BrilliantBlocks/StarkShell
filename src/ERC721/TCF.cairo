@@ -9,14 +9,13 @@ from starkware.starknet.common.syscalls import get_caller_address, get_contract_
 from src.constants import IERC721_ID, IERC721_METADATA_ID, IERC165_ID
 from src.ERC5185.library import ERC5185
 from src.ERC721.library import ERC721, ERC721Library
+from src.UniversalMetadata.library import UniversalMetadata
 from src.Factory.library import Factory
 from src.Proxy.library import Proxy
-from src.UniversalMetadata.library import UniversalMetadata
 
 
-/// @dev Set proxy_target
-/// @param _contract_hash Class hash of to-be-deployed contracts
-/// @param _proxy_target Forward all calls and invokes to this contract
+/// @dev Set target proxy
+/// @param Address of proxy_target
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_contract_hash: felt, _proxy_target: felt, _name: felt, _symbol: felt, _prefixURI_len: felt, _prefixURI: felt*, _hasInfixURI: felt, _suffixURI_len: felt, _suffixURI: felt*) {
     Factory._set_contract_hash_(_contract_hash);
@@ -27,7 +26,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     return ();
 }
 
-/// @dev Proxy all requests to another component
+
 @external
 @raw_input
 @raw_output
@@ -37,17 +36,20 @@ func __default__{
     return Proxy._proxy(selector, calldata_size, calldata);
 }
 
+
 @view
 func getProxyTarget{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
     let target_address = Proxy._get_proxy_target_();
     return (res=target_address);
 }
 
+
 @view
 func getContractHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
     let contract_hash = Factory._get_contract_hash_();
     return (res=contract_hash);
 }
+
 
 /// @dev Mint lazily NFT and deploy contract
 /// @emit DeployContract + Mint (?)

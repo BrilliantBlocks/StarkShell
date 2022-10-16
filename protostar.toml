@@ -1,5 +1,5 @@
 ["protostar.config"]
-protostar_version = "0.3.2"
+protostar_version = "0.5.0"
 
 ["protostar.project"]
 libs_path = "lib"
@@ -11,9 +11,12 @@ Diamond = [
 DiamondCut = [
     "src/ERC2535/DiamondCut.cairo",
 ]
-FacetRegistry = [
+BFR = [
     "src/main/BFR/BFR.cairo"
 ]
-TokenizedDiamondFactory = [
+TCF = [
     "src/main/TCF/TCF.cairo"
+]
+ERC1155 = [
+    "src/ERC1155/ERC1155.cairo"
 ]

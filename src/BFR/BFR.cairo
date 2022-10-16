@@ -4,13 +4,6 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from src.BFR.library import BFR
 from src.AccessManagement.Ownership.library import Ownership
 
-// / @emit SetOwner(_owner)
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) {
-    Ownership._set_owner_(_owner);
-    return ();
-}
-
 // / @dev Register element in bitmap
 // / @emit Register(_bitId, _element)
 // / @revert ZERO ELEMENT if _element is 0
