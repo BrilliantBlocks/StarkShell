@@ -6,7 +6,7 @@ from starkware.cairo.common.math import assert_not_equal, assert_not_zero, split
 from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
-from src.constants import IERC721_ID, IERC721_METADATA_ID, IERC165_ID
+from src.constants import IERC721_ID, IERC721_METADATA_ID, IERC165_ID, NULL
 from src.ERC5185.library import ERC5185
 from src.ERC721.library import ERC721, ERC721Library
 from src.Factory.library import Factory
@@ -19,17 +19,16 @@ from src.UniversalMetadata.library import UniversalMetadata
 /// @param _proxy_target Forward all calls and invokes to this address
 /// @param _name ERC721 contract name
 /// @param _symbol ERC721 contract symbol
-/// @param _prefixURI Optional string array for the token metedata prefix
-/// @param _hasInfixURI Boolean for including token id into metadata
-/// @param _suffixURI Optional string array for the token metedata suffix
-/// @revert BOOL ERROR If _hasInfixURI is neither 0 nor 1
+/// @param _uri ERC721 token URI
 @constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_contract_hash: felt, _proxy_target: felt, _name: felt, _symbol: felt, _prefixURI_len: felt, _prefixURI: felt*, _hasInfixURI: felt, _suffixURI_len: felt, _suffixURI: felt*) {
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_contract_hash: felt, _proxy_target: felt, _name: felt, _symbol: felt, _uri_len: felt, _uri: felt*) {
+    alloc_locals;
+    let (local NULLptr: felt*) = alloc();
     Factory._set_contract_hash_(_contract_hash);
     Proxy._set_proxy_target_(_proxy_target);
     UniversalMetadata._set_name_(_name);
     UniversalMetadata._set_symbol_(_symbol);
-    UniversalMetadata._set_token_uri_(_prefixURI_len, _prefixURI, _hasInfixURI, _suffixURI_len, _suffixURI);
+    UniversalMetadata._set_token_uri_(_uri_len, _uri, FALSE, NULL, NULLptr);
     return ();
 }
 
