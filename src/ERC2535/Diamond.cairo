@@ -36,10 +36,10 @@ func __default__{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
     let (facet: felt) = facetAddress(selector);
-    Diamond._charge_fee();
     let (retdata_size: felt, retdata: felt*) = library_call(
         class_hash=facet, function_selector=selector, calldata_size=calldata_size, calldata=calldata
     );
+    Diamond._charge_fee();
     return (retdata_size, retdata);
 }
 
