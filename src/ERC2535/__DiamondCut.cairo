@@ -22,11 +22,11 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     dw FUNCTION_SELECTORS.DIAMONDCUT.setFunctionFee;
 }
 
-// / @dev ERC-165
+/// @dev ERC-165
 @view
-func __supports_interface__(_interface_id: felt) -> (success: felt) {
+func __supports_interface__(_interface_id: felt) -> (res: felt) {
     if (_interface_id == IDIAMONDCUT_ID) {
-        return (TRUE,);
+        return (res=TRUE);
     }
-    return (FALSE,);
+    return (res=FALSE);
 }
