@@ -54,6 +54,10 @@ namespace ITokenizedContractFactory {
     func tokenURI(_tokenId: Uint256) -> (tokenURI_len: felt, tokenURI: felt*) {
     }
 
+    ///////// Burnable /////////
+    func burn(_tokenId: Uint256) -> () {
+    }
+
     ///////// ERC165 /////////
 
     func supportsInterface(interfaceID: Uint256) -> (res: felt) {

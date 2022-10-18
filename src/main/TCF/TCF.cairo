@@ -224,6 +224,18 @@ func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return ();
 }
 
+/// @emit Transfer
+/// @revert INVALID TOKEN ID
+/// @revert UNKNOWN TOKEN ID
+/// @revert UNAUTHORIZED if caller is not owner
+@external
+func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> () {
+    ERC721._burn(_tokenId);
+    return ();
+}
+
 /// @dev ERC165
 @view
 func supportsInterface(interfaceID: felt) -> (res: felt) {

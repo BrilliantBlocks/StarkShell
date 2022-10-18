@@ -115,6 +115,16 @@ namespace ERC721 {
         return ();
     }
 
+    func _burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) {
+        alloc_locals;
+        let (caller) = get_caller_address();
+        ERC721Library._assert_valid(_tokenId);
+        ERC721Library._assert_minted(_tokenId);
+        ERC721Library._assert_only_owner(_tokenId);
+        ERC721Library._transfer(caller, 0, _tokenId);
+        return ();
+    }
+
     /// @dev Used for token based access control
     func _assertOnlyOwner{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_tokenId: Uint256) {
         ERC721Library._assert_only_owner(_tokenId);
