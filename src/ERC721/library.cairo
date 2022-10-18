@@ -217,6 +217,13 @@ namespace ERC721Library {
         return ();
     }
 
+    func _assert_no_self_approval{syscall_ptr: felt*}(_caller: felt, _operator: felt) {
+        with_attr error_message("SELF APPROVAL") {
+            assert_not_equal(_caller, _operator);
+        }
+        return ();
+    }
+
     func _assert_token_received{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*) {
         let success = _check_onERC721Received(_from, _to, _tokenId, data_len, data);
         with_attr error_message("NOT RECEIVED") {
@@ -250,6 +257,7 @@ namespace ERC721Library {
         _assert_address_not_zero(caller);
         _assert_address_not_zero(_operator);
         _assert_is_boolean(_approved);
+        _assert_no_self_approval(caller, _operator);
         operator_approvals_.write(caller, _operator, _approved);
         ApprovalForAll.emit(caller, _operator, _approved);
         return ();

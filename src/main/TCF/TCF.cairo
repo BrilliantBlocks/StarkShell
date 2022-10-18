@@ -2,7 +2,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_not_equal, assert_not_zero, split_felt
+from starkware.cairo.common.math import assert_not_zero, split_felt
 from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
@@ -101,42 +101,43 @@ func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> 
     return (res=name);
 }
 
-
 @view
 func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
     let symbol = UniversalMetadata._get_symbol_();
     return (res=symbol);
 }
 
-
+/// @revert ZERO ADDRESS if _owner is 0
 @view
 func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) -> (res: Uint256) {
     let balance = ERC721._balanceOf(_owner);
     return (res=balance);
 }
 
-
+/// @revert INVALID TOKEN ID
+/// @revert UNKNOWN TOKEN ID
 @view
 func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res: felt) {
     let is_owner = ERC721._ownerOf(_tokenId);
     return (res=is_owner);
 }
 
-
+/// @revert INVALID TOKEN ID
+/// @revert UNKNOWN TOKEN ID
 @view
 func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res: felt) {
     let operator = ERC721._getApproved(_tokenId);
     return (res=operator);
 }
 
-
+/// @revert ZERO ADDRESS if either _owner or _operator is 0
 @view
 func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt, _operator: felt) -> (res: felt) {
     let is_approved = ERC721._isApprovedForAll(_owner, _operator);
     return (res=is_approved);
 }
 
-
+/// @revert UNKNOWN TOKEN ID
 @view
 func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res_len: felt, res: felt*) {
     ERC721Library._assert_minted(_tokenId);
@@ -144,36 +145,44 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_
     return (uri_len, uri);
 }
 
-
+/// @emit Approval
+/// @revert INVALID TOKEN ID
+/// @revert UNAUTHORIZED if caller is neither owner nor oeprator
+/// @revert DISABLED FOR OWNER
 @external
 func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_to, _tokenId: Uint256) -> () {
     ERC721._approve(_to, _tokenId);
     return ();
 }
 
-
+/// @emit ApprovalForAll
+/// @revert ZERO ADDRESS if _operator or caller is 0
+/// @revert SELF APPROVAL if _operator equals caller
 @external
 func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_operator: felt, _approved: felt) -> () {
-    let (caller) = get_caller_address();
-    with_attr error_message("Either the caller or operator is the zero address") {
-        assert_not_zero(caller * _operator);
-    }
-    with_attr error_message("You cannot set approval for yourself.") {
-        assert_not_equal(caller, _operator);
-    }
     ERC721._setApprovalForAll(_operator, _approved);
     return ();
 }
 
-
+/// @emit Transfer
+/// @revert INVALID TOKEN ID
+/// @revert UNKNOWN TOKEN ID
+/// @revert UNAUTHORIZED if caller is neither owner nor oeprator
+/// @revert INVALID FROM if from is not owner of token id
+/// @revert ZERO ADDRESS if _to is 0
 @external
 func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256) -> () {
-    let (caller) = get_caller_address();
     ERC721._transferFrom(_from, _to, _tokenId);
     return ();
 }
 
-
+/// @emit Transfer
+/// @revert INVALID TOKEN ID
+/// @revert UNKNOWN TOKEN ID
+/// @revert UNAUTHORIZED if caller is neither owner nor oeprator
+/// @revert INVALID FROM if from is not owner of token id
+/// @revert ZERO ADDRESS if _to is 0
+/// @revert NOT RECEIVED
 @external
 func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*) -> () {
     let (caller) = get_caller_address();
@@ -181,21 +190,17 @@ func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return ();
 }
 
-
 /// @dev ERC165
 @view
 func supportsInterface(interfaceID: felt) -> (res: felt) {
     if (interfaceID == IERC165_ID) {
-        return (TRUE,);
+        return (res=TRUE);
     }
-
     if (interfaceID == IERC721_ID) {
-        return (TRUE,);
+        return (res=TRUE);
     }
-
     if (interfaceID == IERC721_METADATA_ID) {
-        return (TRUE,);
+        return (res=TRUE);
     }
-
-    return (FALSE,);
+    return (res=FALSE);
 }
