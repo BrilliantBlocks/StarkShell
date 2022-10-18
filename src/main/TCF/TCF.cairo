@@ -16,7 +16,13 @@ from src.UniversalMetadata.library import UniversalMetadata
 
 /// @dev Set proxy_target
 /// @param _contract_hash Class hash of to-be-deployed contracts
-/// @param _proxy_target Forward all calls and invokes to this contract
+/// @param _proxy_target Forward all calls and invokes to this address
+/// @param _name ERC721 contract name
+/// @param _symbol ERC721 contract symbol
+/// @param _prefixURI Optional string array for the token metedata prefix
+/// @param _hasInfixURI Boolean for including token id into metadata
+/// @param _suffixURI Optional string array for the token metedata suffix
+/// @revert BOOL ERROR If _hasInfixURI is neither 0 nor 1
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_contract_hash: felt, _proxy_target: felt, _name: felt, _symbol: felt, _prefixURI_len: felt, _prefixURI: felt*, _hasInfixURI: felt, _suffixURI_len: felt, _suffixURI: felt*) {
     Factory._set_contract_hash_(_contract_hash);
