@@ -55,28 +55,38 @@ func getContractHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 }
 
 /// @dev Mint lazily NFT and deploy contract
-/// @emit DeployContract + Mint (?)
+/// @emit DeployContract
+/// @emit Transfer
 /// @return Address of the deployed contract
 @external
 func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt) -> (res: felt) {
     alloc_locals;
-    let (local calldata: felt*) = alloc();
-    let (owner) = get_caller_address();
-    let (root) = get_contract_address();
-    //let (calldata_len, calldata) = assembleCalldata(owner, _facet_key);
-    let calldata_len = 2;
-    assert calldata[0] = root;
-    assert calldata[1] = _key;
+    let (calldata_len, calldata) = _assemble_constructor_calldata(_key);
     let contract_address = Factory._deploy_contract(calldata_len, calldata);
-    // let contract_address = Factory._deploy_contract(owner, _key);
-    let (high, low) = split_felt(contract_address);
-    let token_id = Uint256(low, high);
+    let token_id = _compute_token_id(contract_address);
+    let (owner) = get_caller_address();
     ERC721._mint(owner, token_id);
     return (res=contract_address);
 }
 
+func _assemble_constructor_calldata{syscall_ptr: felt*}(_key: felt) -> (calldata_len: felt, calldata: felt*) {
+    alloc_locals;
+    let (local calldata: felt*) = alloc();
+    let (root) = get_contract_address();
+    assert calldata[0] = root;
+    assert calldata[1] = _key;
+    return (calldata_len=2, calldata=calldata);
+}
+
+func _compute_token_id{range_check_ptr}(address) -> Uint256 {
+    let (high, low) = split_felt(address);
+    let token_id = Uint256(low, high);
+    return token_id;
+}
 
 /// @dev Publish public information about contracts
+/// @emit UpdateMetadata
+/// @revert UNAUTHORIZED if caller is not owner of tokenId
 @external
 func updateMetadata{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256, _type: felt, _data_len: felt, _data: felt*) -> () {
     alloc_locals;
@@ -84,7 +94,6 @@ func updateMetadata{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
     ERC5185._update_metadata(_tokenId, _type, _data_len, _data);
     return ();
 }
-
 
 @view
 func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
