@@ -1,5 +1,18 @@
 %lang starknet
 
+/// @dev Enum
+struct FacetCutAction {
+    Add: felt,
+    Replace: felt,
+    Remove: felt,
+}
+
+struct Fee {
+    charger: felt,
+    amount: felt,
+    erc20_contract: felt,
+}
+
 /// @selector 0x3c27a8b448fe684611cd3c9b512daa99c6543934865e0e59b40602bd8db4ea8
 @event
 func DiamondCut(

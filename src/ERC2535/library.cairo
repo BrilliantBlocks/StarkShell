@@ -21,19 +21,13 @@ from src.constants import (
     FUNCTION_SELECTORS,
     NULL,
 )
-from src.ERC2535.IDiamondCut import SetAlias, SetFunctionFee
+from src.ERC2535.IDiamondCut import Fee, FacetCutAction, SetAlias, SetFunctionFee
 from src.ERC721.IERC721 import IERC721
 from src.BFR.IBFR import IBFR
 
-struct Fee {
-    charger: felt,
-    amount: felt,
-    erc20_contract: felt,
-}
-
 
 /// @dev Store the address of the factory contract
-// @return Address of its parent smart contract
+/// @return Address of its parent smart contract
 @storage_var
 func root_() -> (res: felt) {
 }
@@ -51,13 +45,6 @@ func alias_(alias_selector: felt) -> (res: felt) {
 
 @storage_var
 func function_fee_(chargee: felt) -> (res: Fee) {
-}
-
-/// @dev Enum
-struct FacetCutAction {
-    Add: felt,
-    Replace: felt,
-    Remove: felt,
 }
 
 namespace Diamond {
