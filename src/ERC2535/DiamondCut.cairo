@@ -11,7 +11,7 @@ from src.ERC2535.__DiamondCut import (
 )
 
 /// @emit DiamondCut
-/// @revert UNAUTHORIZED if not owner of diamond
+/// @revert NOT AUTHORIZED if not owner of diamond
 @external
 func diamondCut{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -25,6 +25,7 @@ func diamondCut{
 /// @emit SetAlias
 /// @param _alias string representation of function
 /// @revert UNKNOWN FUNCTION if _assigned_selector not in facets
+/// @revert NOT AUTHORIZED if not owner of diamond
 @external
 func setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _alias: felt, _alias_selector: felt, _assigned_selector: felt
@@ -35,6 +36,7 @@ func setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 }
 
 /// @revert UNKNOWN FUNCTION
+/// @revert NOT AUTHORIZED if not owner of diamond
 @external
 func setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _chargee: felt, _charger: felt, _amount: felt, _erc20_contract: felt
