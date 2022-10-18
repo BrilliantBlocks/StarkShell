@@ -55,9 +55,9 @@ namespace Diamond {
         range_check_ptr,
     }() -> (res_len: felt, res: felt*) {
         alloc_locals;
-        let (key) = facet_key_.read();
-        let (r) = root_.read();
-        let (f_len, f) = IBFR.resolveKey(r, key);
+        let (key: felt) = facet_key_.read();
+        let (r: felt) = root_.read();
+        let (f_len: felt, f: felt*) = IBFR.resolveKey(r, key);
         return (f_len, f);
     }
 
@@ -68,10 +68,10 @@ namespace Diamond {
         range_check_ptr,
     }(_functionSelector: felt) -> (res: felt) {
         alloc_locals;
-        let (f_len, f) = _facetAddresses();
-        let (class_hash) = _facet_address(f_len, f, _functionSelector);
+        let (f_len: felt, f: felt*) = _facetAddresses();
+        let (class_hash: felt) = _facet_address(f_len, f, _functionSelector);
         Assert.selector_exists(class_hash);
-        return (class_hash,);
+        return (res=class_hash);
     }
 
     func _facet_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
