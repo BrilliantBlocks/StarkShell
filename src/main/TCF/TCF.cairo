@@ -13,7 +13,6 @@ from src.Factory.library import Factory
 from src.Proxy.library import Proxy
 from src.UniversalMetadata.library import UniversalMetadata
 
-
 /// @dev Set proxy_target
 /// @param _contract_hash Class hash of to-be-deployed contracts
 /// @param _proxy_target Forward all calls and invokes to this address
@@ -21,7 +20,14 @@ from src.UniversalMetadata.library import UniversalMetadata
 /// @param _symbol ERC721 contract symbol
 /// @param _uri ERC721 token URI
 @constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_contract_hash: felt, _proxy_target: felt, _name: felt, _symbol: felt, _uri_len: felt, _uri: felt*) {
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _contract_hash: felt,
+    _proxy_target: felt,
+    _name: felt,
+    _symbol: felt,
+    _uri_len: felt,
+    _uri: felt*,
+) {
     alloc_locals;
     let (local NULLptr: felt*) = alloc();
     Factory._set_contract_hash_(_contract_hash);
@@ -36,20 +42,24 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 @external
 @raw_input
 @raw_output
-func __default__{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
+func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) -> (retdata_size: felt, retdata: felt*) {
     return Proxy._proxy(selector, calldata_size, calldata);
 }
 
 @view
-func getProxyTarget{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
+func getProxyTarget{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    res: felt
+) {
     let target_address = Proxy._get_proxy_target_();
     return (res=target_address);
 }
 
 @view
-func getContractHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
+func getContractHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    res: felt
+) {
     let contract_hash = Factory._get_contract_hash_();
     return (res=contract_hash);
 }
@@ -59,7 +69,9 @@ func getContractHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 /// @emit Transfer
 /// @return Address of the deployed contract
 @external
-func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt) -> (res: felt) {
+func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt) -> (
+    res: felt
+) {
     alloc_locals;
     let (calldata_len, calldata) = _assemble_constructor_calldata(_key);
     let contract_address = Factory._deploy_contract(calldata_len, calldata);
@@ -69,7 +81,9 @@ func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     return (res=contract_address);
 }
 
-func _assemble_constructor_calldata{syscall_ptr: felt*}(_key: felt) -> (calldata_len: felt, calldata: felt*) {
+func _assemble_constructor_calldata{syscall_ptr: felt*}(_key: felt) -> (
+    calldata_len: felt, calldata: felt*
+) {
     alloc_locals;
     let (local calldata: felt*) = alloc();
     let (root) = get_contract_address();
@@ -88,7 +102,9 @@ func _compute_token_id{range_check_ptr}(address) -> Uint256 {
 /// @emit UpdateMetadata
 /// @revert UNAUTHORIZED if caller is not owner of tokenId
 @external
-func updateMetadata{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256, _type: felt, _data_len: felt, _data: felt*) -> () {
+func updateMetadata{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256, _type: felt, _data_len: felt, _data: felt*
+) -> () {
     alloc_locals;
     ERC721._assertOnlyOwner(_tokenId);
     ERC5185._update_metadata(_tokenId, _type, _data_len, _data);
@@ -109,7 +125,9 @@ func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -
 
 /// @revert ZERO ADDRESS if _owner is 0
 @view
-func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) -> (res: Uint256) {
+func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) -> (
+    res: Uint256
+) {
     let balance = ERC721._balanceOf(_owner);
     return (res=balance);
 }
@@ -117,7 +135,9 @@ func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 /// @revert INVALID TOKEN ID
 /// @revert UNKNOWN TOKEN ID
 @view
-func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res: felt) {
+func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> (res: felt) {
     let is_owner = ERC721._ownerOf(_tokenId);
     return (res=is_owner);
 }
@@ -125,21 +145,27 @@ func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_t
 /// @revert INVALID TOKEN ID
 /// @revert UNKNOWN TOKEN ID
 @view
-func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res: felt) {
+func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> (res: felt) {
     let operator = ERC721._getApproved(_tokenId);
     return (res=operator);
 }
 
 /// @revert ZERO ADDRESS if either _owner or _operator is 0
 @view
-func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt, _operator: felt) -> (res: felt) {
+func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _owner: felt, _operator: felt
+) -> (res: felt) {
     let is_approved = ERC721._isApprovedForAll(_owner, _operator);
     return (res=is_approved);
 }
 
 /// @revert UNKNOWN TOKEN ID
 @view
-func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res_len: felt, res: felt*) {
+func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> (res_len: felt, res: felt*) {
     ERC721Library._assert_minted(_tokenId);
     let (uri_len, uri) = UniversalMetadata._get_token_uri_(_tokenId);
     return (uri_len, uri);
@@ -150,7 +176,9 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_
 /// @revert UNAUTHORIZED if caller is neither owner nor oeprator
 /// @revert DISABLED FOR OWNER
 @external
-func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_to, _tokenId: Uint256) -> () {
+func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _to, _tokenId: Uint256
+) -> () {
     ERC721._approve(_to, _tokenId);
     return ();
 }
@@ -159,7 +187,9 @@ func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_t
 /// @revert ZERO ADDRESS if _operator or caller is 0
 /// @revert SELF APPROVAL if _operator equals caller
 @external
-func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_operator: felt, _approved: felt) -> () {
+func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _operator: felt, _approved: felt
+) -> () {
     ERC721._setApprovalForAll(_operator, _approved);
     return ();
 }
@@ -171,7 +201,9 @@ func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 /// @revert INVALID FROM if from is not owner of token id
 /// @revert ZERO ADDRESS if _to is 0
 @external
-func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256) -> () {
+func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _from: felt, _to: felt, _tokenId: Uint256
+) -> () {
     ERC721._transferFrom(_from, _to, _tokenId);
     return ();
 }
@@ -184,7 +216,9 @@ func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 /// @revert ZERO ADDRESS if _to is 0
 /// @revert NOT RECEIVED
 @external
-func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*) -> () {
+func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*
+) -> () {
     let (caller) = get_caller_address();
     ERC721._safeTransferFrom(_from, _to, _tokenId, data_len, data);
     return ();
