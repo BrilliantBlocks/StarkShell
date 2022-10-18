@@ -11,7 +11,16 @@ from starkware.starknet.common.syscalls import (
 )
 from starkware.cairo.common.uint256 import Uint256
 
-from src.constants import FUNCTION_SELECTORS, IDIAMONDLOUPE_ID, NULL
+from src.constants import (
+    IERC165_ID,
+    IERC20_ID,
+    IERC721_ID,
+    IERC1155_ID,
+    IERC5114_ID,
+    IDIAMONDLOUPE_ID,
+    FUNCTION_SELECTORS,
+    NULL,
+)
 from src.ERC2535.IDiamondCut import SetAlias, SetFunctionFee
 from src.ERC721.IERC721 import IERC721
 from src.BFR.IBFR import IBFR
@@ -244,6 +253,70 @@ namespace Diamond {
             return (_id,);
         }
         return _remove_facet_helper(_f_len - 1, _f + 1, _target, _id + 1);
+    }
+
+    func _supportsInterface{
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+    }(interface_id: felt, facets_len: felt, facets: felt*) -> (res: felt) {
+        alloc_locals;
+        if (facets_len == 0) {
+            return (res=FALSE);
+        }
+        let facet_supports_interface = _facet_supports_interface(facets[0], interface_id);
+        if (facet_supports_interface == TRUE) {
+            return (res=TRUE);
+        }
+        return _supportsInterface(interface_id, facets_len - 1, facets + 1);
+    }
+
+    func _find_token_facet{
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+    }(facets_len: felt, facets: felt*) -> felt {
+        if (facets_len == 0) {
+            return NULL;
+        }
+        let is_token_facet = _any_token_facet(facets[0]);
+        if (is_token_facet == TRUE) {
+            return facets[0];
+        }
+        return _find_token_facet(facets_len - 1, facets + 1);
+    }
+
+    func _any_token_facet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _facet: felt
+    ) -> felt {
+        let is_erc20_facet = _facet_supports_interface(_facet, IERC20_ID);
+        if (is_erc20_facet == TRUE) {
+            return TRUE;
+        }
+        let is_erc721_facet = _facet_supports_interface(_facet, IERC721_ID);
+        if (is_erc721_facet == TRUE) {
+            return TRUE;
+        }
+        let is_erc1155_facet = _facet_supports_interface(_facet, IERC1155_ID);
+        if (is_erc1155_facet == TRUE) {
+            return TRUE;
+        }
+        let is_erc5114_facet = _facet_supports_interface(_facet, IERC5114_ID);
+        if (is_erc5114_facet == TRUE) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    func _facet_supports_interface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _facet: felt, _interface_id: felt
+    ) -> felt {
+        alloc_locals;
+        let (local calldata: felt*) = alloc();
+        assert calldata[0] = _interface_id;
+        let (r_len, r) = library_call(
+            class_hash=_facet,
+            function_selector=FUNCTION_SELECTORS.FACET.__supports_interface__,
+            calldata_size=1,
+            calldata=calldata,
+        );
+        return r[0];
     }
 
     func _setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
