@@ -22,6 +22,15 @@ Facets require three functions:
 - `__supports_interface__`
 
 
+## Style Guide
+
+- All special functions are prefix with a double underscore and kept in double underscored cairo file
+- Capitalized cairo files are compiled and declared
+- src/main contains components which are not based on the diamond
+- external and view functions identifiers are camel cased
+- all other functions are snake cased
+
+
 ## TODO
 
 - [ ] NatSpec comments
