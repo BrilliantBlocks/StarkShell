@@ -5,7 +5,6 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.registers import get_label_location
 
 from src.constants import FUNCTION_SELECTORS, IDIAMONDCUT_ID
-from src.ERC2535.IDiamondCut import DiamondCut
 from src.ERC2535.library import Diamond
 
 
