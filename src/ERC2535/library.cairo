@@ -4,7 +4,11 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
 from starkware.cairo.common.math import split_felt, assert_not_zero
 from starkware.cairo.common.memcpy import memcpy
-from starkware.starknet.common.syscalls import get_caller_address, get_contract_address, library_call
+from starkware.starknet.common.syscalls import (
+    get_caller_address,
+    get_contract_address,
+    library_call,
+)
 from starkware.cairo.common.uint256 import Uint256
 
 from src.constants import FUNCTION_SELECTORS, IDIAMONDLOUPE_ID, NULL
@@ -49,7 +53,10 @@ struct FacetCutAction {
 
 namespace Diamond {
     func _facetAddresses{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }() -> (res_len: felt, res: felt*) {
         alloc_locals;
         let (key) = facet_key_.read();
@@ -57,9 +64,12 @@ namespace Diamond {
         let (f_len, f) = IBFR.resolveKey(r, key);
         return (f_len, f);
     }
-    
+
     func _facetAddress{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(_functionSelector: felt) -> (res: felt) {
         alloc_locals;
         let (f_len, f) = _facetAddresses();
@@ -67,7 +77,7 @@ namespace Diamond {
         Assert.selector_exists(class_hash);
         return (class_hash,);
     }
-    
+
     func _facet_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _facets_len: felt, _facets: felt*, _functionSelector: felt
     ) -> (res: felt) {
@@ -82,7 +92,7 @@ namespace Diamond {
         }
         return _facet_address(_facets_len - 1, _facets + 1, _functionSelector);
     }
-    
+
     func _is_implemented{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _selectors_len: felt, _selectors: felt*, _functionSelector: felt
     ) -> (res: felt) {
@@ -94,7 +104,7 @@ namespace Diamond {
         }
         return _is_implemented(_selectors_len - 1, _selectors + 1, _functionSelector);
     }
-    
+
     func _facetFunctionSelectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _facet: felt
     ) -> (res_len: felt, res: felt*) {
@@ -110,8 +120,13 @@ namespace Diamond {
     }
 
     func _diamondCut{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
-    }(_address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
+    }(
+        _address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*
+    ) -> () {
         if (_facetCutAction == FacetCutAction.Add) {
             _add_facet(_address, _init, _calldata_len, _calldata);
         } else {
@@ -119,13 +134,16 @@ namespace Diamond {
         }
         return ();
     }
-    
-    func _get_facet_key_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
+
+    func _get_facet_key_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        ) -> felt {
         let (facet_key) = facet_key_.read();
         return facet_key;
     }
 
-    func _set_facet_key_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_facet_key: felt) {
+    func _set_facet_key_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _facet_key: felt
+    ) {
         facet_key_.write(_facet_key);
         return ();
     }
@@ -147,19 +165,21 @@ namespace Diamond {
         let (owner) = IERC721.ownerOf(r, tokenId);
         return owner;
     }
-    
-    
-    func getRootTokenId{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> Uint256 {
+
+    func getRootTokenId{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        ) -> Uint256 {
         alloc_locals;
         let (self) = get_contract_address();
         let (high, low) = split_felt(self);
         local tokenId: Uint256 = Uint256(low, high);
         return tokenId;
     }
-    
-    
+
     func _add_facet{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(_address: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
         alloc_locals;
         let (r) = root_.read();
@@ -171,11 +191,10 @@ namespace Diamond {
         initFacet(_address, _calldata_len, _calldata);
         return ();
     }
-    
-    
+
     func initFacet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         class_hash: felt, calldata_len: felt, calldata: felt*
-        ) -> () {
+    ) -> () {
         library_call(
             class_hash=class_hash,
             function_selector=FUNCTION_SELECTORS.FACET.__init_facet__,
@@ -184,10 +203,12 @@ namespace Diamond {
         );
         return ();
     }
-    
-    
+
     func _remove_facet{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(_address: felt) -> () {
         alloc_locals;
         let (key) = facet_key_.read();
@@ -210,7 +231,7 @@ namespace Diamond {
         facet_key_.write(new_key);
         return ();
     }
-    
+
     func _remove_facet_helper{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _f_len: felt, _f: felt*, _target: felt, _id: felt
     ) -> (res: felt) {
@@ -225,19 +246,25 @@ namespace Diamond {
         return _remove_facet_helper(_f_len - 1, _f + 1, _target, _id + 1);
     }
 
-    func _setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_alias: felt, _alias_selector: felt, _assigned_selector) {
+    func _setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _alias: felt, _alias_selector: felt, _assigned_selector
+    ) {
         Assert.selector_exists(_assigned_selector);
         alias_.write(_alias_selector, _assigned_selector);
         SetAlias.emit(_alias, _alias_selector, _assigned_selector);
         return ();
     }
 
-    func _getAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt) -> felt {
+    func _getAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt
+    ) -> felt {
         let (alias) = alias_.read(_selector);
         return alias;
     }
 
-    func _setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_chargee: felt, _charger: felt, _amount: felt, _erc20_contract: felt) {
+    func _setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _chargee: felt, _charger: felt, _amount: felt, _erc20_contract: felt
+    ) {
         Assert.selector_exists(_chargee);
         function_fee_.write(_chargee, Fee(_charger, _amount, _erc20_contract));
         SetFunctionFee.emit(_chargee, _charger, _amount, _erc20_contract);
@@ -257,17 +284,22 @@ namespace Diamond {
             return ();
         }
 
-        func facet_exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr}(_facet: felt) {
+        func facet_exists{
+            syscall_ptr: felt*,
+            pedersen_ptr: HashBuiltin*,
+            bitwise_ptr: BitwiseBuiltin*,
+            range_check_ptr,
+        }(_facet: felt) {
             alloc_locals;
             let (facets_len, facets) = _facetAddresses();
             _remove_facet_helper(facets_len, facets, _facet, 0);
             return ();
         }
 
-        func only_owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(){
+        func only_owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
             alloc_locals;
             let (caller) = get_caller_address();
-            let  owner = get_owner();
+            let owner = get_owner();
             with_attr error_message("NOT AUTHORIZED") {
                 assert caller = owner;
             }

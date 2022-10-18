@@ -68,9 +68,9 @@ func facetAddress{
 
 /// @revert FACET NOT FOUND
 @view
-func facetFunctionSelectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr}(
-    _facet: felt
-) -> (res_len: felt, res: felt*) {
+func facetFunctionSelectors{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_facet: felt) -> (res_len: felt, res: felt*) {
     Diamond.Assert.facet_exists(_facet);
     let (selectors_len, selectors) = Diamond._facetFunctionSelectors(_facet);
     return (selectors_len, selectors);

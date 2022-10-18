@@ -27,7 +27,7 @@ func diamondCut{
 @external
 func setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _alias: felt, _alias_selector: felt, _assigned_selector: felt
-    ){
+) {
     Diamond.Assert.only_owner();
     Diamond._setAlias(_alias, _alias_selector, _assigned_selector);
     return ();
@@ -35,7 +35,9 @@ func setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 /// @revert UNKNOWN FUNCTION
 @external
-func setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_chargee: felt, _charger: felt, _amount: felt, _erc20_contract: felt){
+func setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _chargee: felt, _charger: felt, _amount: felt, _erc20_contract: felt
+) {
     Diamond.Assert.only_owner();
     Diamond._setFunctionFee(_chargee, _charger, _amount, _erc20_contract);
     return ();
@@ -45,11 +47,12 @@ func setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 func __init_facet__() -> () {
     return ();
 }
-    
+
 @view
 func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
     return (res_len=3, res=cast(func_selectors, felt*));
+
     selectors_start:
     dw FUNCTION_SELECTORS.DIAMONDCUT.diamondCut;
     dw FUNCTION_SELECTORS.DIAMONDCUT.setAlias;
