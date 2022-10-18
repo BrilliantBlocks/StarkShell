@@ -16,7 +16,9 @@ from src.constants import (
 from src.ERC2535.library import Diamond
 
 
-// @param _root: Address of TCF
+/// @param _root: Address of TCF
+/// @param _facet_key Bitmap encoding included facets
+/// @param _init_calldata TODO
 @constructor
 func constructor{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -26,7 +28,7 @@ func constructor{
     return ();
 }
 
-// @revert UNKNOWN FUNCTION if selector not found in any facet
+/// @revert UNKNOWN FUNCTION if selector not found in any facet
 @external
 @raw_input
 @raw_output
@@ -49,7 +51,8 @@ func facetAddresses{
     return (facets_len, facets);
 }
 
-// @revert UNKNOWN FUNCTION if selector not found in any facet
+/// @dev Resolve alias as if they were the actual function
+/// @revert UNKNOWN FUNCTION if selector not found in any facet
 @view
 func facetAddress{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -60,7 +63,7 @@ func facetAddress{
     } else {
         let (class_hash) = Diamond._facetAddress(resolved_alias);
     }
-    return (class_hash,);
+    return (res=class_hash);
 }
 
 /// @revert FACET NOT FOUND
@@ -101,63 +104,13 @@ func _supportsInterface{
 }(interface_id: felt, facets_len: felt, facets: felt*) -> (res: felt) {
     alloc_locals;
     if (facets_len == 0) {
-        return (FALSE,);
+        return (res=FALSE);
     }
-    let (facet_supports_interface: felt) = _supportsInterfaceLibrary(interface_id, facets[0]);
+    let facet_supports_interface = _facet_supports_interface(facets[0], interface_id);
     if (facet_supports_interface == TRUE) {
-        return (TRUE,);
+        return (res=TRUE);
     }
     return _supportsInterface(interface_id, facets_len - 1, facets + 1);
-}
-
-func _find_token_facet{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
-}(facets_len: felt, facets: felt*) -> (res: felt) {
-    if (facets_len == 0) {
-        return (NULL,);
-    }
-    let (is_token_facet) = _any_token_facet(facets[0]);
-    if (is_token_facet == TRUE) {
-        return (facets[0],);
-    }
-    return _find_token_facet(facets_len - 1, facets + 1);
-}
-
-func _any_token_facet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _facet: felt
-) -> (res: felt) {
-    let (is_erc20_facet: felt) = _supportsInterfaceLibrary(IERC20_ID, _facet);
-    if (is_erc20_facet == TRUE) {
-        return (TRUE,);
-    }
-    let (is_erc721_facet: felt) = _supportsInterfaceLibrary(IERC721_ID, _facet);
-    if (is_erc721_facet == TRUE) {
-        return (TRUE,);
-    }
-    let (is_erc1155_facet: felt) = _supportsInterfaceLibrary(IERC1155_ID, _facet);
-    if (is_erc1155_facet == TRUE) {
-        return (TRUE,);
-    }
-    let (is_erc5114_facet: felt) = _supportsInterfaceLibrary(IERC5114_ID, _facet);
-    if (is_erc5114_facet == TRUE) {
-        return (TRUE,);
-    }
-    return (FALSE,);
-}
-
-func _supportsInterfaceLibrary{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _interface_id: felt, _facet: felt
-) -> (res: felt) {
-    alloc_locals;
-    let (local param: felt*) = alloc();
-    assert param[0] = _interface_id;
-    let (r_len, r) = library_call(
-        class_hash=_facet,
-        function_selector=FUNCTION_SELECTORS.FACET.__supports_interface__,
-        calldata_size=1,
-        calldata=param,
-    );
-    return (r[0],);
 }
 
 /// @dev Aspect requires this function for token type detection
@@ -168,5 +121,56 @@ func getImplementation{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }() -> (res: felt) {
     let (facets_len, facets) = facetAddresses();
-    return _find_token_facet(facets_len, facets);
+    let token_facet = _find_token_facet(facets_len, facets);
+    return (res=token_facet);
+}
+
+func _find_token_facet{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(facets_len: felt, facets: felt*) -> felt {
+    if (facets_len == 0) {
+        return NULL;
+    }
+    let is_token_facet = _any_token_facet(facets[0]);
+    if (is_token_facet == TRUE) {
+        return facets[0];
+    }
+    return _find_token_facet(facets_len - 1, facets + 1);
+}
+
+func _any_token_facet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _facet: felt
+) -> felt {
+    let is_erc20_facet = _facet_supports_interface(_facet, IERC20_ID);
+    if (is_erc20_facet == TRUE) {
+        return TRUE;
+    }
+    let is_erc721_facet = _facet_supports_interface(_facet, IERC721_ID);
+    if (is_erc721_facet == TRUE) {
+        return TRUE;
+    }
+    let is_erc1155_facet = _facet_supports_interface(_facet, IERC1155_ID);
+    if (is_erc1155_facet == TRUE) {
+        return TRUE;
+    }
+    let is_erc5114_facet = _facet_supports_interface(_facet, IERC5114_ID);
+    if (is_erc5114_facet == TRUE) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+func _facet_supports_interface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _facet: felt, _interface_id: felt
+) -> felt {
+    alloc_locals;
+    let (local calldata: felt*) = alloc();
+    assert calldata[0] = _interface_id;
+    let (r_len, r) = library_call(
+        class_hash=_facet,
+        function_selector=FUNCTION_SELECTORS.FACET.__supports_interface__,
+        calldata_size=1,
+        calldata=calldata,
+    );
+    return r[0];
 }
