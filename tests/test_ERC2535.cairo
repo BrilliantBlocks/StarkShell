@@ -3,7 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from src.ERC2535.IDiamondCut import IDiamondCut
+from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC2535.IDiamond import IDiamond
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
@@ -90,7 +90,11 @@ func test_diamondCut_remove_diamondCut{
             ids.User, target_contract_address=ids.diamond_address
         )
     %}
-    IDiamondCut.diamondCut(diamond_address, diamondCut_class_hash, 1, FALSE, 0, NULLptr);
+    // IDiamondCut.diamondCut(diamond_address, diamondCut_class_hash, 1, FALSE, 0, NULLptr);
+    let (x: FacetCut*) = alloc();
+    assert x[0].facetAddress = diamondCut_class_hash;
+    assert x[0].facetCutAction = FacetCutAction.Remove;
+    IDiamondCut.diamondCut(diamond_address, 1, x, 0, NULLptr);
     %{ stop_prank_callable() %}
     let (facets_len: felt, facets: felt*) = IDiamond.facetAddresses(diamond_address);
     assert_eq(facets_len, 0);
@@ -126,7 +130,11 @@ func test_diamondCut_add_erc721{
             ids.User, target_contract_address=ids.diamond_address
         )
     %}
-    IDiamondCut.diamondCut(diamond_address, erc721_class_hash, 0, FALSE, 0, NULLptr);
+    // IDiamondCut.diamondCut(diamond_address, erc721_class_hash, 0, FALSE, 0, NULLptr);
+    let (x: FacetCut*) = alloc();
+    assert x[0].facetAddress = erc721_class_hash;
+    assert x[0].facetCutAction = FacetCutAction.Add;
+    IDiamondCut.diamondCut(diamond_address, 1, x, 0, NULLptr);
     %{ stop_prank_callable() %}
     let (facets_len: felt, facets: felt*) = IDiamond.facetAddresses(diamond_address);
     assert_eq(facets_len, 2);

@@ -3,9 +3,14 @@
 /// @dev Enum
 struct FacetCutAction {
     Add: felt,
-    Replace: felt,
     Remove: felt,
 }
+
+struct FacetCut {
+    facetAddress: felt,
+    facetCutAction: felt,
+}
+
 
 struct Fee {
     charger: felt,
@@ -34,7 +39,8 @@ func SetFunctionFee(_chargee: felt, _charger: felt, _amount: felt, erc_contract:
 namespace IDiamondCut {
     /// @selector 0xf3d1ef016a3319b5c905f7ed8ae0708b96b732c565c6058e6a4f0291032848
     func diamondCut(
-        _address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*
+        // _address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*
+        _facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*
     ) -> () {
     }
 }

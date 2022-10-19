@@ -21,7 +21,7 @@ from src.constants import (
     FUNCTION_SELECTORS,
     NULL,
 )
-from src.ERC2535.IDiamondCut import Fee, FacetCutAction, SetAlias, SetFunctionFee
+from src.ERC2535.IDiamondCut import Fee, FacetCut, FacetCutAction, SetAlias, SetFunctionFee
 from src.ERC721.IERC721 import IERC721
 from src.BFR.IBFR import IBFR
 
@@ -115,20 +115,106 @@ namespace Diamond {
         return (r_len, r);
     }
 
+    //func _diamondCut{
+    //    syscall_ptr: felt*,
+    //    pedersen_ptr: HashBuiltin*,
+    //    bitwise_ptr: BitwiseBuiltin*,
+    //    range_check_ptr,
+    //}(
+    //    _address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*
+    //) -> () {
+    //    if (_facetCutAction == FacetCutAction.Add) {
+    //        _add_facet(_address, _init, _calldata_len, _calldata);
+    //    } else {
+    //        _remove_facet(_address);
+    //    }
+    //    return ();
+    //}
+
     func _diamondCut{
         syscall_ptr: felt*,
         pedersen_ptr: HashBuiltin*,
         bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
     }(
-        _address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*
+    _facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*
     ) -> () {
-        if (_facetCutAction == FacetCutAction.Add) {
-            _add_facet(_address, _init, _calldata_len, _calldata);
-        } else {
-            _remove_facet(_address);
+        alloc_locals;
+        if (_facetCut_len == 0) {
+            with_attr error_message("OVERFULL CALLDATA") {
+                assert _calldata_len = 0;
+            }
+            return ();
         }
-        return ();
+
+        let (root) = root_.read();
+        let (facets_len, facets) = _facetAddresses();
+
+        let (local new_facet: felt*) = alloc();
+        local new_key;
+        if (_facetCut[0].facetCutAction == FacetCutAction.Add) {
+            assert new_facet[0] = _facetCut[0].facetAddress;
+            let (local ptr: felt*) = alloc();
+            memcpy(dst=ptr, src=facets, len=facets_len);
+            memcpy(dst=ptr + facets_len, src=new_facet, len=1);
+            let (new_key) = IBFR.calculateKey(root, facets_len + 1, ptr);
+            tempvar pedersen_ptr = pedersen_ptr;
+            tempvar syscall_ptr = syscall_ptr;
+        } else {
+            // find it
+            let (x) = _remove_facet_helper(facets_len, facets, _facetCut[0].facetAddress, 0);
+            let (local ptr: felt*) = alloc();
+            memcpy(dst=ptr, src=facets, len=x);
+            // if non-tail element is removed
+            if (facets_len != x + 1) {
+                memcpy(dst=ptr + x, src=facets + x + 1, len=facets_len - x - 1);  // TODO
+            }
+            let (new_key) = IBFR.calculateKey(root, facets_len - 1, ptr);
+            tempvar pedersen_ptr = pedersen_ptr;
+            tempvar syscall_ptr = syscall_ptr;
+        }
+
+        facet_key_.write(new_key);
+
+        let (local facetCutCalldata: felt*) = alloc();
+
+        local facetCutCalldata_len;
+        if (_calldata_len == 0) {
+            assert facetCutCalldata_len = 0;
+        } else {
+            assert facetCutCalldata_len = _calldata[1];
+            memcpy(dst=facetCutCalldata, src=_calldata + 1, len=facetCutCalldata_len);
+        }
+        // if (_facetCut[0].facetCutAction == FacetCutAction.Add) {
+        //     initFacet(_facetCut[0].facetAddress, facetCutCalldata_len, facetCutCalldata);
+        // }
+        // if (_facetCut[0].facetCutAction == FacetCutAction.Remove){
+        //     removeFacet(_facetCut[0].facetAddress, facetCutCalldata_len, facetCutCalldata);
+        // }
+        let constructor_or_destructor = ( 1 - _facetCut[0].facetCutAction ) * FUNCTION_SELECTORS.FACET.__constructor__ + _facetCut[0].facetCutAction * FUNCTION_SELECTORS.FACET.__destructor__;
+        library_call(
+            class_hash=_facetCut[0].facetAddress,
+            function_selector=constructor_or_destructor,
+            calldata_size=facetCutCalldata_len,
+            calldata=facetCutCalldata,
+        );
+
+        let (local new_calldata: felt*) =  alloc();
+        let new_calldata_len = _calldata_len - facetCutCalldata_len;
+
+        if (_calldata_len == 0) {
+        } else {
+            memcpy(dst=new_calldata, src=_calldata, len=1);
+            memcpy(dst=new_calldata, src=_calldata + facetCutCalldata_len + 1, len=_calldata_len - facetCutCalldata_len - 1);
+        }
+
+        return _diamondCut(
+            // _facetCut_len - FacetCut.SIZE,
+            _facetCut_len - 1,
+            _facetCut + FacetCut.SIZE,
+            new_calldata_len,
+            new_calldata,
+        );
     }
 
     func _get_facet_key_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -179,11 +265,7 @@ namespace Diamond {
     }(_address: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
         alloc_locals;
         let (r) = root_.read();
-        // Get facets and append new facet
         let (facets_len, facets) = _facetAddresses();
-        // assert facets[facets_len] = _address;
-        // let (new_key) = IBFR.calculateKey(r, facets_len + 1, facets);
-
         let (local new_facet: felt*) = alloc();
         assert new_facet[0] = _address;
         let (local ptr: felt*) = alloc();
@@ -201,6 +283,18 @@ namespace Diamond {
         library_call(
             class_hash=class_hash,
             function_selector=FUNCTION_SELECTORS.FACET.__constructor__,
+            calldata_size=calldata_len,
+            calldata=calldata,
+        );
+        return ();
+    }
+
+    func removeFacet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        class_hash: felt, calldata_len: felt, calldata: felt*
+    ) -> () {
+        library_call(
+            class_hash=class_hash,
+            function_selector=FUNCTION_SELECTORS.FACET.__destructor__,
             calldata_size=calldata_len,
             calldata=calldata,
         );

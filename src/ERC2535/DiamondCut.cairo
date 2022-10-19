@@ -2,6 +2,7 @@
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 
 from src.ERC2535.library import Diamond
+from src.ERC2535.IDiamondCut import FacetCut
 
 // Facet-specifix external and view functions
 from src.ERC2535.__DiamondCut import (
@@ -16,10 +17,12 @@ from src.ERC2535.__DiamondCut import (
 @external
 func diamondCut{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
-}(_address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
+//}(_address: felt, _facetCutAction: felt, _init: felt, _calldata_len: felt, _calldata: felt*) -> () {
+}(_facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*) -> () {
     alloc_locals;
     Diamond.Assert.only_owner();
-    Diamond._diamondCut(_address, _facetCutAction, _init, _calldata_len, _calldata);
+    //Diamond._diamondCut(_address, _facetCutAction, _init, _calldata_len, _calldata);
+    Diamond._diamondCut(_facetCut_len, _facetCut, _calldata_len, _calldata);
     return ();
 }
 
