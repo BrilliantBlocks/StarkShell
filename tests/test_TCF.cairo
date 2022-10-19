@@ -35,7 +35,8 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         ids.BFR_address = deploy_contract("./src/main/BFR/BFR.cairo", [ids.BrilliantBlocks]).contract_address
         context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
         ids.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
-        ids.erc721_class_hash = declare("./src/ERC721/ERC721.cairo").class_hash
+        context.erc721_class_hash = declare("./src/ERC721/ERC721.cairo").class_hash
+        ids.erc721_class_hash = context.erc721_class_hash;
         context.TCF_address = deploy_contract(
                 "./src/main/TCF/TCF.cairo",
                 [
@@ -63,5 +64,25 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func test_mintContract{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }() {
+    alloc_locals;
+    local TCF_address;
+    local erc721_class_hash;
+    %{
+        ids.TCF_address = context.TCF_address;
+        ids.erc721_class_hash = context.erc721_class_hash;
+        stop_prank_callable = start_prank(
+            ids.User, target_contract_address=ids.TCF_address
+        )
+    %}
+    let (diamond_address) = ITCF.mintContract(TCF_address, FacetConfigKey.OII);
+    %{ stop_prank_callable() %}
+
+    // The minted diamond has 2 facets
+    let (facets_len: felt, facets: felt*) = IDiamond.facetAddresses(diamond_address);
+    assert_eq(facets_len, 2);
+    
+    // The minted diamond is detected as ERC721
+    let (implementation_hash: felt) = IDiamond.getImplementation(diamond_address);
+    assert_eq(implementation_hash, erc721_class_hash);
     return ();
 }

@@ -181,8 +181,15 @@ namespace Diamond {
         let (r) = root_.read();
         // Get facets and append new facet
         let (facets_len, facets) = _facetAddresses();
-        assert facets[facets_len] = _address;
-        let (new_key) = IBFR.calculateKey(r, facets_len + 1, facets);
+        // assert facets[facets_len] = _address;
+        // let (new_key) = IBFR.calculateKey(r, facets_len + 1, facets);
+
+        let (local new_facet: felt*) = alloc();
+        assert new_facet[0] = _address;
+        let (local ptr: felt*) = alloc();
+        memcpy(dst=ptr, src=facets, len=facets_len);
+        memcpy(dst=ptr + facets_len, src=new_facet, len=1);
+        let (new_key) = IBFR.calculateKey(r, facets_len + 1, ptr);
         facet_key_.write(new_key);
         initFacet(_address, _calldata_len, _calldata);
         return ();
