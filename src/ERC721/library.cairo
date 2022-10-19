@@ -11,7 +11,7 @@ from lib.cairo_contracts.src.openzeppelin.security.safemath.library import SafeU
 from src.constants import IERC721_RECEIVER_ID, IACCOUNT_ID
 from src.ERC165.IERC165 import IERC165
 from src.ERC721.IERC721 import Approval, ApprovalForAll, Transfer
-from src.ERC721.IERC721_Receiver import IERC721_Receiver
+from src.ERC721.IERC721Receiver import IERC721Receiver
 
 
 @storage_var
@@ -301,7 +301,7 @@ namespace ERC721Library {
         let (caller) = get_caller_address();
         let (supports_erc721) = IERC165.supportsInterface(_to, IERC721_RECEIVER_ID);
         if (supports_erc721 == TRUE) {
-            let (selector) = IERC721_Receiver.onERC721Received(
+            let (selector) = IERC721Receiver.onERC721Received(
                 _to, caller, _from, _tokenId, data_len, data
             );
             with_attr error_message("RECEIVER ERROR") {

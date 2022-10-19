@@ -2,7 +2,7 @@
 from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
-namespace ITokenizedContractFactory {
+namespace ITCF {
     func getContractHash() -> (res: felt) {
     }
 

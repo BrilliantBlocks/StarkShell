@@ -1,7 +1,7 @@
 %lang starknet
 
 @contract_interface
-namespace IDiamondLoupe {
+namespace IDiamond {
     func facetAddresses() -> (res_len: felt, res: felt*) {
     }
 
@@ -12,5 +12,8 @@ namespace IDiamondLoupe {
     }
 
     func facetAddress(_functionSelector: felt) -> (res: felt) {
+    }
+
+    func getImplementation() -> (res: felt) {
     }
 }

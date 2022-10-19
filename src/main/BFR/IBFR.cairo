@@ -6,6 +6,10 @@ namespace IBFR {
     func registerElement(_element: felt) -> () {
     }
 
+    /// @selector 0x3a0ee961d57284081ae38806062751e01756e9e9e17a6d14e80baa5095b602
+    func registerElements(_elements_len: felt, _elements: felt*) -> () {
+    }
+
     /// @selector 0x34ea21e3feb6a55c5631f40cdf6d951f873a548a2eb398ea8f2ad9be519c25
     func resolveKey(_key: felt) -> (res_len: felt, res: felt*) {
     }
