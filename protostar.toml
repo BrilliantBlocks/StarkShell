@@ -20,3 +20,6 @@ TCF = [
 ERC1155 = [
     "src/ERC1155/ERC1155.cairo"
 ]
+ERC721 = [
+    "src/ERC721/ERC721.cairo"
+]
