@@ -34,6 +34,7 @@ func __default__{
     return (retdata_size, retdata);
 }
 
+/// @return Array of included class hashes
 @view
 func facetAddresses{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -44,6 +45,7 @@ func facetAddresses{
 
 /// @dev Resolve alias as if they were the actual function
 /// @revert UNKNOWN FUNCTION if selector not found in any facet
+/// @return Class hash implementing _functionSelector
 @view
 func facetAddress{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -58,6 +60,7 @@ func facetAddress{
 }
 
 /// @revert FACET NOT FOUND
+/// @return Array of selectors implemented in a facet
 @view
 func facetFunctionSelectors{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -67,6 +70,8 @@ func facetFunctionSelectors{
     return (selectors_len, selectors);
 }
 
+/// @dev Same as facetAddresses()
+/// @return Array of included class hashes
 @view
 func facets{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -74,7 +79,7 @@ func facets{
     return facetAddresses();
 }
 
-/// @dev ERC-165
+/// @dev Calls all facets for their supported interfaces
 @view
 func supportsInterface{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr

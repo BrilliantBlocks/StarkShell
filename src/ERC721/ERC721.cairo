@@ -8,8 +8,9 @@ from src.ERC721.library import ERC721, ERC721Library
 
 // Facet-specifix external and view functions
 from src.ERC721.__ERC721 import (
+    __constructor__,
+    __destructor__,
     __get_function_selectors__,
-    __init_facet__,
     __supports_interface__,
 )
 

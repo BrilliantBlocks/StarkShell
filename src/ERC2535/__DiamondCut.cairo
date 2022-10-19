@@ -6,11 +6,19 @@ from starkware.cairo.common.registers import get_label_location
 
 from src.constants import FUNCTION_SELECTORS, IDIAMONDCUT_ID
 
+/// @dev Initialize this facet
 @external
-func __init_facet__() -> () {
+func __constructor__() -> () {
     return ();
 }
 
+/// @dev Remove this facet
+@external
+func __destructor__() -> () {
+    return ();
+}
+
+/// @dev Exported view and invokable functions of this facet
 @view
 func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
@@ -22,7 +30,7 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     dw FUNCTION_SELECTORS.DIAMONDCUT.setFunctionFee;
 }
 
-/// @dev ERC-165
+/// @dev Define all supported interfaces of this facet
 @view
 func __supports_interface__(_interface_id: felt) -> (res: felt) {
     if (_interface_id == IDIAMONDCUT_ID) {

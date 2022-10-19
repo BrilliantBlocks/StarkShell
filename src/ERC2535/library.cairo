@@ -200,7 +200,7 @@ namespace Diamond {
     ) -> () {
         library_call(
             class_hash=class_hash,
-            function_selector=FUNCTION_SELECTORS.FACET.__init_facet__,
+            function_selector=FUNCTION_SELECTORS.FACET.__constructor__,
             calldata_size=calldata_len,
             calldata=calldata,
         );

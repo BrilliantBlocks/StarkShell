@@ -5,8 +5,9 @@ from src.ERC2535.library import Diamond
 
 // Facet-specifix external and view functions
 from src.ERC2535.__DiamondCut import (
+    __constructor__,
+    __destructor__,
     __get_function_selectors__,
-    __init_facet__,
     __supports_interface__,
 )
 
