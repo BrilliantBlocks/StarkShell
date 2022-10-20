@@ -3,7 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import split_felt
-from starkware.starknet.common.syscalls import deploy, get_block_timestamp
+from starkware.starknet.common.syscalls import deploy, get_caller_address
 
 from src.Factory.IFactory import DeployContract
 
@@ -24,9 +24,10 @@ namespace Factory {
         return contract_hash;
     }
 
+    /// @dev Limitation one deployment per user per block
     func _deploy_contract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_constructor_calldata_len: felt, _constructor_calldata: felt*) -> felt {
         alloc_locals;
-        let (salt) = get_block_timestamp();
+        let (salt) = get_caller_address();  // TODO bug, max 1 diamond per user caller_address + block_number + salt
         let (class_hash) = contract_hash_.read();
         with_attr error_message("FAILED DEPLOYMENT") {
             let (contract_address) = deploy(
