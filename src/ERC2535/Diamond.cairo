@@ -106,3 +106,10 @@ func getImplementation{
     let token_facet = Diamond._find_token_facet(facets_len, facets);
     return (res=token_facet);
 }
+
+/// @return Address of root factory
+@view
+func getRoot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
+    let root = Diamond._get_root_();
+    return (res=root);
+}

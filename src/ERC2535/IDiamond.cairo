@@ -25,4 +25,8 @@ namespace IDiamond {
     /// @selector 0x29e211664c0b63c79638fbea474206ca74016b3e9a3dc4f9ac300ffd8bdf2cd
     func supportsInterface(_interface_id: felt) -> (res: felt) {
     }
+
+    /// @selector 0x3cfa801b3ef3b42e585d0381132bc99e75cb1b6a7d45c15f7b245ee8c8d4104
+    func getRoot() -> (res: felt) {
+    }
 }

@@ -203,7 +203,7 @@ namespace Diamond {
         return ();
     }
 
-    func _get_root_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_root: felt) -> felt {
+    func _get_root_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
         let (root) = root_.read();
         return root;
     }
