@@ -14,16 +14,6 @@ from protostar.asserts import assert_eq, assert_not_eq
 const BrilliantBlocks = 123;
 const User = 456;
 
-namespace FacetConfigKey {
-    const OOO = 0;
-    const OOI = 1;
-    const OIO = 2;
-    const OII = 3;
-    const IOO = 4;
-    const IOI = 5;
-    const IIO = 6;
-    const III = 7;
-}
 
 @external
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
@@ -77,7 +67,7 @@ func test_diamondCut_remove_diamondCut{
             ids.User, target_contract_address=ids.TCF_address
         )
     %}
-    let (diamond_address) = ITCF.mintContract(TCF_address, FacetConfigKey.OOI);
+    let (diamond_address) = ITCF.mintContract(TCF_address);
     %{ stop_prank_callable() %}
 
     // The minted diamond has 1 facets
@@ -117,7 +107,7 @@ func test_diamondCut_add_erc721{
             ids.User, target_contract_address=ids.TCF_address
         )
     %}
-    let (diamond_address) = ITCF.mintContract(TCF_address, FacetConfigKey.OOI);
+    let (diamond_address) = ITCF.mintContract(TCF_address);
     %{ stop_prank_callable() %}
 
     // The minted diamond has 1 facets

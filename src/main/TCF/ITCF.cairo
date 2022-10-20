@@ -9,7 +9,7 @@ namespace ITCF {
     func getProxyTarget() -> (res: felt) {
     }
 
-    func mintContract(_key: felt) -> (res: felt) {
+    func mintContract() -> (res: felt) {
     }
 
     func updateMetadata(_tokenId: felt, _type: felt, _data_len: felt, _data: felt*) -> () {

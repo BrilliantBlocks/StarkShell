@@ -13,6 +13,10 @@ from src.Factory.library import Factory
 from src.Proxy.library import Proxy
 from src.UniversalMetadata.library import UniversalMetadata
 
+
+/// @dev facet key for resolving DiamondCut
+const DIAMOND_CUT_ONLY = 1;
+
 /// @dev Set proxy_target
 /// @param _contract_hash Class hash of to-be-deployed contracts
 /// @param _proxy_target Forward all calls and invokes to this address
@@ -65,15 +69,16 @@ func getContractHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 }
 
 /// @dev Mint lazily NFT and deploy contract
+/// @notice Minted diamond is unfinished
 /// @emit DeployContract
 /// @emit Transfer
 /// @return Address of the deployed contract
 @external
-func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt) -> (
+func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     res: felt
 ) {
     alloc_locals;
-    let (calldata_len, calldata) = _assemble_constructor_calldata(_key);
+    let (calldata_len, calldata) = _assemble_constructor_calldata();
     let contract_address = Factory._deploy_contract(calldata_len, calldata);
     let token_id = _compute_token_id(contract_address);
     let (owner) = get_caller_address();
@@ -81,14 +86,14 @@ func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     return (res=contract_address);
 }
 
-func _assemble_constructor_calldata{syscall_ptr: felt*}(_key: felt) -> (
+func _assemble_constructor_calldata{syscall_ptr: felt*}() -> (
     calldata_len: felt, calldata: felt*
 ) {
     alloc_locals;
     let (local calldata: felt*) = alloc();
     let (root) = get_contract_address();
     assert calldata[0] = root;
-    assert calldata[1] = _key;
+    assert calldata[1] = DIAMOND_CUT_ONLY;
     return (calldata_len=2, calldata=calldata);
 }
 
