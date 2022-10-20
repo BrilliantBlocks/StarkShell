@@ -170,10 +170,14 @@ namespace Diamond {
             memcpy(dst=facetCutCalldata, src=_calldata + 1, len=facetCutCalldata_len);
         }
 
-        let constructor_or_destructor = ( 1 - _facetCut[0].facetCutAction ) * FUNCTION_SELECTORS.FACET.__constructor__ + _facetCut[0].facetCutAction * FUNCTION_SELECTORS.FACET.__destructor__;
+        let selector = Library._if_x_eq_true_return_y_else_z(
+                    x=_facetCut[0].facetCutAction,
+                    y=FUNCTION_SELECTORS.FACET.__constructor__,
+                    z=FUNCTION_SELECTORS.FACET.__destructor__,
+                );
         library_call(
             class_hash=_facetCut[0].facetAddress,
-            function_selector=constructor_or_destructor,
+            function_selector=selector,
             calldata_size=facetCutCalldata_len,
             calldata=facetCutCalldata,
         );
@@ -383,4 +387,10 @@ namespace Diamond {
 }
 
 namespace Library {
+    func _if_x_eq_true_return_y_else_z(x: felt, y: felt, z: felt) -> felt {
+        with_attr error_message("BOOL ERROR") {
+            assert (1 - x) * x = 0;
+        }
+        return (1 - x) * z + x * y;
+    }
 }
