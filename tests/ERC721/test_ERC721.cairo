@@ -3,6 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
+from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC721.IERC721 import IERC721
 from src.main.BFR.IBFR import IBFR
@@ -75,6 +76,19 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
     IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
+    return ();
+}
+
+@external
+func test_getImplementation_return_erc721{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(){
+    alloc_locals;
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    local erc721_class_hash;
+    %{ ids.erc721_class_hash = context.erc721_class_hash %}
+
+    let (token_class_hash) = IDiamond.getImplementation(diamond_address);
+    assert_eq(token_class_hash, erc721_class_hash);
     return ();
 }
 
