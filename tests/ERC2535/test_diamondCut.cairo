@@ -144,3 +144,5 @@ func test_diamondCut_add_erc721{
 // TODO test multiple diamondCut
 // TODO test reverts
 // test with constructor and destructor
+// TODO setAlias
+// TODO setFunctionFee

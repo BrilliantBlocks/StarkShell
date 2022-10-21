@@ -10,7 +10,6 @@ from src.main.TCF.ITCF import ITCF
 
 from protostar.asserts import assert_eq, assert_not_eq
 
-
 const BrilliantBlocks = 123;
 const User = 456;
 const Adversary = 789;
@@ -67,10 +66,6 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 
-    %{  
-        # Define some test data
-        from tests.util import *
-    %}
     return ();
 }
 
