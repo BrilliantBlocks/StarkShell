@@ -99,9 +99,10 @@ func __destructor__() -> () {
 
 /// @dev Exported view and invokable functions of this facet
 @view
-func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+@raw_output
+func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (res_len=8, res=cast(func_selectors, felt*));
+    return (retdata_size=8, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.ERC721.balanceOf;

@@ -93,6 +93,63 @@ func test_getImplementation_return_erc721{syscall_ptr: felt*, pedersen_ptr: Hash
 }
 
 @external
+func test_facet_returns_only_expected_function_selectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(){
+    alloc_locals;
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    local erc721_class_hash;
+    %{ ids.erc721_class_hash = context.erc721_class_hash %}
+    local balanceOf_hash;
+    local ownerOf_hash;
+    local getApproved_hash;
+    local isApprovedForAll_hash;
+    local approve_hash;
+    local setApprovalForAll_hash;
+    local transferFrom_hash;
+    local safeTransferFrom_hash;
+    %{
+        from starkware.starknet.public.abi import get_selector_from_name
+        ids.balanceOf_hash = get_selector_from_name("balanceOf")
+        ids.ownerOf_hash = get_selector_from_name("ownerOf")
+        ids.getApproved_hash = get_selector_from_name("getApproved")
+        ids.isApprovedForAll_hash = get_selector_from_name("isApprovedForAll")
+        ids.approve_hash = get_selector_from_name("approve")
+        ids.setApprovalForAll_hash = get_selector_from_name("setApprovalForAll")
+        ids.transferFrom_hash = get_selector_from_name("transferFrom")
+        ids.safeTransferFrom_hash = get_selector_from_name("safeTransferFrom")
+    %}
+
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, erc721_class_hash);
+    assert_eq(selectors_len, 8);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, balanceOf_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, ownerOf_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, getApproved_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, isApprovedForAll_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, approve_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, setApprovalForAll_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, transferFrom_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, safeTransferFrom_hash);
+    assert_eq(facet, erc721_class_hash);
+
+    return ();
+}
+
+@external
 func test_destructor{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }() {

@@ -105,12 +105,12 @@ namespace Diamond {
         _facet: felt
     ) -> (res_len: felt, res: felt*) {
         alloc_locals;
-        let (local no_param: felt*) = alloc();
+        let (local NULLptr: felt*) = alloc();
         let (r_len, r) = library_call(
             class_hash=_facet,
             function_selector=FUNCTION_SELECTORS.FACET.__get_function_selectors__,
             calldata_size=NULL,
-            calldata=no_param,
+            calldata=NULLptr,
         );
         return (r_len, r);
     }
