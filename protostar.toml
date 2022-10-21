@@ -26,3 +26,6 @@ ERC721 = [
 UniversalMetadata = [
     "src/UniversalMetadata/UniversalMetadata.cairo"
 ]
+UniversalMint = [
+    "src/UniversalMint/UniversalMint.cairo"
+]

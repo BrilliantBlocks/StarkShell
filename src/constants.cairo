@@ -145,4 +145,9 @@ namespace FUNCTION_SELECTORS {
     namespace BATCHMINT {
         const mintBatchConsecutive = 0x1c7d5f1f8b2fe560ddb59a71a1b6c4633502700a50a01a7adbcd5cef0b39a97;
     }
+
+    namespace UNIVERSAL_MINT {
+        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
+        const mintBatch = 0x348b9a6e049cc3f9f66737435ed36813556cc5be1cf9d5c64f429c32a17d88a;
+    }
 }
