@@ -67,6 +67,20 @@ func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return ();
 }
 
+// ===========================
+// Interface for UniversalMint
+// ===========================
+
+/// @notice Not included in __get_function_selectors__()
+/// @revert INVALID TOKEN ID
+/// @revert ZERO ADDRESS
+/// @revert EXISTING TOKEN ID
+@external
+func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_to: felt, _tokenId: Uint256) -> () {
+    ERC721._mint(_to, _tokenId);
+    return ();
+}
+
 // ===================
 // Mandatory functions
 // ===================

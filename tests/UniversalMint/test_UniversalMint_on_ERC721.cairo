@@ -5,6 +5,7 @@ from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
+from src.ERC721.IERC721 import IERC721
 from src.UniversalMint.IUniversalMint import IUniversalMint
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
@@ -93,5 +94,22 @@ func test_mint_on_erc721{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }() {
     alloc_locals;
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+
+    let (local calldata: felt*) = alloc();
+    assert calldata[0] = User; // to
+    assert calldata[1] = 1;    // tokenId.low
+    assert calldata[2] = 0;    // tokenId.high
+    let calldata_len = 3;
+    %{ expect_events({"name": "Transfer", "data": [0, ids.User, 1, 0]}) %}
+    IUniversalMint.mint(diamond_address, calldata_len, calldata);
+    let (actual_owner) = IERC721.ownerOf(diamond_address, Uint256(1, 0));
+    let (actual_balance: Uint256) = IERC721.balanceOf(diamond_address, User);
+
+    assert_eq(actual_owner, User);
+    assert_eq(actual_balance.low, 1);
+    assert_eq(actual_balance.high, 0);
+
     return ();
 }
