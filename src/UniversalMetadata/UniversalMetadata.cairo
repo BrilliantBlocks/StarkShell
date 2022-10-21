@@ -3,16 +3,12 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
+from starkware.cairo.common.registers import get_label_location
 from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_eq, uint256_unsigned_div_rem
 from starkware.cairo.common.pow import pow
 
-// Facet-specifix external and view functions
-from src.UniversalMetadata.__UniversalMetadata import (
-    __constructor__,
-    __destructor__,
-    __get_function_selectors__,
-    __supports_interface__,
-)
+from src.constants import FUNCTION_SELECTORS, IERC721_METADATA_ID, NULL
+
 
 @storage_var
 func name_() -> (res: felt) {
@@ -283,4 +279,53 @@ namespace ShortString {
         let res = word_exponent * (r.low + 48) + running_total;
         return (running_total=res, remainder=remainder);
     }
+}
+
+// ===================
+// Mandatory functions
+// ===================
+
+/// @dev Initialize this facet
+/// @revert BOOL ERROR if _has_token_id_infix is not a boolean
+@external
+func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_name: felt, _symbol: felt, _prefix_uri_len: felt, _prefix_uri: felt*, _has_token_id_infix: felt, _suffix_uri_len: felt, _suffix_uri: felt*) -> () {
+    Library._assert_is_boolean(_has_token_id_infix);
+    name_.write(_name);
+    symbol_.write(_symbol);
+    UniversalMetadata._set_token_uri_(_prefix_uri_len, _prefix_uri, _has_token_id_infix, _suffix_uri_len, _suffix_uri);
+    return ();
+}
+
+/// @dev Remove this facet
+/// @notice Resets all metadata
+@external
+func __destructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+    alloc_locals;
+    let (local NULLptr: felt*) = alloc();
+    name_.write(NULL);
+    symbol_.write(NULL);
+    UniversalMetadata._set_token_uri_(NULL, NULLptr, FALSE, NULL, NULLptr);
+    return ();
+}
+
+/// @dev Exported view and invokable functions of this facet
+@view
+func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+    // TODO return dynamically based on IDiamond.getImplementation(self);
+    let (func_selectors) = get_label_location(selectors_start);
+    return (res_len=3, res=cast(func_selectors, felt*));
+
+    selectors_start:
+    dw FUNCTION_SELECTORS.ERC721Metadata.name;
+    dw FUNCTION_SELECTORS.ERC721Metadata.symbol;
+    dw FUNCTION_SELECTORS.ERC721Metadata.tokenURI;
+}
+
+/// @dev Define all supported interfaces of this facet
+@view
+func __supports_interface__(_interface_id: felt) -> (res: felt) {
+    if (_interface_id == IERC721_METADATA_ID) {
+        return (res=TRUE);
+    }
+    return (res=FALSE);
 }

@@ -56,6 +56,12 @@ namespace FUNCTION_SELECTORS {
         const transferFrom = 0x41b033f4a31df8067c24d1e9b550a2ce75fd4a29e1147af9752174f0e6cb20;
     }
 
+    namespace ERC721Metadata {
+        const name = 0x361458367e696363fbcc70777d07ebbd2394e89fd0adcaf147faccd1d294d60;
+        const symbol = 0x216b05c387bab9ac31918a3e61672f4618601f3c598a2f3f2710f37053e1ea4;
+        const tokenURI = 0x12a7823b0c6bee58f8c694888f32f862c6584caa8afa0242de046d298ba684d;
+    }
+
     namespace ERC1155 {
         const balanceOf = 0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e;
         const balanceOfBatch = 0x116d888b0a9ad3998fcf1cdb2711375c69ac1847e806a480e3585c3da18eac3;
