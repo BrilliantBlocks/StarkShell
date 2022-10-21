@@ -1,18 +1,13 @@
 %lang starknet
+from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_not_equal, assert_not_zero
 from starkware.cairo.common.uint256 import Uint256
+from starkware.cairo.common.registers import get_label_location
 from starkware.starknet.common.syscalls import get_caller_address
 
+from src.constants import FUNCTION_SELECTORS, IERC721_ID
 from src.ERC721.library import ERC721, ERC721Library
-
-// Facet-specifix external and view functions
-from src.ERC721.__ERC721 import (
-    __constructor__,
-    __destructor__,
-    __get_function_selectors__,
-    __supports_interface__,
-)
 
 
 @view
@@ -70,4 +65,46 @@ func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     let (caller) = get_caller_address();
     ERC721._safeTransferFrom(_from, _to, _tokenId, data_len, data);
     return ();
+}
+
+// ===================
+// Mandatory functions
+// ===================
+
+/// @dev Initialize this facet
+@external
+func __constructor__() -> () {
+    return ();
+}
+
+/// @dev Remove this facet
+@external
+func __destructor__() -> () {
+    return ();
+}
+
+/// @dev Exported view and invokable functions of this facet
+@view
+func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+    return (res_len=8, res=cast(func_selectors, felt*));
+
+    selectors_start:
+    dw FUNCTION_SELECTORS.ERC721.balanceOf;
+    dw FUNCTION_SELECTORS.ERC721.ownerOf;
+    dw FUNCTION_SELECTORS.ERC721.getApproved;
+    dw FUNCTION_SELECTORS.ERC721.isApprovedForAll;
+    dw FUNCTION_SELECTORS.ERC721.approve;
+    dw FUNCTION_SELECTORS.ERC721.setApprovalForAll;
+    dw FUNCTION_SELECTORS.ERC721.transferFrom;
+    dw FUNCTION_SELECTORS.ERC721.safeTransferFrom;
+}
+
+/// @dev Define all supported interfaces of this facet
+@view
+func __supports_interface__(_interface_id: felt) -> (res: felt) {
+    if (_interface_id == IERC721_ID) {
+        return (res=TRUE);
+    }
+    return (res=FALSE);
 }
