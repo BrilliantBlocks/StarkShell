@@ -8,6 +8,10 @@ from starkware.cairo.common.pow import pow
 
 
 @storage_var
+func decimals_() -> (res: felt) {
+}
+
+@storage_var
 func name_() -> (res: felt) {
 }
 
@@ -49,6 +53,16 @@ namespace UniversalMetadata {
 
     func _set_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_collection_uri_len: felt, _collection_uri: felt*){
         Library._set_collection_uri_(_collection_uri_len, _collection_uri);
+        return ();
+    }
+
+    func _get_decimals_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
+        let (decimals) = decimals_.read();
+        return decimals;
+    }
+
+    func _set_decimals_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_decimals: felt) {
+        decimals_.write(_decimals);
         return ();
     }
 
