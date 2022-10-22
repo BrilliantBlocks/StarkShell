@@ -17,7 +17,6 @@ func balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     return ERC1155.balance_of(owner, token_id);
 }
 
-
 @view
 func balanceOfBatch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     owners_len: felt, owners: felt*, tokens_id_len: felt, tokens_id: Uint256*
@@ -25,7 +24,6 @@ func balanceOfBatch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
     
     return ERC1155.balance_of_batch(owners_len, owners, tokens_id_len, tokens_id);
 }
-
 
 @view
 func isApprovedForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
@@ -35,7 +33,6 @@ func isApprovedForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
     return ERC1155.is_approved_for_all(owner, operator);
 }
 
-
 @external
 func setApprovalForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     operator: felt, approved: felt
@@ -43,7 +40,6 @@ func setApprovalForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
 
     return ERC1155.set_approval_for_all(operator, approved);
 }
-
 
 @external
 func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
@@ -53,7 +49,6 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
     return ERC1155.safe_transfer_from(from_, to, token_id, amount);
 }
 
-
 @external
 func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     from_: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
@@ -62,18 +57,28 @@ func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range
     return ERC1155.safe_batch_transfer_from(from_, to, tokens_id_len, tokens_id, amounts_len, amounts);
 }
 
+// ===================
+// Mandatory functions
+// ===================
 
+/// @dev Initialize this facet
 @external
-func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
-
+func __constructor__() -> () {
     return ();
 }
 
+/// @dev Remove this facet
+@external
+func __destructor__() -> () {
+    return ();
+}
 
+/// @dev Exported view and invokable functions of this facet
 @view
-func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+@raw_output
+func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (res_len=6, res=cast(func_selectors, felt*));
+    return (retdata_size=6, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.ERC1155.balanceOf;
@@ -84,15 +89,11 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     dw FUNCTION_SELECTORS.ERC1155.safeBatchTransferFrom;
 }
 
-
-// @dev Support ERC-165
-// @param interface_id
-// @return success (0 or 1)
+/// @dev Define all supported interfaces of this facet
 @view
-func __supports_interface__(_interface_id: felt) -> (success: felt) {
+func __supports_interface__(_interface_id: felt) -> (res: felt) {
     if (_interface_id == IERC1155_ID) {
-        return (TRUE,);
+        return (res=TRUE);
     }
-
-    return (FALSE,);
+    return (res=FALSE);
 }

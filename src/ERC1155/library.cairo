@@ -14,18 +14,7 @@ from starkware.cairo.common.memcpy import memcpy
 
 from lib.cairo_contracts.src.openzeppelin.security.safemath.library import SafeUint256
 
-
-@event
-func TransferSingle(operator: felt, from_: felt, to: felt, id: Uint256, amount: Uint256) {
-}
-
-@event
-func TransferBatch(operator: felt, from_: felt, to: felt, ids_len: felt, ids: Uint256*, amounts_len: felt, amounts: Uint256*) {
-}
-
-@event
-func ApprovalForAll(owner: felt, operator: felt, approved: felt) {
-}
+from src.ERC1155.IERC1155 import TransferSingle, TransferBatch, ApprovalForAll
 
 
 @storage_var
