@@ -1,5 +1,4 @@
 %lang starknet
-
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.uint256 import Uint256
@@ -7,7 +6,6 @@ from starkware.cairo.common.registers import get_label_location
 
 from src.ERC5114.library import ERC5114, NFT
 from src.constants import FUNCTION_SELECTORS, IERC5114_ID
-
 
 
 @view
@@ -18,45 +16,38 @@ func ownerOf{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     return ERC5114.owner_of(token_id);
 }
 
+// ===================
+// Mandatory functions
+// ===================
 
-@view
-func metadataFormat{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    metadata_format: felt
-) {
-
-    return ERC5114.metadata_format();
-}
-
-
+/// @dev Initialize this facet
 @external
-func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    metadata_format: felt
-) -> () {
-    
-    ERC5114.initializer(metadata_format);
+func __constructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
     return ();
 }
 
+/// @dev Remove this facet
+@external
+func __destructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
+    return ();
+}
 
+/// @dev Exported view and invokable functions of this facet
 @view
-func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+@raw_output
+func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (res_len=2, res=cast(func_selectors, felt*));
+    return (retdata_size=1, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.ERC5114.ownerOf;
-    dw FUNCTION_SELECTORS.ERC5114.metadataFormat;
 }
 
-
-// @dev Support ERC-165
-// @param interface_id
-// @return success (0 or 1)
+/// @dev Define all supported interfaces of this facet
 @view
-func __supports_interface__(_interface_id: felt) -> (success: felt) {
+func __supports_interface__(_interface_id: felt) -> (res: felt) {
     if (_interface_id == IERC5114_ID) {
-        return (TRUE,);
+        return (res=TRUE);
     }
-
-    return (FALSE,);
+    return (res=FALSE);
 }
