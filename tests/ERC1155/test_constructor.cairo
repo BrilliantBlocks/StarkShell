@@ -83,7 +83,8 @@ func test_constructor{
     assert facetCut[0] = FacetCut(erc1155_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
-    let calldata_len = 0;
+    assert calldata[0] = 0;
+    let calldata_len = 1;
 
     // User adds ERC1155 facet to diamond
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}

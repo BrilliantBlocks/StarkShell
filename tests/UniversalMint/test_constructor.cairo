@@ -91,7 +91,9 @@ func test_constructor_on_erc721{
     assert facetCut[1] = FacetCut(universalMint_class_hash, FacetCutAction.Add);
     let facetCut_len = 2;
     let (local calldata: felt*) = alloc();
-    let calldata_len = 0;
+    assert calldata[0] = 0;
+    assert calldata[1] = 0;
+    let calldata_len = 2;
 
     // User adds ERC721 and UniversalMint Facet
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}

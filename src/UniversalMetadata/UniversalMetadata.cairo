@@ -67,12 +67,13 @@ func collectionUri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 /// @dev Initialize this facet
 /// @revert BOOL ERROR if _has_token_id_infix is not a boolean
 @external
-func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_decimals: felt, _name: felt, _symbol: felt, _prefix_uri_len: felt, _prefix_uri: felt*, _has_token_id_infix: felt, _suffix_uri_len: felt, _suffix_uri: felt*) -> () {
+func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_decimals: felt, _name: felt, _symbol: felt, _prefix_uri_len: felt, _prefix_uri: felt*, _has_token_id_infix: felt, _suffix_uri_len: felt, _suffix_uri: felt*, _collection_uri_len: felt, _collection_uri: felt*) -> () {
     Library._assert_is_boolean(_has_token_id_infix);
     UniversalMetadata._set_decimals_(_decimals);
     UniversalMetadata._set_name_(_name);
     UniversalMetadata._set_symbol_(_symbol);
     UniversalMetadata._set_token_uri_(_prefix_uri_len, _prefix_uri, _has_token_id_infix, _suffix_uri_len, _suffix_uri);
+    UniversalMetadata._set_collection_uri_(_collection_uri_len, _collection_uri);
     return ();
 }
 
@@ -86,6 +87,7 @@ func __destructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
     UniversalMetadata._set_name_(NULL);
     UniversalMetadata._set_symbol_(NULL);
     UniversalMetadata._set_token_uri_(NULL, NULLptr, FALSE, NULL, NULLptr);
+    UniversalMetadata._set_collection_uri_(NULL, NULLptr);
     return ();
 }
 

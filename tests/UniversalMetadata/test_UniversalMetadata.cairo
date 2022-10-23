@@ -4,7 +4,6 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
-from src.UniversalMetadata.IUniversalMetadata import IUniversalMetadata
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 
@@ -83,7 +82,15 @@ func test_static_uri{
     assert facetCut[0] = FacetCut(universalMetadata_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
-    let calldata_len = 0;
+    assert calldata[0] = 7;
+    assert calldata[1] = 0;
+    assert calldata[2] = 0;
+    assert calldata[3] = 0;
+    assert calldata[4] = 0;
+    assert calldata[5] = 0;
+    assert calldata[6] = 0;
+    assert calldata[7] = 0;
+    let calldata_len = 8;
 
     // User adds UniversalMetadata facet to diamond
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}

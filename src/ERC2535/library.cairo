@@ -124,6 +124,7 @@ namespace Diamond {
     _facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*
     ) -> () {
         alloc_locals;
+
         if (_facetCut_len == 0) {
             with_attr error_message("OVERFULL CALLDATA") {
                 assert _calldata_len = 0;
@@ -166,14 +167,19 @@ namespace Diamond {
         if (_calldata_len == 0) {
             assert facetCutCalldata_len = 0;
         } else {
-            assert facetCutCalldata_len = _calldata[1];
-            memcpy(dst=facetCutCalldata, src=_calldata + 1, len=facetCutCalldata_len);
+            if (_calldata[0] == 0){
+                assert facetCutCalldata_len = 0;
+            } else {
+                assert facetCutCalldata_len = _calldata[0];
+                with_attr error_message("INVALID CALLDATA FORMAT") {
+                    memcpy(dst=facetCutCalldata, src=_calldata + 1, len=facetCutCalldata_len);
+                }
+            }
         }
-
         let selector = Library._if_x_eq_true_return_y_else_z(
                     x=_facetCut[0].facetCutAction,
-                    y=FUNCTION_SELECTORS.FACET.__constructor__,
-                    z=FUNCTION_SELECTORS.FACET.__destructor__,
+                    y=FUNCTION_SELECTORS.FACET.__destructor__,
+                    z=FUNCTION_SELECTORS.FACET.__constructor__,
                 );
         library_call(
             class_hash=_facetCut[0].facetAddress,
@@ -183,11 +189,16 @@ namespace Diamond {
         );
 
         let (local new_calldata: felt*) =  alloc();
-        let new_calldata_len = _calldata_len - facetCutCalldata_len;
+        let new_calldata_len = _calldata_len - facetCutCalldata_len - 1;
 
         if (_calldata_len == 0) {
+            with_attr error_message("INVALID CALLDATA FORMAT") {
+                assert _facetCut_len = 1;
+            }
         } else {
-            memcpy(dst=new_calldata, src=_calldata, len=1);
+            // TODO test
+            // memcpy(dst=new_calldata, src=_calldata, len=0);
+            // memcpy(dst=new_calldata, src=_calldata, len=1); // => new_calldata[0] = 3
             memcpy(dst=new_calldata, src=_calldata + facetCutCalldata_len + 1, len=_calldata_len - facetCutCalldata_len - 1);
         }
 

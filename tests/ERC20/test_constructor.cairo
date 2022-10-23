@@ -4,7 +4,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
-from src.ERC721.IERC721 import IERC721
+from src.ERC20.IERC20 import IERC20
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 
@@ -19,14 +19,14 @@ const Adversary = 789;
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
     local diamondCut_class_hash;
-    local erc721_class_hash;
+    local erc20_class_hash;
     %{  
         # Declare diamond and facets
         context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
         context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         ids.diamondCut_class_hash = context.diamondCut_class_hash
-        context.erc721_class_hash = declare("./src/ERC721/ERC721.cairo").class_hash
-        ids.erc721_class_hash = context.erc721_class_hash
+        context.erc20_class_hash = declare("./src/ERC20/ERC20.cairo").class_hash
+        ids.erc20_class_hash = context.erc20_class_hash
     %}
     
     local TCF_address;
@@ -54,7 +54,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     // BrilliantBlocks populates facet registry
     let (local elements: felt*) = alloc();
     assert elements[0] = diamondCut_class_hash;
-    assert elements[1] = erc721_class_hash;
+    assert elements[1] = erc20_class_hash;
     let elements_len = 2;
     %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
     IBFR.registerElements(TCF_address, elements_len, elements);
@@ -76,17 +76,20 @@ func test_constructor{
     alloc_locals;
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    local erc721_class_hash;
-    %{ ids.erc721_class_hash = context.erc721_class_hash %}
+    local erc20_class_hash;
+    %{ ids.erc20_class_hash = context.erc20_class_hash %}
 
     let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(erc721_class_hash, FacetCutAction.Add);
+    assert facetCut[0] = FacetCut(erc20_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
-    assert calldata[0] = 0;
-    let calldata_len = 1;
+    assert calldata[0] = 3;  // calldata_len for ERC-20 facet
+    assert calldata[1] = User;
+    assert calldata[2] = 1000000;
+    assert calldata[3] = 0;
+    let calldata_len = 4;
 
-    // User adds ERC721 facet to diamond
+    // User adds ERC20 facet to diamond
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
     IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}

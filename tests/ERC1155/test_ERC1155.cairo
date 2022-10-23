@@ -72,7 +72,8 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     assert facetCut[0] = FacetCut(erc1155_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
-    let calldata_len = 0;
+    assert calldata[0] = 0;
+    let calldata_len = 1;
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
     IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
@@ -154,7 +155,8 @@ func test_destructor{
     assert facetCut[0] = FacetCut(erc1155_class_hash, FacetCutAction.Remove);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
-    let calldata_len = 0;
+    assert calldata[0] = 0;
+    let calldata_len = 1;
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
     IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}

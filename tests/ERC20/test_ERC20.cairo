@@ -5,7 +5,7 @@ from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
-from src.ERC721.IERC721 import IERC721
+from src.ERC20.IERC20 import IERC20
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 
@@ -20,14 +20,14 @@ const Adversary = 789;
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
     local diamondCut_class_hash;
-    local erc721_class_hash;
+    local erc20_class_hash;
     %{  
         # Declare diamond and facets
         context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
         context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         ids.diamondCut_class_hash = context.diamondCut_class_hash
-        context.erc721_class_hash = declare("./src/ERC721/ERC721.cairo").class_hash
-        ids.erc721_class_hash = context.erc721_class_hash
+        context.erc20_class_hash = declare("./src/ERC20/ERC20.cairo").class_hash
+        ids.erc20_class_hash = context.erc20_class_hash
     %}
     
     local TCF_address;
@@ -55,7 +55,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     // BrilliantBlocks populates facet registry
     let (local elements: felt*) = alloc();
     assert elements[0] = diamondCut_class_hash;
-    assert elements[1] = erc721_class_hash;
+    assert elements[1] = erc20_class_hash;
     let elements_len = 2;
     %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
     IBFR.registerElements(TCF_address, elements_len, elements);
@@ -67,13 +67,16 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 
-    // Add ERC721 facet to diamond
+    // Add ERC20 facet to diamond
     let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(erc721_class_hash, FacetCutAction.Add);
+    assert facetCut[0] = FacetCut(erc20_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
-    assert calldata[0] = 0;
-    let calldata_len = 1;
+    assert calldata[0] = 3;
+    assert calldata[1] = User;
+    assert calldata[2] = 1000000;
+    assert calldata[3] = 0;
+    let calldata_len = 4;
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
     IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
@@ -81,15 +84,15 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 }
 
 @external
-func test_getImplementation_return_erc721{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(){
+func test_getImplementation_return_erc20{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(){
     alloc_locals;
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    local erc721_class_hash;
-    %{ ids.erc721_class_hash = context.erc721_class_hash %}
+    local erc20_class_hash;
+    %{ ids.erc20_class_hash = context.erc20_class_hash %}
 
     let (token_class_hash) = IDiamond.getImplementation(diamond_address);
-    assert_eq(token_class_hash, erc721_class_hash);
+    assert_eq(token_class_hash, erc20_class_hash);
     return ();
 }
 
@@ -98,54 +101,54 @@ func test_facet_returns_only_expected_function_selectors{syscall_ptr: felt*, ped
     alloc_locals;
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    local erc721_class_hash;
-    %{ ids.erc721_class_hash = context.erc721_class_hash %}
+    local erc20_class_hash;
+    %{ ids.erc20_class_hash = context.erc20_class_hash %}
     local balanceOf_hash;
-    local ownerOf_hash;
-    local getApproved_hash;
-    local isApprovedForAll_hash;
+    local totalSupply_hash;
+    local transfer_hash;
     local approve_hash;
-    local setApprovalForAll_hash;
+    local allowance_hash;
     local transferFrom_hash;
-    local safeTransferFrom_hash;
+    local increaseAllowance_hash;
+    local decreaseAllowance_hash;
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         ids.balanceOf_hash = get_selector_from_name("balanceOf")
-        ids.ownerOf_hash = get_selector_from_name("ownerOf")
-        ids.getApproved_hash = get_selector_from_name("getApproved")
-        ids.isApprovedForAll_hash = get_selector_from_name("isApprovedForAll")
+        ids.totalSupply_hash = get_selector_from_name("totalSupply")
+        ids.transfer_hash = get_selector_from_name("transfer")
         ids.approve_hash = get_selector_from_name("approve")
-        ids.setApprovalForAll_hash = get_selector_from_name("setApprovalForAll")
+        ids.allowance_hash = get_selector_from_name("allowance")
         ids.transferFrom_hash = get_selector_from_name("transferFrom")
-        ids.safeTransferFrom_hash = get_selector_from_name("safeTransferFrom")
+        ids.increaseAllowance_hash = get_selector_from_name("increaseAllowance")
+        ids.decreaseAllowance_hash = get_selector_from_name("decreaseAllowance")
     %}
 
-    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, erc721_class_hash);
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, erc20_class_hash);
     assert_eq(selectors_len, 8);
 
     let (facet) = IDiamond.facetAddress(diamond_address, balanceOf_hash);
-    assert_eq(facet, erc721_class_hash);
+    assert_eq(facet, erc20_class_hash);
 
-    let (facet) = IDiamond.facetAddress(diamond_address, ownerOf_hash);
-    assert_eq(facet, erc721_class_hash);
-
-    let (facet) = IDiamond.facetAddress(diamond_address, getApproved_hash);
-    assert_eq(facet, erc721_class_hash);
-
-    let (facet) = IDiamond.facetAddress(diamond_address, isApprovedForAll_hash);
-    assert_eq(facet, erc721_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, totalSupply_hash);
+    assert_eq(facet, erc20_class_hash);
 
     let (facet) = IDiamond.facetAddress(diamond_address, approve_hash);
-    assert_eq(facet, erc721_class_hash);
+    assert_eq(facet, erc20_class_hash);
 
-    let (facet) = IDiamond.facetAddress(diamond_address, setApprovalForAll_hash);
-    assert_eq(facet, erc721_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, allowance_hash);
+    assert_eq(facet, erc20_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, transfer_hash);
+    assert_eq(facet, erc20_class_hash);
 
     let (facet) = IDiamond.facetAddress(diamond_address, transferFrom_hash);
-    assert_eq(facet, erc721_class_hash);
+    assert_eq(facet, erc20_class_hash);
 
-    let (facet) = IDiamond.facetAddress(diamond_address, safeTransferFrom_hash);
-    assert_eq(facet, erc721_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, increaseAllowance_hash);
+    assert_eq(facet, erc20_class_hash);
+
+    let (facet) = IDiamond.facetAddress(diamond_address, decreaseAllowance_hash);
+    assert_eq(facet, erc20_class_hash);
 
     return ();
 }
@@ -157,12 +160,12 @@ func test_destructor{
     alloc_locals;
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    local erc721_class_hash;
-    %{ ids.erc721_class_hash = context.erc721_class_hash %}
+    local erc20_class_hash;
+    %{ ids.erc20_class_hash = context.erc20_class_hash %}
 
-    // Remmove ERC721 facet to diamond
+    // Remmove ERC20 facet to diamond
     let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(erc721_class_hash, FacetCutAction.Remove);
+    assert facetCut[0] = FacetCut(erc20_class_hash, FacetCutAction.Remove);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
     assert calldata[0] = 0;

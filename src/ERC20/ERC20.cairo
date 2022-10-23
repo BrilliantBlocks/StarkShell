@@ -73,12 +73,7 @@ func decreaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
 /// @dev Initialize this facet
 @external
-func __constructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    name: felt, symbol: felt, decimals: felt, initial_supply: Uint256, recipient: felt
-) -> () {
-    ERC20.initializer(name, symbol, decimals);
-    // library_call metadata_facet, set_name_, set_symbol, set_decimals_
-    // metadata facet must not require initialization (this happens here)
+func __constructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(recipient: felt, initial_supply: Uint256) -> () {
     ERC20._mint(recipient, initial_supply);
     return ();
 }
@@ -94,13 +89,10 @@ func __destructor__() -> () {
 @raw_output
 func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (retdata_size=11, retdata=cast(func_selectors, felt*));
+    return (retdata_size=8, retdata=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.ERC20.name;
-    dw FUNCTION_SELECTORS.ERC20.symbol;
     dw FUNCTION_SELECTORS.ERC20.totalSupply;
-    dw FUNCTION_SELECTORS.ERC20.decimals;
     dw FUNCTION_SELECTORS.ERC20.balanceOf;
     dw FUNCTION_SELECTORS.ERC20.allowance;
     dw FUNCTION_SELECTORS.ERC20.transfer;

@@ -73,7 +73,6 @@ func test_diamondCut_remove_diamondCut{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }() {
     alloc_locals;
-    let (local NULLptr: felt*) = alloc();
     local TCF_address;
     local erc721_class_hash;
     local diamondCut_class_hash;
@@ -93,7 +92,10 @@ func test_diamondCut_remove_diamondCut{
     assert facetCut[0].facetAddress = diamondCut_class_hash;
     assert facetCut[0].facetCutAction = FacetCutAction.Remove;
     let facetCut_len = 1;
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, NULL, NULLptr);
+    let (local calldata: felt*) = alloc();
+    assert calldata[0] = 0;
+    let calldata_len = 1;
+    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank_callable() %}
 
     // Assert that diamond has no facets
@@ -110,7 +112,6 @@ func test_diamondCut_add_erc721{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }() {
     alloc_locals;
-    let (local NULLptr: felt*) = alloc();
     local erc721_class_hash;
     local diamondCut_class_hash;
     local diamond_address;
@@ -128,7 +129,10 @@ func test_diamondCut_add_erc721{
     assert facetCut[0].facetAddress = erc721_class_hash;
     assert facetCut[0].facetCutAction = FacetCutAction.Add;
     let facetCut_len = 1;
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, NULL, NULLptr);
+    let (local calldata: felt*) = alloc();
+    assert calldata[0] = 0;
+    let calldata_len = 1;
+    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank_callable() %}
 
     // Assert that diamond has exactly diamondCut and ERC721
