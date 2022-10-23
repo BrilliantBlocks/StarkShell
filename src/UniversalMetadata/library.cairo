@@ -38,6 +38,10 @@ func token_uri_id_infix_() -> (bool: felt){
 func token_uri_suffix_(i: felt) -> (res: felt) {
 }
 
+@storage_var
+func metadata_format_() -> (res: felt){
+}
+
 /// @dev This storage variable contains an array structure
 /// @dev Sequence of nonzero elements starting from zero
 /// @dev collection_uri_(i) = 0 marks the end of the array
@@ -83,6 +87,16 @@ namespace UniversalMetadata {
 
     func _set_symbol_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_symbol: felt) {
         symbol_.write(_symbol);
+        return ();
+    }
+
+    func _get_metadata_format_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
+        let (metadata_format) = metadata_format_.read();
+        return metadata_format;
+    }
+
+    func _set_metadata_format_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_metadata_format: felt) {
+        metadata_format_.write(_metadata_format);
         return ();
     }
 
@@ -192,7 +206,7 @@ namespace Library {
         return _get_suffix_uri_recursion(_suffix_uri_len + 1, _suffix_uri + 1);
     }
 
-    func _get_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (uri_prefix_len: felt, _prefix_uri: felt*) {
+    func _get_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (collection_uri_len: felt, collection_uri: felt*) {
         alloc_locals;
         let (collection_uri) = alloc();
         return _get_collection_uri_recursion(0, collection_uri);

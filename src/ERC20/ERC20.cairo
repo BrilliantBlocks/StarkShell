@@ -4,37 +4,16 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.registers import get_label_location
 
-from src.erc20.library import ERC20
+from src.ERC20.library import ERC20
 from src.constants import FUNCTION_SELECTORS, IERC20_ID
 
-
-@view
-func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    name: felt
-) {
-    return ERC20.name();
-}
-
-@view
-func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    symbol: felt
-) {
-    return ERC20.symbol();
-}
 
 @view
 func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     total_supply: Uint256
 ) {
     let (total_supply) = ERC20.total_supply();
-    return (total_supply,);
-}
-
-@view
-func decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    decimals: felt
-) {
-    return ERC20.decimals();
+    return (total_supply=total_supply);
 }
 
 @view
@@ -49,7 +28,7 @@ func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     owner: felt, spender: felt
 ) -> (amount: Uint256) {
     let (allowance) = ERC20.allowance(owner, spender);
-    return (allowance,);
+    return (amount=allowance);
 }
 
 @external
@@ -98,6 +77,8 @@ func __constructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check
     name: felt, symbol: felt, decimals: felt, initial_supply: Uint256, recipient: felt
 ) -> () {
     ERC20.initializer(name, symbol, decimals);
+    // library_call metadata_facet, set_name_, set_symbol, set_decimals_
+    // metadata facet must not require initialization (this happens here)
     ERC20._mint(recipient, initial_supply);
     return ();
 }

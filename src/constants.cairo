@@ -1,18 +1,23 @@
 const ALL_ONES = 2 ** 251 - 1;
 const NULL = 0;
 const IERC165_ID = 0x01ffc9a7;
-const IERC20_ID = 0x01ffc9a7;
+
+const IERC20_ID = 0x36372b07;
+const IERC20_METADATA_ID = 0x942e8b22;
 const IERC721_ID = 0x80ac58cd;
 const IERC721_METADATA_ID = 0x5b5e139f;
+const IERC721_RECEIVER_ID = 0x150b7a02;
 const IERC1155_ID = 0x01ffc9a7;
+const IERC1155_METADATA_ID = 0x01ffc9a7;
 const IERC5114_ID = 0x01ffc9a7;
+const IERC5114_METADATA_ID = 0x01ffc9a7;
+
 const IERC2981_ID = 0x2a55205a;
 const IERC4906_ID = 0x49064906;
 const IERC5007_ID = 0x7a0cdf92;
 const IERC4907_ID = 0xad092b5c;
 const IERC4675_ID = 0x83f5d35f;
 const IERC5185_ID = 0x00000001; // TODO
-const IERC721_RECEIVER_ID = 0x150b7a02;
 const IACCOUNT_ID = 0xf10dbd44;
 const IDIAMONDLOUPE_ID = 0x123;  // TODO
 const IDIAMONDCUT_ID = 0x123;  // TODO
@@ -27,10 +32,7 @@ namespace FUNCTION_SELECTORS {
     }
 
     namespace ERC20 {
-        const name = 0x361458367e696363fbcc70777d07ebbd2394e89fd0adcaf147faccd1d294d60;
-        const symbol = 0x216b05c387bab9ac31918a3e61672f4618601f3c598a2f3f2710f37053e1ea4;
         const totalSupply = 0x80aa9fdbfaf9615e4afc7f5f722e265daca5ccc655360fa5ccacf9c267936d;
-        const decimals = 0x4c4fb1ab068f6039d5780c68dd0fa2f8742cceb3426d19667778ca7f3518a9;
         const balanceOf = 0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e;
         const allowance = 0x1e888a1026b19c8c0b57c72d63ed1737106aa10034105b980ba117bd0c29fe1;
         const transfer = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
@@ -40,9 +42,10 @@ namespace FUNCTION_SELECTORS {
         const decreaseAllowance = 0x1aaf3e6107dd1349c81543ff4221a326814f77dadcc5810807b74f1a49ded4e;
     }
 
-    namespace MINT_BURN_ERC20 {
-        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
-        const burn = 0x3e8cfd4725c1e28fa4a6e3e468b4fcf75367166b850ac5f04e33ec843e82c1;
+    namespace ERC20Metadata {
+        const decimals = 0x4c4fb1ab068f6039d5780c68dd0fa2f8742cceb3426d19667778ca7f3518a9;
+        const name = 0x361458367e696363fbcc70777d07ebbd2394e89fd0adcaf147faccd1d294d60;
+        const symbol = 0x216b05c387bab9ac31918a3e61672f4618601f3c598a2f3f2710f37053e1ea4;
     }
 
     namespace ERC721 {
@@ -71,11 +74,8 @@ namespace FUNCTION_SELECTORS {
         const safeBatchTransferFrom = 0x23cc35d21c405aa7adf1f3afcf558aec0dbe6a45cade725420609aef87e9035;
     }
 
-    namespace MINT_BURN_ERC1155 {
-        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
-        const mintBatch = 0x348b9a6e049cc3f9f66737435ed36813556cc5be1cf9d5c64f429c32a17d88a;
-        const burn = 0x3e8cfd4725c1e28fa4a6e3e468b4fcf75367166b850ac5f04e33ec843e82c1;
-        const burnBatch = 0x2e0d76db1c0a81450ed8b20b81e606bc417da81fd9ca869327abd60ba226704;
+    namespace ERC1155Metadata {
+        const uri = 0x2ee3279dd30231650e0b4a1a3516ab3dc26b6d3dfcb6ef20fb4329cfc1213e1;
     }
 
     namespace FACET {
@@ -83,6 +83,7 @@ namespace FUNCTION_SELECTORS {
         const __destructor__ = 0x2127299f0c39ad6a0f5a7ccb0857ab472c30192b18dd40a88a5af64edd63a74;
         const __get_function_selectors__ = 0x35802e5c93fa05f42af0eb6d6ed857d69b8010fe9d917bfd51f60ffcd2300d6;
         const __supports_interface__ = 0x20f621f78ecca5435389efa53ca29525b75fe9745044ce3b56b4b1e6056d791;
+        const __royalty_info = 0xef10f72befea4b2767793ab9151f232f087d5a39ad0d959a7406a84aaaf55a;
     }
 
     namespace MINTDEPLOY {
@@ -91,11 +92,12 @@ namespace FUNCTION_SELECTORS {
 
     namespace ERC5114 {
         const ownerOf = 0x2962ba17806af798afa6eaf4aa8c93a9fb60a3e305045b6eea33435086cae9;
-        const metadataFormat = 0x1ca90dda6287e49240ebea9347c5f16889c3d322c63f56cb9b41049ff8d8d4c;
     }
 
-    namespace MINT_ERC5114 {
-        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
+    namespace ERC5114Metadata {
+        const metadataFormat = 0x1ca90dda6287e49240ebea9347c5f16889c3d322c63f56cb9b41049ff8d8d4c;
+        const collectionUri = 0x301d70d6d0526f9060e9cba1cf24f38b94fbbed88395add4575967cdb24ab76;
+        const tokenUri = 0x362dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3de;
     }
 
     namespace ERC2981 {
@@ -133,17 +135,6 @@ namespace FUNCTION_SELECTORS {
         const isRegistered = 0xe67252e1eb7d86710def42b0b608424428dffb6810c123a41f9b22d4b564ec;
         const transfer = 0x83afd3f4caedc6eebf44246fe54e38c95e3179a5ec9ea81740eca5b482d12e;
         const transferFrom = 0x41b033f4a31df8067c24d1e9b550a2ce75fd4a29e1147af9752174f0e6cb20;
-    }
-
-    namespace LAZYMINT {
-        const mint = 0x2f0b3c5710379609eb5495f1ecd348cb28167711b73609fe565a72734550354;
-        const addToWhitelist = 0x1bd2f341b15c21adf730026e0c6072773a188c5098349929b39d7ea612f79f8;
-        const changeWhitelistSetting = 0x35020ce616815178e52c9588723c3dea479b11797a6836686cc6bfb54c23bfd;
-        const getWhitelistSetting = 0x8988d153b42bd8ad378926f7dfc81d2909200c7683953a04cc44718b2ca7dc;
-    }
-
-    namespace BATCHMINT {
-        const mintBatchConsecutive = 0x1c7d5f1f8b2fe560ddb59a71a1b6c4633502700a50a01a7adbcd5cef0b39a97;
     }
 
     namespace UNIVERSAL_MINT {
