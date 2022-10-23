@@ -1,0 +1,14 @@
+*
+!*/
+build/
+.protostar_cache/
+
+!.gitignore
+!.gitsubmodules
+
+!*.cairo
+!*.json
+!*.md
+!*.py
+!*.toml
+!*.yaml
