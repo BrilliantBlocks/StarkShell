@@ -16,6 +16,41 @@ const User = 456;
 const Adversary = 789;
 
 
+struct Setup {
+    diamond_address: felt,
+    universalMetadata_class_hash: felt,
+    erc1155_class_hash: felt,
+    erc20_class_hash: felt,
+    erc721_class_hash: felt,
+    erc5114_class_hash: felt,
+}
+
+func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> Setup {
+    alloc_locals;
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    local universalMetadata_class_hash;
+    %{ ids.universalMetadata_class_hash = context.universalMetadata_class_hash %}
+    local erc1155_class_hash;
+    %{ ids.erc1155_class_hash = context.erc1155_class_hash %}
+    local erc20_class_hash;
+    %{ ids.erc20_class_hash = context.erc20_class_hash %}
+    local erc5114_class_hash;
+    %{ ids.erc5114_class_hash = context.erc5114_class_hash %}
+    local erc721_class_hash;
+    %{ ids.erc721_class_hash = context.erc721_class_hash %}
+
+    local setup: Setup = Setup(
+        diamond_address,
+        universalMetadata_class_hash,
+        erc1155_class_hash,
+        erc20_class_hash,
+        erc5114_class_hash,
+        erc721_class_hash,
+    );
+    return setup;
+}
+
 @external
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
@@ -31,7 +66,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         context.erc1155_class_hash = declare("./src/ERC1155/ERC1155.cairo").class_hash
         ids.erc1155_class_hash = context.erc1155_class_hash;
         context.erc20_class_hash = declare("./src/ERC20/ERC20.cairo").class_hash
-        ids.erc20_class_hash =context.erc20_class_hash;
+        ids.erc20_class_hash = context.erc20_class_hash;
         context.erc5114_class_hash = declare("./src/ERC5114/ERC5114.cairo").class_hash
         ids.erc5114_class_hash = context.erc5114_class_hash;
         context.erc721_class_hash = declare("./src/ERC721/ERC721.cairo").class_hash
@@ -108,56 +143,44 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func test_no_returned_function_selectors_without_token_standard {
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }() {
-    alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
-    local universalMetadata_class_hash;
-    %{ ids.universalMetadata_class_hash = context.universalMetadata_class_hash %}
-    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, universalMetadata_class_hash);
+    let setup = getSetup();
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(setup.diamond_address, setup.universalMetadata_class_hash);
     assert_eq(selectors_len, 0);
     return ();
 }
 
 @external
 func test_supportsInterface_returns_false_on_erc1155_without_token_facet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
+    let setup = getSetup();
     const IERC1155_METADATA_ID = 0x0e89341c;
-    let (supportsIERC1155) = IDiamond.supportsInterface(diamond_address, IERC1155_METADATA_ID);
+    let (supportsIERC1155) = IDiamond.supportsInterface(setup.diamond_address, IERC1155_METADATA_ID);
     assert_eq(supportsIERC1155, FALSE);
     return ();
 }
 
 @external
 func test_supportsInterface_returns_false_on_erc20_without_token_facet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
+    let setup = getSetup();
     const IERC20_METADATA_ID = 0x942e8b22;
-    let (supportsIERC20) = IDiamond.supportsInterface(diamond_address, IERC20_METADATA_ID);
+    let (supportsIERC20) = IDiamond.supportsInterface(setup.diamond_address, IERC20_METADATA_ID);
     assert_eq(supportsIERC20, FALSE);
     return ();
 }
 
 @external
 func test_supportsInterface_returns_false_on_erc721_without_token_facet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
+    let setup = getSetup();
     const IERC721_METADATA_ID = 0x5b5e139f;
-    let (supportsIERC721) = IDiamond.supportsInterface(diamond_address, IERC721_METADATA_ID);
+    let (supportsIERC721) = IDiamond.supportsInterface(setup.diamond_address, IERC721_METADATA_ID);
     assert_eq(supportsIERC721, FALSE);
     return ();
 }
 
 @external
 func test_supportsInterface_returns_false_on_erc5114_without_token_facet{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
+    let setup = getSetup();
     const IERC5114_METADATA_ID = 0x6cea869c;
-    let (supportsIERC5114) = IDiamond.supportsInterface(diamond_address, IERC5114_METADATA_ID);
+    let (supportsIERC5114) = IDiamond.supportsInterface(setup.diamond_address, IERC5114_METADATA_ID);
     assert_eq(supportsIERC5114, FALSE);
     return ();
 }
@@ -169,13 +192,10 @@ func test_return_only_expected_function_selectors_with_erc1155 {
     %{ from starkware.starknet.public.abi import get_selector_from_name %}
     alloc_locals;
 
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
-    local erc1155_class_hash;
-    %{ ids.erc1155_class_hash = context.erc1155_class_hash %}
+    let setup = getSetup();
 
     let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(erc1155_class_hash, FacetCutAction.Add);
+    assert facetCut[0] = FacetCut(setup.erc1155_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
     assert calldata[0] = 6;
@@ -189,13 +209,10 @@ func test_return_only_expected_function_selectors_with_erc1155 {
 
     // User adds ERC-1155 facet to diamond
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    IDiamondCut.diamondCut(setup.diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
 
-    local universalMetadata_class_hash;
-    %{ ids.universalMetadata_class_hash = context.universalMetadata_class_hash %}
-
-    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, universalMetadata_class_hash);
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(setup.diamond_address, setup.universalMetadata_class_hash);
     assert_eq(selectors_len, 1);
 
     local uri_hash;
@@ -211,13 +228,10 @@ func test_return_only_expected_function_selectors_with_erc20 {
     }() {
     alloc_locals;
     %{ from starkware.starknet.public.abi import get_selector_from_name %}
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
-    local erc20_class_hash;
-    %{ ids.erc20_class_hash = context.erc20_class_hash %}
+    let setup = getSetup();
 
     let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(erc20_class_hash, FacetCutAction.Add);
+    assert facetCut[0] = FacetCut(setup.erc20_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
     assert calldata[0] = 3;
@@ -228,30 +242,27 @@ func test_return_only_expected_function_selectors_with_erc20 {
 
     // User adds ERC-20 facet to diamond
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    IDiamondCut.diamondCut(setup.diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
 
-    local universalMetadata_class_hash;
-    %{ ids.universalMetadata_class_hash = context.universalMetadata_class_hash %}
-
     // Get function selectors of UniversalMetadata facet
-    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, universalMetadata_class_hash);
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(setup.diamond_address, setup.universalMetadata_class_hash);
     assert_eq(selectors_len, 3);
 
     local decimals;
     %{ ids.decimals = get_selector_from_name("decimals") %}
-    let (actual_facet) = IDiamond.facetAddress(diamond_address, decimals);
-    assert_eq(actual_facet, universalMetadata_class_hash);
+    let (actual_facet) = IDiamond.facetAddress(setup.diamond_address, decimals);
+    assert_eq(actual_facet, setup.universalMetadata_class_hash);
 
     local name;
     %{ ids.name = get_selector_from_name("name") %}
-    let (actual_facet) = IDiamond.facetAddress(diamond_address, name);
-    assert_eq(actual_facet, universalMetadata_class_hash);
+    let (actual_facet) = IDiamond.facetAddress(setup.diamond_address, name);
+    assert_eq(actual_facet, setup.universalMetadata_class_hash);
 
     local symbol;
     %{ ids.symbol = get_selector_from_name("symbol") %}
-    let (actual_facet) = IDiamond.facetAddress(diamond_address, symbol);
-    assert_eq(actual_facet, universalMetadata_class_hash);
+    let (actual_facet) = IDiamond.facetAddress(setup.diamond_address, symbol);
+    assert_eq(actual_facet, setup.universalMetadata_class_hash);
 
     return ();
 }
