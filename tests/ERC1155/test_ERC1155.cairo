@@ -98,6 +98,7 @@ func test_facet_returns_only_expected_function_selectors{syscall_ptr: felt*, ped
     alloc_locals;
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
+    
     local erc1155_class_hash;
     %{ ids.erc1155_class_hash = context.erc1155_class_hash %}
     local balanceOf_hash;
@@ -115,10 +116,13 @@ func test_facet_returns_only_expected_function_selectors{syscall_ptr: felt*, ped
         ids.safeTransferFrom_hash = get_selector_from_name("safeTransferFrom")
         ids.safeBatchTransferFrom_hash = get_selector_from_name("safeBatchTransferFrom")
     %}
-
+    // Get all selectors of ERC1155 facet
     let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, erc1155_class_hash);
+
+    // Assert expected number of functions
     assert_eq(selectors_len, 6);
 
+    // Assert that all expected functions are included in ERC-1155
     let (facet) = IDiamond.facetAddress(diamond_address, balanceOf_hash);
     assert_eq(facet, erc1155_class_hash);
 
