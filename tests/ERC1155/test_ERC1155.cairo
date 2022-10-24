@@ -72,8 +72,14 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     assert facetCut[0] = FacetCut(erc1155_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
     let (local calldata: felt*) = alloc();
-    assert calldata[0] = 0;
-    let calldata_len = 1;
+    assert calldata[0] = 6;
+    assert calldata[1] = User;
+    assert calldata[2] = 1;
+    assert calldata[3] = 1;
+    assert calldata[4] = 0;
+    assert calldata[5] = 1;
+    assert calldata[6] = 0;
+    let calldata_len = 7;
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
     IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}

@@ -14,7 +14,7 @@ from starkware.cairo.common.memcpy import memcpy
 
 from lib.cairo_contracts.src.openzeppelin.security.safemath.library import SafeUint256
 
-from src.ERC1155.IERC1155 import TransferSingle, TransferBatch, ApprovalForAll
+from src.ERC1155.IERC1155 import TransferSingle, TransferBatch, ApprovalForAll, TokenBatch
 
 
 @storage_var
@@ -220,18 +220,14 @@ namespace ERC1155 {
 
 
     func _mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
+        _to: felt, _token_batch_len: felt, _token_batch: TokenBatch*,
+        // to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
     ) -> () {
-        with_attr error_message("Token id and amount array lenghts don't match") {
-            assert tokens_id_len = amounts_len;
-        }
-
-        if (tokens_id_len == 0) {
+        if (_token_batch_len == 0) {
             return ();
         }
-
-        _mint(to, tokens_id[0], amounts[0]);
-        return _mint_batch(to, tokens_id_len - 1, tokens_id + Uint256.SIZE, amounts_len - 1, amounts + Uint256.SIZE);
+        _mint(_to, _token_batch[0].id, _token_batch[0].amount);
+        return _mint_batch(_to, _token_batch_len - 1, _token_batch + TokenBatch.SIZE);
     }
 
 

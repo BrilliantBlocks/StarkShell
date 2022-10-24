@@ -114,7 +114,7 @@ func __get_function_selectors__{syscall_ptr: felt*, range_check_ptr}() -> (retda
     let (is_erc1155) = IDiamond.supportsInterface(self, IERC1155_ID);
     if (is_erc1155 == TRUE) {
         let (func_selectors) = get_label_location(ERC1155selectors_start);
-        return (retdata_size=3, retdata=cast(func_selectors, felt*));
+        return (retdata_size=1, retdata=cast(func_selectors, felt*));
     }
 
     let (is_erc5114) = IDiamond.supportsInterface(self, IERC5114_ID);

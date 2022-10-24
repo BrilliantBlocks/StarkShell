@@ -5,6 +5,7 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.uint256 import Uint256 
 from starkware.cairo.common.registers import get_label_location
 
+from src.ERC1155.IERC1155 import TokenBatch
 from src.ERC1155.library import ERC1155
 from src.constants import FUNCTION_SELECTORS, IERC1155_ID
 
@@ -63,7 +64,8 @@ func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range
 
 /// @dev Initialize this facet
 @external
-func __constructor__() -> () {
+func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_to: felt, _tokenBatch_len: felt, _tokenBatch: TokenBatch*) -> () {
+    ERC1155._mint_batch(_to, _tokenBatch_len, _tokenBatch);
     return ();
 }
 

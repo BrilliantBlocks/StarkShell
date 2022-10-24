@@ -17,6 +17,10 @@ func TransferBatch(operator: felt, from_: felt, to: felt, ids_len: felt, ids: Ui
 func ApprovalForAll(owner: felt, operator: felt, approved: felt) {
 }
 
+struct TokenBatch {
+    id: Uint256,
+    amount: Uint256,
+}
 
 @contract_interface
 namespace IERC1155 {
