@@ -100,13 +100,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %}
 
     // BrilliantBlocks populates facet registry
-    let (local elements: felt*) = alloc();
-    assert elements[0] = diamondCut_class_hash;
-    assert elements[1] = universalMetadata_class_hash;
-    assert elements[2] = erc1155_class_hash;
-    assert elements[3] = erc20_class_hash;
-    assert elements[4] = erc5114_class_hash;
-    assert elements[5] = erc721_class_hash;
+    tempvar elements: felt* = new (diamondCut_class_hash, universalMetadata_class_hash, erc1155_class_hash, erc20_class_hash, erc5114_class_hash, erc721_class_hash,);
     let elements_len = 6;
     %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
     IBFR.registerElements(TCF_address, elements_len, elements);
@@ -118,18 +112,9 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 
-    let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(universalMetadata_class_hash, FacetCutAction.Add);
+    tempvar facetCut: FacetCut* = cast(new (FacetCut(universalMetadata_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 1;
-    let (local calldata: felt*) = alloc();
-    assert calldata[0] = 7;
-    assert calldata[1] = 0;
-    assert calldata[2] = 0;
-    assert calldata[3] = 0;
-    assert calldata[4] = 0;
-    assert calldata[5] = 0;
-    assert calldata[6] = 0;
-    assert calldata[7] = 0;
+    tempvar calldata: felt* = new (7, 0, 0, 0, 0, 0, 0, 0,);
     let calldata_len = 8;
 
     // User adds UniversalMetadata facet to diamond
@@ -194,17 +179,9 @@ func test_return_only_expected_function_selectors_with_erc1155 {
 
     let setup = getSetup();
 
-    let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(setup.erc1155_class_hash, FacetCutAction.Add);
+    tempvar facetCut: FacetCut* = cast(new (FacetCut(setup.erc1155_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 1;
-    let (local calldata: felt*) = alloc();
-    assert calldata[0] = 6;
-    assert calldata[1] = User;
-    assert calldata[2] = 1;
-    assert calldata[3] = 1;
-    assert calldata[4] = 0;
-    assert calldata[5] = 1;
-    assert calldata[6] = 0;
+    tempvar calldata: felt* = new (6, User, 1, 1, 0, 1, 0);
     let calldata_len = 7;
 
     // User adds ERC-1155 facet to diamond
@@ -230,14 +207,9 @@ func test_return_only_expected_function_selectors_with_erc20 {
     %{ from starkware.starknet.public.abi import get_selector_from_name %}
     let setup = getSetup();
 
-    let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(setup.erc20_class_hash, FacetCutAction.Add);
+    tempvar facetCut: FacetCut* = cast(new (FacetCut(setup.erc20_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 1;
-    let (local calldata: felt*) = alloc();
-    assert calldata[0] = 3;
-    assert calldata[1] = User;
-    assert calldata[2] = 1000;
-    assert calldata[3] = 0;
+    tempvar calldata: felt* = new (3, User, 1000, 0);
     let calldata_len = 4;
 
     // User adds ERC-20 facet to diamond
