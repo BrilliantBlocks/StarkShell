@@ -157,11 +157,14 @@ namespace Library {
     func _set_suffix_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         token_uri_len: felt, token_uri: felt*
     ) -> () {
+        alloc_locals;
         if (token_uri_len == 0) {
             return ();
         }
-        token_uri_suffix_.write(token_uri_len, token_uri[0]);
-        _set_suffix_uri_(token_uri_len - 1, token_uri);
+        token_uri_suffix_.write(token_uri_len - 1, token_uri[token_uri_len - 1]);
+        let (local ptr: felt*) = alloc();
+        memcpy(ptr, token_uri, token_uri_len - 1);
+        _set_suffix_uri_(token_uri_len - 1, ptr);
         return ();
     }
 
@@ -203,7 +206,7 @@ namespace Library {
             return (_suffix_uri_len, _suffix_uri);
         }
         assert _suffix_uri[_suffix_uri_len] = sub_word;
-        return _get_suffix_uri_recursion(_suffix_uri_len + 1, _suffix_uri + 1);
+        return _get_suffix_uri_recursion(_suffix_uri_len + 1, _suffix_uri);
     }
 
     func _get_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (collection_uri_len: felt, collection_uri: felt*) {
