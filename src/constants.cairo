@@ -25,6 +25,11 @@ const FEE_DENOMINATOR = 10000;
 
 
 namespace FUNCTION_SELECTORS {
+    namespace ZKLANG {
+        const deployFunction = 0x1008fe667b9955289844cffb814a4b61b214ab7a1a21f3fc65d2c0f8282925d;
+        const deleteFunction = 0x2de4b6e06c340728301857560302e43269482dbe0cd4924767a1652d8941549;
+    }
+
     namespace DIAMONDCUT {
         const diamondCut = 0xf3d1ef016a3319b5c905f7ed8ae0708b96b732c565c6058e6a4f0291032848;
         const setAlias = 0x265daefb15a8d4cb9d0c569cb41b6727f26506574e71cf0ee6b5f15b1d2eed;

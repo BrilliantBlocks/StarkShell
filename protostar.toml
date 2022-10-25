@@ -5,6 +5,9 @@ protostar_version = "0.6.0"
 libs_path = "lib"
 
 ["protostar.contracts"]
+ZKLANG = [
+    "src/zklang/ZKlang.cairo"
+]
 Diamond = [
     "src/ERC2535/Diamond.cairo",
 ]
