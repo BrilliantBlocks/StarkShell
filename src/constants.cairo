@@ -27,7 +27,7 @@ const FEE_DENOMINATOR = 10000;
 namespace FUNCTION_SELECTORS {
     namespace DIAMONDCUT {
         const diamondCut = 0xf3d1ef016a3319b5c905f7ed8ae0708b96b732c565c6058e6a4f0291032848;
-        const setAlias = 0xf6c02362df0f19e3d15dda5d9a650cc9f369907e8c5d36f99c0fdbcb84e6d0;
+        const setAlias = 0x265daefb15a8d4cb9d0c569cb41b6727f26506574e71cf0ee6b5f15b1d2eed;
         const setFunctionFee = 0x230f7ba57083bd3af29b5549569aeb558350a7a4519a9b5f755eda20d1c5d80;
     }
 

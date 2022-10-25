@@ -338,7 +338,7 @@ namespace Diamond {
     func _setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _alias: felt, _alias_selector: felt, _assigned_selector
     ) {
-        Assert.selector_exists(_assigned_selector);
+        //Assert.selector_exists(_assigned_selector);
         alias_.write(_alias_selector, _assigned_selector);
         SetAlias.emit(_alias, _alias_selector, _assigned_selector);
         return ();
@@ -348,7 +348,11 @@ namespace Diamond {
         _selector: felt
     ) -> felt {
         let (alias) = alias_.read(_selector);
-        return alias;
+        if (alias == 0) {
+            return _selector;
+        } else {
+            return alias;
+        }
     }
 
     func _setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

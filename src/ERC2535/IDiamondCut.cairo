@@ -44,3 +44,9 @@ namespace IDiamondCut {
     ) -> () {
     }
 }
+
+@contract_interface
+namespace ILanguage {
+    func setAlias(_alias: felt, _alias_selector: felt, _assigned_selector: felt) -> () {
+    }
+}

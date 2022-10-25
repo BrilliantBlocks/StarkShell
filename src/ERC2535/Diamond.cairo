@@ -26,9 +26,11 @@ func constructor{
 func __default__{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
-    let (facet: felt) = facetAddress(selector);
+    alloc_locals;
+    let normalized_selector = Diamond._getAlias(selector);
+    let (facet: felt) = facetAddress(normalized_selector);
     let (retdata_size: felt, retdata: felt*) = library_call(
-        class_hash=facet, function_selector=selector, calldata_size=calldata_size, calldata=calldata
+        class_hash=facet, function_selector=normalized_selector, calldata_size=calldata_size, calldata=calldata
     );
     Diamond._charge_fee();
     return (retdata_size, retdata);
@@ -50,12 +52,7 @@ func facetAddresses{
 func facetAddress{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(_functionSelector: felt) -> (res: felt) {
-    let resolved_alias = Diamond._getAlias(_functionSelector);
-    if (resolved_alias == 0) {
-        let (class_hash) = Diamond._facetAddress(_functionSelector);
-    } else {
-        let (class_hash) = Diamond._facetAddress(resolved_alias);
-    }
+    let (class_hash) = Diamond._facetAddress(_functionSelector);
     return (res=class_hash);
 }
 
