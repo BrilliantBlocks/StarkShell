@@ -29,6 +29,7 @@ namespace FUNCTION_SELECTORS {
         const store = 0x1d88711b08bdcd7556c5d2d24e0da6fa1f614cf2055f4d7e10206017cd1680;
         const load = 0x231669a6373b644ceefec60da6db3aab0c9dbc21e1bec031f84280478e3fa6c;
         const loadCell = 0xdb525f63a420aa38a856e4c19e200ac8f10976b4de015228977172856e11c4;
+        const loadRange = 0x1aeca00e94515d2f6b26e6d60776bba9e2786fa0e615fe600d22a096f711521;
     }
 
     namespace ZKLANG {

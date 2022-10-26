@@ -162,3 +162,46 @@ func test_store_does_not_write_to_tmp_var{syscall_ptr: felt*, pedersen_ptr: Hash
     %}
     return();
 }
+
+@external
+func test_loadCell_of_zero_returns_first_element{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+    tempvar testdata: felt* = new (6,2,0,0,0,0,0);
+    let (hash) = IFlobDB.store(setup.diamond_address, 7, testdata);
+
+    let (actual_data) = IFlobDB.loadCell(setup.diamond_address, hash, 0);
+    assert_eq(actual_data, 2);
+    return ();
+}
+
+@external
+func test_loadCell_of_last_index_returns_last_element{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+    tempvar testdata: felt* = new (6,2,0,0,0,0,3);
+    let (hash) = IFlobDB.store(setup.diamond_address, 7, testdata);
+
+    let (actual_data) = IFlobDB.loadCell(setup.diamond_address, hash, 5);
+    assert_eq(actual_data, 3);
+
+    let (actual_data) = IFlobDB.loadCell(setup.diamond_address, hash, 0);
+    assert_eq(actual_data, 2);
+    return ();
+}
+
+@external
+func test_loadRange__returns_subset{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+    tempvar testdata: felt* = new (6,2,0,0,0,0,3);
+    let (hash) = IFlobDB.store(setup.diamond_address, 7, testdata);
+
+    let (actual_data_len, actual_data) = IFlobDB.loadRange(setup.diamond_address, hash, 3, 5);
+    assert_eq(actual_data_len, 3);
+    // assert_eq(actual_data_len, 2);
+    assert_eq(actual_data[0], 0);
+    assert_eq(actual_data[1], 0);
+    assert_eq(actual_data[2], 3);
+    return ();
+}

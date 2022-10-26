@@ -3,6 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
+from starkware.cairo.common.math import assert_le
 from starkware.cairo.common.registers import get_label_location
 
 from onlydust.stream.default_implementation import stream
@@ -38,7 +39,7 @@ func store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_dat
 func _storeCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
     let (hash) = storage_internal_temp_var.read();
     let (data) = storage_.read(hash + index);
-    with_attr error_message("OCCUPIED CELL") {
+    with_attr error_message("OVERWRITE CELL") {
         assert data = 0;
     }
     storage_.write(hash + index, element[0]);
@@ -47,32 +48,42 @@ func _storeCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}
 
 @view
 func load{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_hash: felt) -> (res_len: felt, res: felt*) {
-    alloc_locals;
-    let (blob_len) = loadCell(_hash, 0);
-    let (local blob: felt*) = alloc();
-    if (blob_len == 0) {
-        return (blob_len, blob);
-    }
-    _load(blob, _hash, 1);
-    return (blob_len, blob);
+    let (blob_len) = storage_.read(_hash);
+    let (val_len, val) = loadRange(_hash, 0, blob_len - 1);
+    return (val_len, val);
 }
 
-func _load{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _hash: felt, _offset: felt) {
+func _load{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _hash: felt, _offset_start: felt, _offset_end: felt) {
     alloc_locals;
-    let (data_len) = storage_.read(_hash);
-    let (data) = loadCell(_hash, _offset);
+    let (data) = storage_.read(_hash + _offset_start + 1);
     assert _ptr[0] = data;
-    if (_offset == data_len) {
+    if (_offset_start == _offset_end) {
         return ();
     } else {
-        return _load(_ptr + 1, _hash, _offset + 1);
+        return _load(_ptr + 1, _hash, _offset_start + 1, _offset_end);
     }
 }
 
 @view
+func loadRange{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_hash: felt, _offset_start: felt, _offset_end: felt) -> (res_len: felt, res: felt*) {
+    alloc_locals;
+    with_attr error_message("INVALID OFFSETS") {
+        assert_le(_offset_start, _offset_end);
+    }
+    let (blob_len) = storage_.read(_hash);
+    with_attr error_message("OFFSET IS OUT OF RANGE") {
+        assert_le(_offset_end, blob_len);
+    }
+    let (local blob: felt*) = alloc();
+    _load(blob, _hash, _offset_start, _offset_end);
+    let blob_len = _offset_end - _offset_start + 1;
+    return (blob_len, blob);
+}
+
+@view
 func loadCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_hash: felt, _offset: felt) -> (res: felt) {
-    let (val) = storage_.read(_hash + _offset);
-    return (res=val);
+    let (val_le, val) = loadRange(_hash, _offset, _offset);
+    return (res=val[0]);
 }
 
 // ===================
@@ -96,12 +107,13 @@ func __destructor__() -> () {
 @raw_output
 func __get_function_selectors__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (retdata_size=3, retdata=cast(func_selectors, felt*));
+    return (retdata_size=4, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.STORAGE.store;
     dw FUNCTION_SELECTORS.STORAGE.load;
     dw FUNCTION_SELECTORS.STORAGE.loadCell;
+    dw FUNCTION_SELECTORS.STORAGE.loadRange;
 }
 
 /// @dev Define all supported interfaces of this facet
