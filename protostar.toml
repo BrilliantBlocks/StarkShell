@@ -4,7 +4,16 @@ protostar_version = "0.6.0"
 ["protostar.project"]
 libs_path = "lib"
 
+["protostar.build"]
+cairo_path = ["./lib/cairo_streams/src/"]
+
+["protostar.test"]
+cairo_path = ["./lib/cairo_streams/src/"]
+
 ["protostar.contracts"]
+FlobDB = [
+    "src/Storage/FlobDB.cairo"
+]
 ZKLANG = [
     "src/zklang/ZKlang.cairo"
 ]
