@@ -27,6 +27,8 @@ func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}()
     %{ ids.diamond_address = context.diamond_address %}
     local erc1155_class_hash;
     %{ ids.erc1155_class_hash = context.erc1155_class_hash %}
+    local arithmetic_class_hash;
+    %{ ids.arithmetic_class_hash = context.arithmetic_class_hash %}
 
     local setup: Setup = Setup(
         diamond_address,
@@ -43,6 +45,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     local universalMetadata_class_hash;
     local erc1155_class_hash;
     local zklang_class_hash;
+    local arithmetic_class_hash;
     %{  
         # Declare diamond and facets
         context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
@@ -52,6 +55,8 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         ids.diamondCut_class_hash = context.diamondCut_class_hash
         context.zklang_class_hash = declare("./src/zklang/ZKlang.cairo").class_hash
         ids.zklang_class_hash = context.zklang_class_hash
+        context.arithmetic_class_hash = declare("./src/zklang/Arithmetic.zklang.cairo").class_hash
+        ids.arithmetic_class_hash = context.arithmetic_class_hash
     %}
     
     local TCF_address;
@@ -77,8 +82,8 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %}
 
     // BrilliantBlocks populates facet registry
-    tempvar elements: felt* = new (diamondCut_class_hash, erc1155_class_hash, zklang_class_hash);
-    let elements_len = 3;
+    tempvar elements: felt* = new (diamondCut_class_hash, erc1155_class_hash, zklang_class_hash, arithmetic_class_hash);
+    let elements_len = 4;
     %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
     IBFR.registerElements(TCF_address, elements_len, elements);
     %{ stop_prank() %}
@@ -123,9 +128,19 @@ namespace IZKlang {
 @external
 func test_deployFunction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
+    local my_func_selector;
+    %{
+        from starkware.starknet.public.abi import get_selector_from_name
+        ids.my_func_selector = get_selector_from_name("my_func")
+    %}
     let setup = getSetup();
-    let (local NULLptr: felt*) = alloc();
-    IZKlang.deployFunction(setup.diamond_address, 0, 0, NULLptr);
+
+    let (local felt_code: felt*) = alloc();
+    assert felt_code[0] = 1;
+    assert felt_code[1] = 2;
+    assert felt_code[2] = 3;
+    let felt_code_len = 3;
+    IZKlang.deployFunction(setup.diamond_address, my_func_selector, felt_code_len, felt_code);
 
     return ();
 }

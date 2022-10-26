@@ -8,6 +8,9 @@ libs_path = "lib"
 ZKLANG = [
     "src/zklang/ZKlang.cairo"
 ]
+Arithmetic.zklang = [
+    "src/zklang/Arithmetic.zklang.cairo"
+]
 Diamond = [
     "src/ERC2535/Diamond.cairo",
 ]

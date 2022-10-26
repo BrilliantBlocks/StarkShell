@@ -28,6 +28,10 @@ namespace FUNCTION_SELECTORS {
     namespace ZKLANG {
         const deployFunction = 0x1008fe667b9955289844cffb814a4b61b214ab7a1a21f3fc65d2c0f8282925d;
         const deleteFunction = 0x2de4b6e06c340728301857560302e43269482dbe0cd4924767a1652d8941549;
+
+        const __ZKLANG__ARITHMETIC__ADD = 0x1af2cf64315936187c966982e51c7895c3739948ae40fd37e0c616d982bb779;
+        const __ZKLANG__ARITHMETIC__SUB = 0x286d1bf0077cee93474ec5fc6e5cafe256dfb90b491eae4c2331af87e2e6172;
+        const __ZKLANG__CONDITIONAL__IF = 0xdf1eed657783673942e00c5368c0f086bb31d1fce2ee2227e92272def63b03;
     }
 
     namespace DIAMONDCUT {
