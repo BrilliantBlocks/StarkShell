@@ -67,22 +67,20 @@ func program_hash_repo_address_mapping_(program_hash: felt) -> (repo_address: fe
 }
 
 @external
-func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
+@raw_input
+func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(selector: felt, calldata_size: felt, calldata: felt*) -> (res_len: felt, res: felt*) {
     alloc_locals;
-    with_attr error_message("BREAKPOINT") {
-        assert 1 = 0;
-    }
     // Prepare execution
-    inptape_.write(0, _calldata_len);
-    stream.foreach(_writeInputOnTape, _calldata_len, _calldata);
+    inptape_.write(0, calldata_size);
+    stream.foreach(_writeInputOnTape, calldata_size, calldata);
 
-    let (program_hash) = fun_selector_program_hash_mapping_.read(_selector);
+    let (program_hash) = fun_selector_program_hash_mapping_.read(selector);
     let (repo_address) = program_hash_repo_address_mapping_.read(program_hash);
     let (program_len, program) = IFlobDB.load(repo_address, program_hash);
 
     // Execute
-    instruction_counter_.write(1);
-    exec_loop(_selector, program_len, program);
+    // instruction_counter_.write(1);
+    exec_loop(selector, program_len, program);
 
     // Temporarily store output
     let (local res: felt*) = alloc();
@@ -92,7 +90,7 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let (local temps: felt*) = alloc();
     let temps_len = _readTempsFromTape(res, 0);
     stream.foreach(_resetTempsOnTape, temps_len, temps);
-    stream.foreach(_resetInputOnTape, _calldata_len, _calldata);
+    stream.foreach(_resetInputOnTape, calldata_size, calldata);
     stream.foreach(_resetOutputOnTape, res_len, res);
 
     // Return output
@@ -109,9 +107,24 @@ func _readOutputFromTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
     return _readOutputFromTape(_ptr + 1, _ptr_len + 1);
 }
 
+func _writeOutputOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
+    outtape_.write(index + 1, element[0]);
+    return ();
+}
+
 func _writeInputOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
     inptape_.write(index + 1, element[0]);
     return ();
+}
+
+func _readInputFromTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _ptr_len: felt) -> felt {
+    let (total_len) = inptape_.read(0);
+    if (_ptr_len == total_len) {
+        return _ptr_len;
+    }
+    let (data) = inptape_.read(_ptr_len + 1);
+    assert _ptr[0] = data;
+    return _readInputFromTape(_ptr + 1, _ptr_len + 1);
 }
 
 func _resetInputOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
@@ -167,30 +180,58 @@ func _resetSingleTempOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
 func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _program_len: felt, _program: felt*) -> () {
     alloc_locals;
     let (pc) = instruction_counter_.read();
-    if (pc ==  0) {
+    if (pc ==  -1) {
         return ();
     }
     let (instruction_len, instruction) = _filter_instruction(pc, _program_len, _program);
+    with_attr error_message("FORMAT ERROR") {
+        assert instruction_len = 6;
+    }
+
     local library_hash;
-    if (instruction[0] == 0) {
+    if (instruction[2] == 0) {
         let (this_diamond) = get_contract_address();
         let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
         assert library_hash = this_zklang;
         tempvar range_check_ptr = range_check_ptr;
         tempvar syscall_ptr = syscall_ptr;
     } else {
-        assert library_hash = instruction[0];
+        assert library_hash = instruction[2];
+        tempvar range_check_ptr = range_check_ptr;
+        tempvar syscall_ptr = syscall_ptr;
+    }
+
+    // load calldata
+    let (local calldata: felt*) = alloc();
+    local calldata_len: felt;
+    if (instruction[4] == 0) {
+        let calldata_len = _readTempsFromTape(calldata, 0);
+        tempvar range_check_ptr = range_check_ptr;
+        tempvar syscall_ptr = syscall_ptr;
+    } else {
+        with_attr error_message("WRONG FORMAT") {
+            assert instruction[4] = 1;
+        }
+        let calldata_len = _readInputFromTape(calldata, 0);
         tempvar range_check_ptr = range_check_ptr;
         tempvar syscall_ptr = syscall_ptr;
     }
 
     // Execute primitive
-    library_call(
+    let (res_len, res) = library_call(
         class_hash=library_hash,
-        function_selector=instruction[1],
-        calldata_size=instruction_len - 3,
-        calldata=instruction + 3,
+        function_selector=instruction[3],
+        calldata_size=calldata_len,
+        calldata=calldata,
     );
+
+    // TODO store in instrution[0], instruction[1]
+    if (instruction[4] == 0) {
+        // TODO discard on instruction[1] == 0
+        _writeTempsOnTape(instruction[1], res_len, res);
+    } else {
+        _writeOutputOnTape(0, res_len, res);
+    }
 
     return exec_loop(_selector, _program_len, _program);
 }
@@ -198,21 +239,26 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 func _filter_instruction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_i: felt, _program_len: felt, _program: felt*) -> (res_len: felt, res: felt*) {
     alloc_locals;
     if (_i == 0) {
-        return (_program[0], _program);
+        return (_program[0], _program + 1);
     }
-    return _filter_instruction(_i - 1, _program_len - _program[0], _program + _program[0]);
+    return _filter_instruction(_i - 1, _program_len - _program[0] - 1, _program + _program[0] + 1);
 }
 
+//func __ZKLANG__SET_VAR{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _felt_code_len: felt, _felt_code: felt*) -> () {
 @external
-func __ZKLANG__SET_VAR{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _felt_code_len: felt, _felt_code: felt*) -> () {
-    temptape_.write(_selector, _felt_code_len);
-    stream.foreach(_writeTempOnTape, _felt_code_len, _felt_code);
+func __ZKLANG__SET_VAR{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt) -> () {
+    with_attr error_message("BREAKPOINT") {
+        assert 1 = 0;
+    }
+
+    // temptape_.write(_selector, _felt_code_len);
+    // stream.foreach(_writeTempOnTape, _felt_code_len, _felt_code);
     return ();
 }
 
 @external
 func __ZKLANG__RETURN{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _felt_code_len: felt, _felt_code: felt*) -> () {
-    instruction_counter_.write(-1);
+    instruction_counter_.write(-2);
     return ();
 }
 

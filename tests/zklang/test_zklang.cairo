@@ -22,6 +22,7 @@ struct Setup {
     repo_address: felt,
     erc1155_class_hash: felt,
     program_hash: felt,
+    zklang_class_hash: felt,
 }
 
 func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> Setup {
@@ -126,20 +127,40 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %}
 
     // Diamond.add(7, 8);
-    tempvar felt_code: felt* = new (
-        // var foo = x + y
-        4, // instruction_len
-        var_keyword,
-        var1_identifier,
-        add_keyword,
-        0, // input is calldata
+    // tempvar felt_code: felt* = new (
+    //     // var foo = x + y
+    //     10,
+    //     5, // instruction_len
+    //     0, // zklang core
+    //     var_keyword,
+    //     7, // var1_identifier,
+    //     add_keyword,
+    //     0, // input is calldata
 
-        // return foo
-        2, // instruction_len
+    //     // return foo
+    //     3, // instruction_len
+    //     0, // zklang core
+    //     return_keyword,
+    //     var1_identifier,
+    // );
+    tempvar felt_code: felt* = new (
+        14,
+        6,
+        0,
+        var1_identifier,
+        0,
+        add_keyword,
+        1,
+        0,
+        6,
+        2,
+        0,
+        0,
         return_keyword,
+        0,
         var1_identifier,
     );
-    let felt_code_len = 8;
+    let felt_code_len = 15;
     let (program_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.program_hash = ids.program_hash %}
 
@@ -189,8 +210,18 @@ func test_deploy_and_execute_simple_adder{syscall_ptr: felt*, pedersen_ptr: Hash
 
     IZKlang.deployFunction(setup.diamond_address, my_func_selector, setup.program_hash, setup.repo_address);
     
+    // diamondAdd is recognized as public function
     let (x) = IDiamond.facetAddress(setup.diamond_address, my_func_selector);
-    assert_eq(x, zklang_class_hash);
+    assert_eq(x, setup.zklang_class_hash);
+
+    // program has expected format
+    let (program_len, program) = IFlobDB.load(setup.repo_address, setup.program_hash);
+    // assert_eq(program_len, 10);
+    // assert_eq(program[0], 5);
+    // assert_eq(program[program[0]+1], 3);
+    assert_eq(program_len, 14);
+    assert_eq(program[0], 6);
+    assert_eq(program[program[0]+1], 6);
 
     let (res) = IDiamondCalc.diamondAdd(setup.diamond_address, 7, 9);
     assert_eq(res, 16);

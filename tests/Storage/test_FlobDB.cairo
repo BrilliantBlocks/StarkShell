@@ -118,12 +118,12 @@ func test_store_populates_non_zero_flob{syscall_ptr: felt*, pedersen_ptr: HashBu
 func test_store_populates_zero_ish_flob{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
     let setup = getSetup();
-    tempvar testdata: felt* = new (6,0,0,0,0,0,0);
+    tempvar testdata: felt* = new (6,1,0,0,0,0,0);
     let (hash) = IFlobDB.store(setup.diamond_address, 7, testdata);
 
     let (actual_data_len, actual_data) = IFlobDB.load(setup.diamond_address, hash);
     assert_eq(actual_data_len, 6);
-    assert_eq(actual_data[0], 0);
+    assert_eq(actual_data[0], 1);
     assert_eq(actual_data[1], 0);
     assert_eq(actual_data[2], 0);
     assert_eq(actual_data[3], 0);
@@ -199,7 +199,6 @@ func test_loadRange__returns_subset{syscall_ptr: felt*, pedersen_ptr: HashBuilti
 
     let (actual_data_len, actual_data) = IFlobDB.loadRange(setup.diamond_address, hash, 3, 5);
     assert_eq(actual_data_len, 3);
-    // assert_eq(actual_data_len, 2);
     assert_eq(actual_data[0], 0);
     assert_eq(actual_data[1], 0);
     assert_eq(actual_data[2], 3);
