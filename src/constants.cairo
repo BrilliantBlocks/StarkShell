@@ -24,6 +24,14 @@ const IDIAMONDCUT_ID = 0x123;  // TODO
 const FEE_DENOMINATOR = 10000;
 
 
+namespace API {
+    namespace CORE {
+        const __ZKLANG__ADD = 0x33fbf27d4be7e5f658249feea1d097ea59bfd94cd7a3d7d4bc9d435f945d1b1;
+        const __ZKLANG__RETURN = 0x1260326d98aa121b333202d173c639e6c5f6866412b05147c803baecdd17985;
+        const __ZKLANG__SET_VAR = 0x1ce70074f81243f696052b7626e239c07f986b461fb399f4f8d7e0b554eec52;
+    }
+}
+
 namespace FUNCTION_SELECTORS {
     namespace STORAGE {
         const store = 0x1d88711b08bdcd7556c5d2d24e0da6fa1f614cf2055f4d7e10206017cd1680;

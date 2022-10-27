@@ -1,76 +1,218 @@
 %lang starknet
+from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.bool import FALSE, TRUE
+from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.registers import get_label_location
+from starkware.starknet.common.syscalls import get_contract_address, library_call
 
-from src.constants import FUNCTION_SELECTORS
+from onlydust.stream.default_implementation import stream
+
+from src.constants import API, FUNCTION_SELECTORS
+from src.ERC2535.IDiamond import IDiamond
+from src.Storage.IFlobDB import IFlobDB
 
 
-struct REGISTERS {
-    PC: felt,
-    FC: felt,
+struct Function {
+    selector: felt,
+    program_hash: felt,
+    repository_address: felt,
 }
 
 @event
 func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*){
 }
 
-/// @notice garbage collect values after exec
+// program hash, counter, 
+/// @notice Garbage collect
 @storage_var
-func register_(reg: felt) -> (val: felt) {
+func instruction_counter_() -> (res: felt) {
 }
 
-/// @notice persistent || immutable
-/// TODO BFR registry, whole interfaces can be ported
-/// Gives the deployed facet an interfaceID
-/// And this BFR registry holds/stores all programs
+/// @dev Store input indexed
+/// @notice Garbage collect
 @storage_var
-func function_table_(selector: felt) -> (program_hash: felt) {
+func inptape_(i: felt) -> (res: felt) {
 }
 
-/// @notice persistent || immutable
-/// TODO global program store
+/// @dev Store output indexed
+/// @notice Garbage collect
 @storage_var
-func program_store_(hash: felt) -> (program_start: felt) {
+func outtape_(i: felt) -> (res: felt) {
 }
 
-/// @notice garbage collect values after exec
+/// @dev Temporary variable store
+/// @notice Enumerable
+/// @notice Garbage collect
 @storage_var
-func temporary_variables_(index: felt) -> (var_selector: felt) {
+func temptape_(i: felt) -> (res: felt) {
 }
 
-/// @notice garbage collect values after exec
+/// @dev This is a @storage_var for zklang functions
+/// @notice Not enumerable
 @storage_var
-func temporary_variable_table_(var_selector: felt) -> (var_start: felt) {
+func perstape_(i: felt) -> (res: felt) {
 }
 
-/// @notice garbage collect values after exec
 @storage_var
-func persistent_variable_table_(var_selector: felt) -> (var_start: felt) {
+func fun_selector_index_(i: felt) -> (fun_selector: felt) {
 }
 
-// TODO Log variables as emitted events
-// TODO Whitelist storage_var access
-@external
-func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _calldata_len: felt, _calldata: felt*) -> () {
-    // store calldata as input on tape      // BFR.zklang.set_input()
-    zklang_exec(_program=_selector, _pc=0);  // BFR.zklang.exec(program, pc)
-    // garbage_collect                      // BFR.zklang.clean()
-    // read output tape                     // BFR.zklang.getOutput()
-    // return output tape
-    return ();
+@storage_var
+func fun_selector_program_hash_mapping_(selector: felt) -> (program_hash: felt) {
+}
+
+@storage_var
+func program_hash_repo_address_mapping_(program_hash: felt) -> (repo_address: felt) {
 }
 
 @external
-func zklang_exec{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_program: felt, _pc: felt) -> () {
-    // load next instruction (_program_selector, pc)
-    // if __ZKLANG__RETURN read output var and return
-    // library call to BFR
+func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
+    alloc_locals;
+    with_attr error_message("BREAKPOINT") {
+        assert 1 = 0;
+    }
+    // Prepare execution
+    inptape_.write(0, _calldata_len);
+    stream.foreach(_writeInputOnTape, _calldata_len, _calldata);
+
+    let (program_hash) = fun_selector_program_hash_mapping_.read(_selector);
+    let (repo_address) = program_hash_repo_address_mapping_.read(program_hash);
+    let (program_len, program) = IFlobDB.load(repo_address, program_hash);
+
+    // Execute
+    instruction_counter_.write(1);
+    exec_loop(_selector, program_len, program);
+
+    // Temporarily store output
+    let (local res: felt*) = alloc();
+    let res_len =_readOutputFromTape(res, 0);   // how return single felt?
+
+    // Collect garbage
+    let (local temps: felt*) = alloc();
+    let temps_len = _readTempsFromTape(res, 0);
+    stream.foreach(_resetTempsOnTape, temps_len, temps);
+    stream.foreach(_resetInputOnTape, _calldata_len, _calldata);
+    stream.foreach(_resetOutputOnTape, res_len, res);
+
+    // Return output
+    return (res_len, res);
+}
+
+func _readOutputFromTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _ptr_len: felt) -> felt {
+    let (total_len) = outtape_.read(0);
+    if (_ptr_len == total_len) {
+        return _ptr_len;
+    }
+    let (data) = outtape_.read(_ptr_len + 1);
+    assert _ptr[0] = data;
+    return _readOutputFromTape(_ptr + 1, _ptr_len + 1);
+}
+
+func _writeInputOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
+    inptape_.write(index + 1, element[0]);
     return ();
+}
+
+func _resetInputOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
+    inptape_.write(index + 1, 0);
+    if (index == 0) {
+        inptape_.write(index, 0);
+    }
+    return ();
+}
+
+func _resetOutputOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
+    outtape_.write(index + 1, 0);
+    if (index == 0) {
+        outtape_.write(index, 0);
+    }
+    return ();
+}
+
+func _writeTempOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
+    temptape_.write(index + 1, element[0]);
+    return ();
+}
+
+func _readTempsFromTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _ptr_len: felt) -> felt {
+    let (total_len) = temptape_.read(0);
+    if (_ptr_len == total_len) {
+        return _ptr_len;
+    }
+    let (data) = temptape_.read(_ptr_len + 1);
+    assert _ptr[0] = data;
+    return _readTempsFromTape(_ptr + 1, _ptr_len + 1);
+}
+
+func _resetTempsOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(index: felt, element: felt*) {
+    if (index == 0) {
+        temptape_.write(index, 0);
+        return ();
+    }
+    let (temp_start) = temptape_.read(index);
+    let (temp_len) = temptape_.read(temp_start);
+    _resetSingleTempOnTape(temp_start, temp_len);
+    return ();
+}
+
+func _resetSingleTempOnTape{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_temp_start: felt, _temp_len: felt) {
+    temptape_.write(_temp_start + _temp_len, 0);
+    if (_temp_len == 0) {
+        return ();
+    }
+    return _resetSingleTempOnTape(_temp_start, _temp_len - 1);
+}
+
+func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _program_len: felt, _program: felt*) -> () {
+    alloc_locals;
+    let (pc) = instruction_counter_.read();
+    if (pc ==  0) {
+        return ();
+    }
+    let (instruction_len, instruction) = _filter_instruction(pc, _program_len, _program);
+    local library_hash;
+    if (instruction[0] == 0) {
+        let (this_diamond) = get_contract_address();
+        let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
+        assert library_hash = this_zklang;
+        tempvar range_check_ptr = range_check_ptr;
+        tempvar syscall_ptr = syscall_ptr;
+    } else {
+        assert library_hash = instruction[0];
+        tempvar range_check_ptr = range_check_ptr;
+        tempvar syscall_ptr = syscall_ptr;
+    }
+
+    // Execute primitive
+    library_call(
+        class_hash=library_hash,
+        function_selector=instruction[1],
+        calldata_size=instruction_len - 3,
+        calldata=instruction + 3,
+    );
+
+    return exec_loop(_selector, _program_len, _program);
+}
+
+func _filter_instruction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_i: felt, _program_len: felt, _program: felt*) -> (res_len: felt, res: felt*) {
+    alloc_locals;
+    if (_i == 0) {
+        return (_program[0], _program);
+    }
+    return _filter_instruction(_i - 1, _program_len - _program[0], _program + _program[0]);
 }
 
 @external
 func __ZKLANG__SET_VAR{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _felt_code_len: felt, _felt_code: felt*) -> () {
+    temptape_.write(_selector, _felt_code_len);
+    stream.foreach(_writeTempOnTape, _felt_code_len, _felt_code);
+    return ();
+}
+
+@external
+func __ZKLANG__RETURN{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _felt_code_len: felt, _felt_code: felt*) -> () {
+    instruction_counter_.write(-1);
     return ();
 }
 
@@ -90,8 +232,8 @@ func __ZKLANG__GET_STATE{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
 }
 
 @external
-func __ZKLANG__GOTO{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_pc: felt) -> () {
-    register_.write(REGISTERS.PC, _pc);
+func __ZKLANG__GOTO{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_new_instruction_counter: felt) -> () {
+    instruction_counter_.write(_new_instruction_counter);
     return ();
 }
 
@@ -111,11 +253,12 @@ func __ZKLANG__EVENT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 
 // TODO Store in diamondCut itself
 @external
-func deployFunction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _felt_code_len: felt, _felt_code: felt*) -> () {
-    // AccessControlled
-    // Compute hash of felt code
-    // Store in program store
-    // Map selector to program hash
+func deployFunction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_selector: felt, _program_hash: felt, _repo_address: felt) -> () {
+    // TODO AccessControlled
+    // !!! This is right now a single function max !!!
+    fun_selector_index_.write(0, _selector);
+    fun_selector_program_hash_mapping_.write(_selector, _program_hash);
+    program_hash_repo_address_mapping_.write(_program_hash, _repo_address);
     return ();
 }
 
@@ -128,22 +271,15 @@ func deleteFunction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
     return ();
 }
 
-func _process{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (){
-    // streams - exec next line in program table
-    return ();
-}
-
-func _garbage_collect{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (){
-    // streams -  for each temp var in array, set to 0
-    // set pc and fc, return to zero
-    return ();
-}
-
-func _set_temporary_variable_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_var_sel: felt, _var_len: felt, _var: felt*) -> () {
-    // streams - write to first zero in var array
-    temporary_variable_table_.write(_var_sel, _var_len);
-    // streams - append data
-    return ();
+func _load_selectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _i: felt) -> felt {
+    alloc_locals;
+    let (selector) = fun_selector_index_.read(_i);
+    if (selector == 0) {
+        return _i;
+    } else {
+        assert _ptr[0] = selector;
+        return _load_selectors(_ptr + 1, _i + 1);
+    }
 }
 
 // ===================
@@ -162,18 +298,36 @@ func __destructor__() -> () {
     return ();
 }
 
+@view
+@raw_output
+func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (retdata_size: felt, retdata: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+    return (retdata_size=3, retdata=cast(func_selectors, felt*));
+
+    selectors_start:
+    dw API.CORE.__ZKLANG__ADD;
+    dw API.CORE.__ZKLANG__RETURN;
+    dw API.CORE.__ZKLANG__SET_VAR;
+}
+
 /// @dev Exported view and invokable functions of this facet
 @view
 @raw_output
 func __get_function_selectors__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (retdata_size: felt, retdata: felt*) {
-    // read deployed func selectors
+    alloc_locals;
+    let (local sel: felt*) = alloc();
+    let sel_len = _load_selectors(sel, 0);
+
     let (func_selectors) = get_label_location(selectors_start);
-    return (retdata_size=2, retdata=cast(func_selectors, felt*));
-    // TODO dynamically include functions from func_array
+
+    let (local res: felt*) = alloc();
+    memcpy(res,cast(func_selectors, felt*), 1);
+    memcpy(res + 1, sel, sel_len);
+
+    return (retdata_size=sel_len + 1, retdata=res);
 
     selectors_start:
     dw FUNCTION_SELECTORS.ZKLANG.deployFunction;
-    dw FUNCTION_SELECTORS.ZKLANG.deleteFunction;
 }
 
 /// @dev Define all supported interfaces of this facet
