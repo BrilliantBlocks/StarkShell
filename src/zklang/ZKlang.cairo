@@ -6,37 +6,37 @@ from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.registers import get_label_location
 from starkware.starknet.common.syscalls import get_contract_address, library_call
 
-from onlydust.stream.default_implementation import stream
-
 from src.constants import API, FUNCTION_SELECTORS
 from src.ERC2535.IDiamond import IDiamond
+from src.ERC2535.library import Library
 from src.Storage.IFlobDB import IFlobDB
 
 
-struct Instruction {
-    facet_class_hash: felt,
-    primitive_selector: felt,
-    var_in_selector: felt,
-    var_out_selector: felt,
+struct Primitive {
+    class_hash: felt,
+    selector: felt,
 }
 
-struct VariableFlags {
+struct Variable {
     selector: felt,
     protected: felt,
     type: felt,
+    data_len:felt,
 }
 
-struct VariableType {
+struct Instruction {
+    primitive: Primitive,
+    input: Variable,
+    output: Variable,
+}
+
+struct DataTypes {
     FELT: felt,
     BOOL: felt,
 }
 
 @event
 func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*){
-}
-
-@storage_var
-func __ZKLANG__storage_(i: felt) -> (val: felt) {
 }
 
 @storage_var
@@ -51,92 +51,118 @@ func fun_selector_program_hash_mapping_(selector: felt) -> (program_hash: felt) 
 func program_hash_repo_address_mapping_(program_hash: felt) -> (repo_address: felt) {
 }
 
-// @external
-// @raw_input
-// @raw_output
-// func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
-//     alloc_locals;
-//     // Prepare
-//     let (program_hash) = fun_selector_program_hash_mapping_.read(selector);
-//     let (repo_address) = program_hash_repo_address_mapping_.read(program_hash);
-//     let (program_len, program) = IFlobDB.load(repo_address, program_hash);
-// 
-//     let (this_diamond) = get_contract_address();
-//     let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
-// 
-//     // load calldata into memory
-// 
-//     // Execute
-//     let (retdata_size, retdata) = exec_loop(
-//         0,
-//         FALSE,
-//         selector,
-//         program_len,
-//         program,
-//         calldata_size,
-//         calldata,
-//         this_zklang,
-//     );
-// 
-//     return (retdata_size, retdata);
-// }
+@external
+@raw_input
+@raw_output
+func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
+    alloc_locals;
+    // Prepare
+    let (program_hash) = fun_selector_program_hash_mapping_.read(selector);
+    let (repo_address) = program_hash_repo_address_mapping_.read(program_hash);
+    let (program_len, program) = IFlobDB.load(repo_address, program_hash);
+    let (this_diamond) = get_contract_address();
+    let (this_zklang) = IDiamond.facetAddress(this_diamond, selector);
 
-// func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-//         _pc: felt,
-//         _halt: felt,
-//         _selector: felt,
-//         _program_len: felt,
-//         _program: felt*,
-//         _calldata_len: felt,
-//         _calldata: felt*,
-//         _storage: felt*,
-//         _this_zklang: felt,
-//     ) -> (res_len: felt, res: felt*) {
-//     alloc_locals;
-// 
-//     // Filter current instruction from program
-//     let (instruction_code_len, instruction_code) = _get_row_from_matrix_by_index(
-//                                             _n = _pc,
-//                                             _matrix_len = _program_len,
-//                                             _matrix = _program,
-//                                          );
-// 
-//     with_attr error_message("FORMAT ERROR") {
-//         assert instruction_code_len = Instruction.SIZE;
-//     }
-// 
-//     let curr_instruction = cast(instruction_code, Instruction*);
-// 
-//     // Facet hash of requested primitive
-//     let is_zero = is_zero(curr_instruction.class_hash);
-//     let facet_hash = _if_x_eq_true_return_y_else_z(is_zero, this_zklang, curr_instruction.class_hash);
-// 
-//     // Get variable from memory
-//     let (var_len, var, flags) = _get_row_from_matrix_by_key(curr_instruction.var_keyword, _memory_len, _memory);
-// 
-//     // Execute primitive
-//     let (res_len, res) = library_call(
-//         class_hash=facet_hash,
-//         function_selector=curr_instruction.selector,
-//         calldata_size=var_len,
-//         calldata=var,
-//     );
-// 
-//     // Update memory
-//     _cut_row_from_matrix_by_key(curr_instruction.var_keyword, _memory_len, _memory);
-//     let (local new_memory: felt*) = alloc();
-//     let new_memory_len = _append_row_to_matrix();
-// 
-//     // Stop exec_loop check return temp variable, and reset
-// 
-//     return exec_loop(
-//         _instruction_count + 1,  // TODO GOTO variable, if goto is read, reset
-//         _selector,
-//         _program_len,
-//         _program
-//     );
-// }
+    // Load calldata into memory
+    tempvar initialized_memory = new Variable(
+        selector = API.CORE.__ZKLANG__CALLDATA_VAR,
+        protected = FALSE,
+        type = DataTypes.FELT,
+        data_len = calldata_size,
+    );
+    memcpy(initialized_memory + Variable.SIZE, calldata, calldata_size);
+    let initialized_memory_len = Variable.SIZE + calldata_size;
 
+    // Execute
+    let (retdata_size, retdata) = exec_loop(
+        0,
+        program_len,
+        program,
+        initialized_memory_len,
+        initialized_memory,
+        this_zklang,
+    );
+
+    return (retdata_size, retdata);
+}
+
+@external
+func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _pc: felt,
+        _program_len: felt,
+        _program: felt*,
+        _memory_len: felt,
+        _memory: felt*,
+        _this_zklang: felt,
+    ) -> (res_len: felt, res: felt*) {
+    alloc_locals;
+
+    // Filter current instruction from program
+    let (instruction_code_len, instruction_code) = _get_row_from_matrix_by_index(
+                                            _n = _pc,
+                                            _matrix_len = _program_len,
+                                            _matrix = _program,
+                                         );
+
+    with_attr error_message("FORMAT ERROR") {
+        assert instruction_code_len = Instruction.SIZE;
+    }
+
+    let curr_instruction = cast(instruction_code, Instruction*);
+    let facet_hash = Library._if_x_is_zero_then_y_else_x(curr_instruction.primitive.class_hash, _this_zklang);
+
+    // Get input variable from memory
+    let (l_len, l, v_len, v, r_len, r) = _split_memory(curr_instruction.input.selector, _memory_len, _memory);
+
+    // Execute primitive
+    let (res_len, res) = library_call(
+        class_hash=facet_hash,
+        function_selector=curr_instruction.primitive.selector,
+        calldata_size=v_len - Variable.SIZE,
+        calldata=v + Variable.SIZE,
+    );
+
+    if (curr_instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
+        return (res_len, res);
+    }
+
+    if (curr_instruction.primitive.selector == API.CORE.__ZKLANG__GOTO) {
+        // Continue execution at specified pc
+        return exec_loop(
+            res[0],
+            _program_len,
+            _program,
+            _memory_len,
+            _memory,
+            _this_zklang,
+        );
+    }
+
+    // Update memory
+    let (l_len, l, v_len, v, r_len, r) = _split_memory(curr_instruction.output.selector, _memory_len, _memory);
+
+    with_attr error_message("CONSTS ARE IMMUTABLE") {
+        assert v[Variable.protected] = FALSE;
+    }
+
+    let (local new_memory: felt*) = alloc();
+    memcpy(new_memory, l, l_len);
+    memcpy(new_memory + l_len, v, Variable.SIZE);
+    memcpy(new_memory + l_len + Variable.SIZE, res, res_len);
+    memcpy(new_memory + l_len + Variable.SIZE + res_len, r, r_len);
+    let new_memory_len = l_len + Variable.SIZE + res_len + r_len;
+
+    // Exec next instruction
+    return exec_loop(
+        _pc + 1,
+        _program_len,
+        _program,
+        _memory_len,
+        _memory,
+        _this_zklang,
+    );
+}
+    
 func _get_row_from_matrix_by_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_n: felt, _matrix_len: felt, _matrix: felt*) -> (res_len: felt, res: felt*) {
     alloc_locals;
 
@@ -150,44 +176,78 @@ func _get_row_from_matrix_by_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
     return _get_row_from_matrix_by_index(next_n, next_row_len, next_row);
 }
 
-func _update_memory_matrix{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_var_len: felt, _var: felt*, _flags: VariableFlags) -> (res_len: felt, res: felt*) {
+func _split_memory{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _var_selector: felt, _memory_len: felt, _memory: felt*
+    ) -> (left_memory_len: felt, left_memory: felt*, var_len: felt, var: felt*, right_memory_len: felt, right_memory: felt*) {
     alloc_locals;
-    // split_memory()
-    // if exists
-    // assert not write protected
-    // assert type
-    // concatenate_memory()
-    return ();
+    let memory_len_without_left = _memory_len_without_left(_var_selector, _memory_len, _memory);
+    let left_memory_len = _memory_len - memory_len_without_left;
+    let var_len = _memory[left_memory_len + Variable.SIZE] + Variable.SIZE;
+    let right_memory_len = _memory_len - left_memory_len - var_len;
+
+    let (local left_memory: felt*) = alloc();
+    let (local var: felt*) = alloc();
+    let (local right_memory: felt*) = alloc();
+
+    memcpy(left_memory, _memory, left_memory_len);
+    memcpy(var, _memory + left_memory_len + 1, var_len);
+    memcpy(right_memory, _memory + left_memory_len + right_memory_len + 1, right_memory_len);
+
+    return (left_memory_len, left_memory, var_len, var, right_memory_len, right_memory);
+}
+
+func _memory_len_without_left{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt, _matrix_len: felt, _matrix: felt*) -> felt {
+    alloc_locals;
+
+    // No data in memory
+    if (_matrix_len == 0) {
+        return 0;
+    }
+    
+    // Variable not in memory
+    if (_matrix_len == -1) {
+        return 0;
+    }
+
+    if (_matrix[0] == _key) {
+        return _matrix_len;
+    }
+
+    let next_row_len = _matrix_len - Variable.SIZE - _matrix[Variable.SIZE];
+    let next_row = _matrix + Variable.SIZE + _matrix[Variable.SIZE];
+
+    return _memory_len_without_left(_key, next_row_len, next_row) ;
 }
 
 /// @dev Memory layout
 /// @dev ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 /// @dev || selector || protected || type || len || x0 || x1 || ... || x_(len-1) ||
 /// @dev ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-func _get_row_from_matrix_by_key{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt, _matrix_len: felt, _matrix: felt*) -> (res_len: felt, res: felt*, flags: VariableFlags) {
+func _get_row_from_matrix_by_key{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt, _matrix_len: felt, _matrix: felt*) -> (res_len: felt, res: felt*, flags: Variable) {
     alloc_locals;
     let (local NULLptr: felt*) = alloc();
 
     // No data in memory
     if (_matrix_len == 0) {
-        return (0, NULLptr, VariableFlags(0,0,0));
+        return (0, NULLptr, Variable(0,0,0,0));
     }
     
     // Variable not in memory
     if (_matrix_len == -1) {
-        return (0, NULLptr, VariableFlags(0,0,0));
+        return (0, NULLptr, Variable(0,0,0,0));
     }
 
     if (_matrix[0] == _key) {
-        let flags = VariableFlags(
+        let flags = Variable(
                     selector = _key,
-                    protected = _matrix[VariableFlags.protected],
-                    type = _matrix[VariableFlags.type],
+                    protected = _matrix[Variable.protected],
+                    type = _matrix[Variable.type],
+                    data_len = _matrix[Variable.data_len],
                 );
-        return (_matrix[VariableFlags.SIZE], _matrix + VariableFlags.SIZE + 1, flags);
+        return (_matrix[Variable.SIZE], _matrix + Variable.SIZE, flags);
     }
-    let next_row_len = _matrix_len - VariableFlags.SIZE - _matrix[VariableFlags.SIZE] - 1;
-    let next_row = _matrix + VariableFlags.SIZE + _matrix[VariableFlags.SIZE] + 1;
+    let next_row_len = _matrix_len - Variable.SIZE - _matrix[Variable.SIZE];
+    let next_row = _matrix + Variable.SIZE + _matrix[Variable.SIZE];
 
     return _get_row_from_matrix_by_key(_key, next_row_len, next_row) ;
 }

@@ -408,4 +408,12 @@ namespace Library {
         }
         return (1 - x) * z + x * y;
     }
+
+    func _if_x_is_zero_then_y_else_x(x: felt, y: felt) -> felt {
+        if (x == 0) {
+            return y;
+        } else {
+            return x;
+        }
+    }
 }

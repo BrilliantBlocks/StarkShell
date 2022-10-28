@@ -8,6 +8,8 @@ from src.zklang.ZKlang import Instruction, _get_row_from_matrix_by_index, _get_r
 from protostar.asserts import assert_eq
 
 
+// TODO tempvar x = new (1,1,1,1,1);
+
 @external
 func test_get_row_from_matrix_by_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;

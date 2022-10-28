@@ -31,6 +31,7 @@ namespace API {
         const __ZKLANG__EVENT = 0x315c4e503b7f8705e10f5e48d4899db38942f0874c59e0debd029d0e1dd9a26;
         const __ZKLANG__GOTO = 0x280f2db040b25060d599d42cc019912f78d1e2022d724dd47c3d68311704518;
         const __ZKLANG__REVERT = 0x28089cf47fb4b74d7ca26ab7ac970b2dc2b1bd4ed7dc25ca96784bc366a815f;
+        const __ZKLANG__CALLDATA_VAR = 0x3c6f3599ac37319bbc36d2acb3ea0b2567cdbe7fd6ed09616db6414f36bdc40;
 
     }
 }
