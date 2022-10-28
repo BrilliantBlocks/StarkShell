@@ -28,7 +28,10 @@ namespace API {
     namespace CORE {
         const __ZKLANG__ADD = 0x33fbf27d4be7e5f658249feea1d097ea59bfd94cd7a3d7d4bc9d435f945d1b1;
         const __ZKLANG__RETURN = 0x1260326d98aa121b333202d173c639e6c5f6866412b05147c803baecdd17985;
-        const __ZKLANG__SET_VAR = 0x1ce70074f81243f696052b7626e239c07f986b461fb399f4f8d7e0b554eec52;
+        const __ZKLANG__EVENT = 0x315c4e503b7f8705e10f5e48d4899db38942f0874c59e0debd029d0e1dd9a26;
+        const __ZKLANG__GOTO = 0x280f2db040b25060d599d42cc019912f78d1e2022d724dd47c3d68311704518;
+        const __ZKLANG__REVERT = 0x28089cf47fb4b74d7ca26ab7ac970b2dc2b1bd4ed7dc25ca96784bc366a815f;
+
     }
 }
 
