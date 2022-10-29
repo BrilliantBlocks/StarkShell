@@ -123,19 +123,20 @@ namespace Program {
             return ();
         }
         let instruction = cast(_program_raw, Instruction*);
+        memcpy(_program, _program_raw, Primitive.class_hash);
         if (instruction.primitive.class_hash == 0) {
-            assert _program[Primitive.class_hash] = _this_zklang;
+            tempvar x = new (_this_zklang);
+            memcpy(_program + Primitive.class_hash, x, 1);
         } else {
-            assert _program[Primitive.selector] = _program_raw[Primitive.selector];
+            memcpy(_program + Primitive.class_hash, _program_raw + Primitive.class_hash, 1);
         }
-        memcpy(_program, _program_raw, Primitive.selector - 1);
-        memcpy(_program + Primitive.SIZE, _program_raw + Primitive.SIZE, _program_raw_len - Primitive.SIZE);
+        memcpy(_program + Primitive.class_hash + 1, _program_raw + Primitive.class_hash + 1, Instruction.SIZE - Primitive.class_hash - 1);
 
         return replace_zero_class_hashes_with_self(
             _program = _program + Instruction.SIZE,
-            _program_raw_len = _program_raw_len - 1,
-            _program_raw = _program_raw + Instruction.SIZE,
             _this_zklang = _this_zklang,
+            _program_raw_len = _program_raw_len - Instruction.SIZE,
+            _program_raw = _program_raw + Instruction.SIZE,
         );
     }
 }
