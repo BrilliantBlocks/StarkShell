@@ -95,6 +95,7 @@ namespace Program {
         return (program_len, program);
     }
 
+    // TODO Requires another iteration of refactoring
     func validate{
         syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }(_program_len: felt, _program: felt*) -> () {
@@ -114,6 +115,7 @@ namespace Program {
         return validate(_program_len - Instruction.SIZE, _program + Instruction.SIZE);
     }
 
+    // TODO Requires another iteration of refactoring
     func replace_zero_class_hashes_with_self{
         syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }(_program: felt*, _this_zklang: felt, _program_raw_len: felt, _program_raw: felt*) -> () {
@@ -163,14 +165,15 @@ namespace Memory {
         return (memory_len, memory);
     }
 
-    func load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    func load_variable_payload{
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+    }(
         _var: Variable, _memory_len: felt, _memory: felt*
-        ) -> (var_len: felt, var: felt*) {
-        alloc_locals; // TODOO required?
-        let (v_len, v) = load_variable(_var.selector, _memory_len, _memory);
-        let payload = v + Variable.SIZE;
-        let payload_len = v_len - Variable.SIZE;
-        return (payload_len, payload);
+        ) -> (payload_len: felt, payload: felt*) {
+        let (var_len, var) = load_variable(_var.selector, _memory_len, _memory);
+
+        return (payload_len = var_len - Variable.SIZE,
+                payload = var + Variable.SIZE);
     }
 
     func load_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -253,6 +256,7 @@ namespace State {
         with_attr error_message("FUNCTION EXISTS") {
             assert selector = 0;
         }
+
         return ();
     }
     
@@ -262,6 +266,7 @@ namespace State {
         let (program_hash) = fun_selector_program_hash_mapping_.read(_selector);
         let (repo_address) = program_hash_repo_address_mapping_.read(program_hash);
         let fun = Function(_selector, program_hash, repo_address);
+
         return fun;
     }
     
@@ -272,6 +277,7 @@ namespace State {
         fun_selector_index_.write(first_free_index, _function.selector);
         fun_selector_program_hash_mapping_.write(_function.selector, _function.program_hash);
         program_hash_repo_address_mapping_.write(_function.program_hash, _function.repo_address);
+
         return ();
     }
     
@@ -285,22 +291,25 @@ namespace State {
         if (fun_selector == 0) {
             return _i;
         }
+
         return first_free_fun_index(_selector, _i + 1);
     }
     
     func load_selectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _i: felt) -> felt {
         alloc_locals;
+
         let (selector) = fun_selector_index_.read(_i);
         if (selector == 0) {
             return _i;
         } else {
-            // if program_hash mapping is zero
             let (program_hash) = fun_selector_program_hash_mapping_.read(selector);
             if (program_hash == 0) {
+                // if program_hash mapping is zero
                 // Function was removed
             } else {
                 assert _ptr[0] = selector;
             }
+
             return load_selectors(_ptr + 1, _i + 1);
         }
     }
