@@ -16,7 +16,6 @@ from protostar.asserts import assert_eq
 const BrilliantBlocks = 123;
 const User = 456;
 
-
 struct Setup {
     diamond_address: felt,
     repo_address: felt,
@@ -38,17 +37,15 @@ func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}()
     local zklang_class_hash;
     %{ ids.zklang_class_hash = context.zklang_class_hash %}
 
-
     local setup: Setup = Setup(
         diamond_address,
         repo_address,
         erc1155_class_hash,
         program_hash,
         zklang_class_hash,
-    );
+        );
     return setup;
 }
-
 
 @external
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
@@ -58,7 +55,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     local erc1155_class_hash;
     local zklang_class_hash;
     local flob_db_class_hash;
-    %{  
+    %{
         # Declare diamond and facets
         context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
         context.erc1155_class_hash = declare("./src/ERC1155/ERC1155.cairo").class_hash
@@ -70,9 +67,9 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         context.flob_db_class_hash = declare("./src/Storage/FlobDB.cairo").class_hash
         ids.flob_db_class_hash = context.flob_db_class_hash
     %}
-    
+
     local TCF_address;
-    %{  
+    %{
         # Deploy BFR and TCF
         context.BFR_address = deploy_contract(
                 "./src/main/BFR/BFR.cairo",
@@ -159,7 +156,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         return_keyword,
         0,
         var1_identifier,
-    );
+        );
     let felt_code_len = 15;
     let (program_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.program_hash = ids.program_hash %}
@@ -199,7 +196,9 @@ namespace IDiamondCalc {
 }
 
 @external
-func test_deploy_and_execute_simple_adder{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+func test_deploy_and_execute_simple_adder{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
     alloc_locals;
     let setup = getSetup();
     local my_func_selector;
@@ -208,8 +207,10 @@ func test_deploy_and_execute_simple_adder{syscall_ptr: felt*, pedersen_ptr: Hash
         ids.my_func_selector = get_selector_from_name("diamondAdd")
     %}
 
-    IZKlang.deployFunction(setup.diamond_address, my_func_selector, setup.program_hash, setup.repo_address);
-    
+    IZKlang.deployFunction(
+        setup.diamond_address, my_func_selector, setup.program_hash, setup.repo_address
+    );
+
     // diamondAdd is recognized as public function
     let (x) = IDiamond.facetAddress(setup.diamond_address, my_func_selector);
     assert_eq(x, setup.zklang_class_hash);
@@ -221,7 +222,7 @@ func test_deploy_and_execute_simple_adder{syscall_ptr: felt*, pedersen_ptr: Hash
     // assert_eq(program[program[0]+1], 3);
     assert_eq(program_len, 14);
     assert_eq(program[0], 6);
-    assert_eq(program[program[0]+1], 6);
+    assert_eq(program[program[0] + 1], 6);
 
     let (res) = IDiamondCalc.diamondAdd(setup.diamond_address, 7, 9);
     assert_eq(res, 16);

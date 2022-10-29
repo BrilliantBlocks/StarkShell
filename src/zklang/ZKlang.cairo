@@ -10,30 +10,8 @@ from src.constants import API, FUNCTION_SELECTORS
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.library import Library
 from src.Storage.IFlobDB import IFlobDB
+from src.zklang.library import Program, Memory, Primitive, Variable, Instruction, DataTypes
 
-
-struct Primitive {
-    class_hash: felt,
-    selector: felt,
-}
-
-struct Variable {
-    selector: felt,
-    protected: felt,
-    type: felt,
-    data_len:felt,
-}
-
-struct Instruction {
-    primitive: Primitive,
-    input: Variable,
-    output: Variable,
-}
-
-struct DataTypes {
-    FELT: felt,
-    BOOL: felt,
-}
 
 @event
 func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*){
@@ -44,7 +22,7 @@ func fun_selector_index_(i: felt) -> (fun_selector: felt) {
 }
 
 @storage_var
-func fun_selector_program_hash_mapping_(selector: felt) -> (program_hash: felt) {
+func fun_selector_program_hash_mapping_(fun_selector: felt) -> (program_hash: felt) {
 }
 
 @storage_var
@@ -64,22 +42,15 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let (this_zklang) = IDiamond.facetAddress(this_diamond, selector);
 
     // Load calldata into memory
-    tempvar initialized_memory = new Variable(
-        selector = API.CORE.__ZKLANG__CALLDATA_VAR,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = calldata_size,
-    );
-    memcpy(initialized_memory + Variable.SIZE, calldata, calldata_size);
-    let initialized_memory_len = Variable.SIZE + calldata_size;
+    let (memory_len, memory) = Memory.init(calldata_size, calldata);
 
     // Execute
     let (retdata_size, retdata) = exec_loop(
         0,
         program_len,
         program,
-        initialized_memory_len,
-        initialized_memory,
+        memory_len,
+        memory,
         this_zklang,
     );
 
