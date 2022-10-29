@@ -107,3 +107,113 @@ func test_get_instruction{
 
     return ();
 }
+
+@external
+func test_validate_reverts_on_non_boolean_protected{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let (local program: felt*) = alloc();
+    let program_len = 5 * Instruction.SIZE;
+
+    tempvar instruction_0 = new Instruction(
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0),
+    );
+    tempvar instruction_1 = new Instruction(
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 1, 1, 1),
+    );
+    tempvar instruction_2 = new Instruction(
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 3, 0, 0),
+    );
+    tempvar instruction_3 = new Instruction(
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(1, 0, 0, 1),
+    );
+    tempvar instruction_4 = new Instruction(
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(1, 1, 1, 1),
+    );
+
+    memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
+    memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
+    memcpy(program + 2 * Instruction.SIZE, instruction_2, Instruction.SIZE);
+    memcpy(program + 3 * Instruction.SIZE, instruction_3, Instruction.SIZE);
+    memcpy(program + 4 * Instruction.SIZE, instruction_4, Instruction.SIZE);
+
+    %{ expect_revert(error_message="CORRUPT CODE") %}
+    Program.validate(program_len, program);
+
+    return ();
+}
+
+@external
+func test_validate_reverts_on_unknown_type_key{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let (local program: felt*) = alloc();
+    let program_len = 5 * Instruction.SIZE;
+
+    tempvar instruction_0 = new Instruction(
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0),
+    );
+    tempvar instruction_1 = new Instruction(
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 1, 1, 1),
+    );
+    tempvar instruction_2 = new Instruction(
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 1, 3, 0),
+    );
+    tempvar instruction_3 = new Instruction(
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(1, 0, 0, 1),
+    );
+    tempvar instruction_4 = new Instruction(
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(1, 1, 1, 1),
+    );
+
+    memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
+    memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
+    memcpy(program + 2 * Instruction.SIZE, instruction_2, Instruction.SIZE);
+    memcpy(program + 3 * Instruction.SIZE, instruction_3, Instruction.SIZE);
+    memcpy(program + 4 * Instruction.SIZE, instruction_4, Instruction.SIZE);
+
+    %{ expect_revert(error_message="CORRUPT CODE") %}
+    Program.validate(program_len, program); 
+
+    return ();
+}
+
+@external
+func test_validate_returns_nothing_on_anything_else{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let (local program: felt*) = alloc();
+    let program_len = 5 * Instruction.SIZE;
+
+    tempvar instruction_0 = new Instruction(
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0),
+    );
+    tempvar instruction_1 = new Instruction(
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 1, 1, 1),
+    );
+    tempvar instruction_2 = new Instruction(
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 1, 1, 0),
+    );
+    tempvar instruction_3 = new Instruction(
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(1, 0, 0, 1),
+    );
+    tempvar instruction_4 = new Instruction(
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(1, 1, 1, 1),
+    );
+
+    memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
+    memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
+    memcpy(program + 2 * Instruction.SIZE, instruction_2, Instruction.SIZE);
+    memcpy(program + 3 * Instruction.SIZE, instruction_3, Instruction.SIZE);
+    memcpy(program + 4 * Instruction.SIZE, instruction_4, Instruction.SIZE);
+
+    Program.validate(program_len, program); 
+
+    return ();
+}

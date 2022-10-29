@@ -89,8 +89,8 @@ namespace Program {
         let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
 
         let (local program: felt*) = alloc();
-        replace_zero_class_hashes_with_self(this_zklang, _program_raw_len, _program_raw, program);
         let program_len = _program_raw_len;
+        replace_zero_class_hashes_with_self(program, this_zklang, _program_raw_len, _program_raw);
 
         return (program_len, program);
     }
@@ -116,7 +116,7 @@ namespace Program {
 
     func replace_zero_class_hashes_with_self{
         syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }(_this_zklang: felt, _program_raw_len: felt, _program_raw: felt*, _program: felt*) -> () {
+    }(_program: felt*, _this_zklang: felt, _program_raw_len: felt, _program_raw: felt*) -> () {
         alloc_locals;
 
         if (_program_raw_len == 0) {
@@ -132,10 +132,10 @@ namespace Program {
         memcpy(_program + Primitive.SIZE, _program_raw + Primitive.SIZE, _program_raw_len - Primitive.SIZE);
 
         return replace_zero_class_hashes_with_self(
-            _this_zklang = _this_zklang,
+            _program = _program + Instruction.SIZE,
             _program_raw_len = _program_raw_len - 1,
             _program_raw = _program_raw + Instruction.SIZE,
-            _program = _program + Instruction.SIZE,
+            _this_zklang = _this_zklang,
         );
     }
 }
