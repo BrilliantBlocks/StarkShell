@@ -46,12 +46,12 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 
     // Execute
     let (retdata_size, retdata) = exec_loop(
-        0,
-        program_len,
-        program,
-        memory_len,
-        memory,
-        this_zklang,
+        _pc = 0,
+        _program_len = program_len,
+        _program = program,
+        _memory_len = memory_len,
+        _memory = memory,
+        _this_zklang = this_zklang,
     );
 
     return (retdata_size, retdata);
@@ -68,22 +68,13 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     ) -> (res_len: felt, res: felt*) {
     alloc_locals;
 
-    // Filter current instruction from program
-    let (instruction_code_len, instruction_code) = _get_row_from_matrix_by_index(
-                                            _n = _pc,
-                                            _matrix_len = _program_len,
-                                            _matrix = _program,
-                                         );
-
-    with_attr error_message("FORMAT ERROR") {
-        assert instruction_code_len = Instruction.SIZE;
-    }
-
-    let curr_instruction = cast(instruction_code, Instruction*);
-    let facet_hash = Library._if_x_is_zero_then_y_else_x(curr_instruction.primitive.class_hash, _this_zklang);
+    let curr_instruction = Program.get_instruction(_pc, _program_len, _program);
 
     // Get input variable from memory
     let (l_len, l, v_len, v, r_len, r) = _split_memory(curr_instruction.input.selector, _memory_len, _memory);
+
+    // This zklang facet or other facet?
+    let facet_hash = Library._if_x_is_zero_then_y_else_x(curr_instruction.primitive.class_hash, _this_zklang);
 
     // Execute primitive
     let (res_len, res) = library_call(
@@ -100,12 +91,12 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     if (curr_instruction.primitive.selector == API.CORE.__ZKLANG__GOTO) {
         // Continue execution at specified pc
         return exec_loop(
-            res[0],
-            _program_len,
-            _program,
-            _memory_len,
-            _memory,
-            _this_zklang,
+            _pc = res[0],
+            _program_len = _program_len,
+            _program = _program,
+            _memory_len = _memory_len,
+            _memory = _memory,
+            _this_zklang = _this_zklang,
         );
     }
 
@@ -125,12 +116,12 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
     // Exec next instruction
     return exec_loop(
-        _pc + 1,
-        _program_len,
-        _program,
-        _memory_len,
-        _memory,
-        _this_zklang,
+        _pc = _pc + 1,
+        _program_len = _program_len,
+        _program = _program,
+        _memory_len = _memory_len,
+        _memory = _memory,
+        _this_zklang = _this_zklang,
     );
 }
     

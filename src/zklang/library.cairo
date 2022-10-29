@@ -31,12 +31,24 @@ struct DataTypes {
 }
 
 namespace Program {
+    func get_instruction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_pc: felt, _program_len: felt, _program: felt*) -> Instruction* {
+        if (_pc == 0) {
+            let instruction = cast(_program, Instruction*);
+            return instruction;
+        }
 
+        return get_instruction(
+            _pc = _pc - 1,
+            _program_len = _program_len - Instruction.SIZE,
+            _program = _program + Instruction.SIZE,
+        );
+    }
 }
 
 namespace Memory {
     func init{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_calldata_len: felt, _calldata: felt*) -> (memory_len: felt, memory: felt*) {
         alloc_locals;
+
         let (local memory: felt*) = alloc();
         let memory_len = Variable.SIZE + _calldata_len;
         tempvar var_metadata = new Variable(
@@ -47,6 +59,7 @@ namespace Memory {
         );
         memcpy(memory, var_metadata, Variable.SIZE);
         memcpy(memory + Variable.SIZE, _calldata, _calldata_len);
+
         return (memory_len, memory);
     }
 }
