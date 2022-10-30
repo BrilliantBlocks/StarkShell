@@ -217,3 +217,12 @@ func test_len_without_left_memory_returns_zero_if_no_data_in_memory{
 
     return ();
 }
+
+@external
+func test_{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    return ();
+}
