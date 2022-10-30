@@ -20,6 +20,7 @@ struct Function {
     selector: felt,
     program_hash: felt,
     repo_address: felt,
+    // group: felt,
 }
 
 struct Variable {
@@ -27,6 +28,7 @@ struct Variable {
     protected: felt,
     type: felt,
     data_len:felt,
+    // owner: felt, // fun or group
 }
 
 struct Instruction {
@@ -38,6 +40,10 @@ struct Instruction {
 struct DataTypes {
     FELT: felt,
     BOOL: felt,
+}
+
+@storage_var
+func process_(i: felt) -> (process_state_hash: felt) {
 }
 
 @storage_var
