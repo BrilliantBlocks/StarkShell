@@ -208,7 +208,7 @@ namespace Memory {
         _var_selector: felt, _memory_len: felt, _memory: felt*
         ) -> (left_memory_len: felt, left_memory: felt*, var_len: felt, var: felt*, right_memory_len: felt, right_memory: felt*) {
         alloc_locals;
-        let memory_len_without_left = _memory_len_without_left(_var_selector, _memory_len, _memory);
+        let memory_len_without_left = len_without_left_memory(_var_selector, _memory_len, _memory);
         let left_memory_len = _memory_len - memory_len_without_left;
         let var_len = _memory[left_memory_len + Variable.SIZE] + Variable.SIZE;
         let right_memory_len = _memory_len - left_memory_len - var_len;
@@ -224,27 +224,29 @@ namespace Memory {
         return (left_memory_len, left_memory, var_len, var, right_memory_len, right_memory);
     }
 
-    func _memory_len_without_left{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt, _matrix_len: felt, _matrix: felt*) -> felt {
+    func len_without_left_memory{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt, _program_len: felt, _program: felt*) -> felt {
         alloc_locals;
 
         // No data in memory
-        if (_matrix_len == 0) {
+        if (_program_len == 0) {
             return 0;
         }
 
         // Variable not in memory
-        if (_matrix_len == -1) {
+        if (_program_len == -1) {
             return 0;
         }
 
-        if (_matrix[0] == _key) {
-            return _matrix_len;
+        let remaining_program_len = _program_len - Variable.SIZE - _program[Variable.SIZE - 1];
+        if (_program[Variable.selector] == _key) {
+            return remaining_program_len;
         }
 
-        let next_row_len = _matrix_len - Variable.SIZE - _matrix[Variable.SIZE];
-        let next_row = _matrix + Variable.SIZE + _matrix[Variable.SIZE];
-
-        return _memory_len_without_left(_key, next_row_len, next_row) ;
+        return len_without_left_memory(
+            _key = _key,
+            _program_len = remaining_program_len,
+            _program =_program + Variable.SIZE + _program[Variable.SIZE - 1],
+        );
     }
 }
 

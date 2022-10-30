@@ -98,3 +98,122 @@ func test_init_memory_on_calldata_with_five_elements{
 
     return ();
 }
+
+@external
+func test_len_without_left_memory_returns_expected_len_non_empty_left{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    tempvar var0 = new Variable(
+        selector = 3,
+        protected = FALSE,
+        type = DataTypes.FELT,
+        data_len = 5,
+            );
+    tempvar var0_data = new (4, 3, 2, 1, 0);
+
+    tempvar var1 = new Variable(
+        selector = 6,
+        protected = FALSE,
+        type = DataTypes.BOOL,
+        data_len = 1,
+            );
+    tempvar var1_data = new (TRUE);
+
+    tempvar var2 = new Variable(
+        selector = 0,
+        protected = TRUE,
+        type = DataTypes.BOOL,
+        data_len = 3,
+            );
+    tempvar var2_data = new (TRUE, FALSE, TRUE);
+
+    let (local memory: felt*) = alloc();
+    let memory_len = 3 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len;
+
+    memcpy(memory + 0 * Variable.SIZE, var0, Variable.SIZE);
+    memcpy(memory + 1 * Variable.SIZE, var0_data, var0.data_len);
+    memcpy(memory + 1 * Variable.SIZE + var0.data_len, var1, Variable.SIZE);
+    memcpy(memory + 2 * Variable.SIZE + var0.data_len, var1_data, var1.data_len);
+    memcpy(memory + 2 * Variable.SIZE + var0.data_len + var1.data_len, var2, Variable.SIZE);
+    memcpy(memory + 3 * Variable.SIZE + var0.data_len + var1.data_len, var2_data, var2.data_len);
+
+    let actual_memory_len_without_left = Memory.len_without_left_memory(3, memory_len, memory);
+    let expected_memory_len_without_left = memory_len - Variable.SIZE - var0.data_len;
+    assert_eq(actual_memory_len_without_left, expected_memory_len_without_left);
+
+
+    let actual_memory_len_without_left = Memory.len_without_left_memory(6, memory_len, memory);
+    let expected_memory_len_without_left = memory_len - 2 * Variable.SIZE - var0.data_len - var1.data_len;
+    assert_eq(actual_memory_len_without_left, expected_memory_len_without_left);
+
+    let actual_memory_len_without_left = Memory.len_without_left_memory(0, memory_len, memory);
+    let expected_memory_len_without_left = memory_len - 3 * Variable.SIZE - var0.data_len - var1.data_len - var2.data_len;
+    assert_eq(actual_memory_len_without_left, expected_memory_len_without_left);
+
+    return ();
+}
+
+@external
+func test_len_without_left_memory_returns_zero_if_memory_is_empty{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let (local memory: felt*) = alloc();
+    let memory_len = 0;
+
+    let actual_memory_len_without_left = Memory.len_without_left_memory(3, memory_len, memory);
+    let expected_memory_len_without_left = 0;
+    assert_eq(actual_memory_len_without_left, expected_memory_len_without_left);
+
+    return ();
+}
+
+@external
+func test_len_without_left_memory_returns_zero_if_no_data_in_memory{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    tempvar var0 = new Variable(
+        selector = 3,
+        protected = FALSE,
+        type = DataTypes.FELT,
+        data_len = 5,
+            );
+    tempvar var0_data = new (4, 3, 2, 1, 0);
+
+    tempvar var1 = new Variable(
+        selector = 6,
+        protected = FALSE,
+        type = DataTypes.BOOL,
+        data_len = 1,
+            );
+    tempvar var1_data = new (TRUE);
+
+    tempvar var2 = new Variable(
+        selector = 0,
+        protected = TRUE,
+        type = DataTypes.BOOL,
+        data_len = 3,
+            );
+    tempvar var2_data = new (TRUE, FALSE, TRUE);
+
+    let (local memory: felt*) = alloc();
+    let memory_len = 3 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len;
+
+    memcpy(memory + 0 * Variable.SIZE, var0, Variable.SIZE);
+    memcpy(memory + 1 * Variable.SIZE, var0_data, var0.data_len);
+    memcpy(memory + 1 * Variable.SIZE + var0.data_len, var1, Variable.SIZE);
+    memcpy(memory + 2 * Variable.SIZE + var0.data_len, var1_data, var1.data_len);
+    memcpy(memory + 2 * Variable.SIZE + var0.data_len + var1.data_len, var2, Variable.SIZE);
+    memcpy(memory + 3 * Variable.SIZE + var0.data_len + var1.data_len, var2_data, var2.data_len);
+
+    let actual_memory_len_without_left = Memory.len_without_left_memory(1, memory_len, memory);
+    let expected_memory_len_without_left = 0;
+    assert_eq(actual_memory_len_without_left, expected_memory_len_without_left);
+
+    return ();
+}
