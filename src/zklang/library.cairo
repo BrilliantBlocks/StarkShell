@@ -214,44 +214,68 @@ namespace Memory {
         _var_selector: felt, _memory_len: felt, _memory: felt*
         ) -> (left_memory_len: felt, left_memory: felt*, var_len: felt, var: felt*, right_memory_len: felt, right_memory: felt*) {
         alloc_locals;
-        let memory_len_without_left = len_without_left_memory(_var_selector, _memory_len, _memory);
-        let left_memory_len = _memory_len - memory_len_without_left;
-        let var_len = _memory[left_memory_len + Variable.SIZE] + Variable.SIZE;
-        let right_memory_len = _memory_len - left_memory_len - var_len;
-
         let (local left_memory: felt*) = alloc();
         let (local var: felt*) = alloc();
         let (local right_memory: felt*) = alloc();
 
-        memcpy(left_memory, _memory, left_memory_len);
-        memcpy(var, _memory + left_memory_len + 1, var_len);
-        memcpy(right_memory, _memory + left_memory_len + right_memory_len + 1, right_memory_len);
+        let var_in_memory = is_variable_in_memory(_var_selector, _memory_len, _memory);
 
-        return (left_memory_len, left_memory, var_len, var, right_memory_len, right_memory);
+        if (var_in_memory == TRUE) {
+            let (var_start, var_end) = get_index_of_var_in_memory(_var_selector, 0, _memory);
+            let var_len = var_end - var_start;
+
+            memcpy(left_memory, _memory, var_start);
+            memcpy(var, _memory + var_start, var_len);
+            memcpy(right_memory, _memory + var_end, _memory_len - var_end);
+
+            return (var_start, left_memory, var_len, var, _memory_len - var_end, right_memory);
+        } else {
+            return (0, left_memory, 0, var, 0, right_memory);
+        }
+
     }
 
-    func len_without_left_memory{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_key: felt, _program_len: felt, _program: felt*) -> felt {
-        alloc_locals;
+    func is_variable_in_memory{
+            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+        }(_selector: felt, _memory_len: felt, _memory: felt*) -> felt {
 
-        // No data in memory
-        if (_program_len == 0) {
-            return 0;
+        if (_memory_len == 0) {
+            return FALSE;
         }
 
-        // Variable not in memory
-        if (_program_len == -1) {
-            return 0;
+        if (_memory_len == -1) {
+            return FALSE;
         }
 
-        let remaining_program_len = _program_len - Variable.SIZE - _program[Variable.SIZE - 1];
-        if (_program[Variable.selector] == _key) {
-            return remaining_program_len;
+        if (_memory[Variable.selector] == _selector) {
+            return TRUE;
         }
 
-        return len_without_left_memory(
-            _key = _key,
-            _program_len = remaining_program_len,
-            _program =_program + Variable.SIZE + _program[Variable.SIZE - 1],
+        let total_var_size = Variable.SIZE + _memory[Variable.data_len];
+        return is_variable_in_memory(
+            _selector = _selector,
+            _memory_len = _memory_len -  total_var_size,
+            _memory = _memory + total_var_size,
+        );
+    }
+
+    /// @dev Assume variable to be in memory
+    func get_index_of_var_in_memory{
+            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+        }(_selector: felt, _i: felt, _program: felt*) -> (start: felt, end: felt) {
+        let total_var_size = Variable.SIZE + _program[Variable.data_len];
+
+        if (_program[Variable.selector] == _selector) {
+            return (
+                start = _i,
+                end = _i + total_var_size,
+            );
+        }
+
+        return get_index_of_var_in_memory(
+            _selector = _selector,
+            _i = _i + total_var_size,
+            _program =_program + total_var_size,
         );
     }
 }
