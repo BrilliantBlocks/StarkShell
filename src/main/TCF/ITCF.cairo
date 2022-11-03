@@ -1,6 +1,8 @@
 %lang starknet
 from starkware.cairo.common.uint256 import Uint256
 
+from src.ERC2535.IDiamondCut import FacetCut
+
 @contract_interface
 namespace ITCF {
     func getContractHash() -> (res: felt) {
@@ -9,7 +11,7 @@ namespace ITCF {
     func getProxyTarget() -> (res: felt) {
     }
 
-    func mintContract() -> (res: felt) {
+    func mintContract(_facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*) -> (res: felt) {
     }
 
     func updateMetadata(_tokenId: felt, _type: felt, _data_len: felt, _data: felt*) -> () {

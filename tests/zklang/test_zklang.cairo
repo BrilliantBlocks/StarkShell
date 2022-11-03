@@ -98,15 +98,12 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ stop_prank() %}
 
     // BrilliantBlocks mints a repo diamond
-    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.TCF_address) %}
-    let (repo_address) = ITCF.mintContract(TCF_address);
-    %{ stop_prank() %}
     tempvar facetCut: FacetCut* = cast(new (FacetCut(flob_db_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 1;
     tempvar calldata: felt* = new (0);
     let calldata_len = 1;
-    %{ stop_prank = start_prank(ids.BrilliantBlocks, ids.repo_address) %}
-    IDiamondCut.diamondCut(repo_address, facetCut_len, facetCut, calldata_len, calldata);
+    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.TCF_address) %}
+    let (repo_address) = ITCF.mintContract(TCF_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
     %{ context.repo_address = ids.repo_address %}
 
@@ -161,31 +158,17 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let (program_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.program_hash = ids.program_hash %}
 
-    // User mints a test diamond
+    // User mints a diamond and adds ERC-1155 and ZKlang
+    tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add),FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
+    let facetCut_len = 2;
+    tempvar calldata: felt* = new (6, User, 1, 1, 0, 1, 0, 1, 0);
+    let calldata_len = 9;
+
     %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
-    let (diamond_address) = ITCF.mintContract(TCF_address);
+    let (diamond_address) = ITCF.mintContract(TCF_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add),), FacetCut*);
-    let facetCut_len = 1;
-    tempvar calldata: felt* = new (6, User, 1, 1, 0, 1, 0);
-    let calldata_len = 7;
-
-    // User adds ERC-1155 facet to diamond
-    %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
-    %{ stop_prank() %}
-
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
-    let facetCut_len = 1;
-    tempvar calldata: felt* = new (1, 0);
-    let calldata_len = 2;
-
-    // User adds ZKlang facet to diamond
-    %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
-    %{ stop_prank() %}
     return ();
 }
 

@@ -7,6 +7,7 @@ from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC5114.IERC5114 import IERC5114
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
+from src.constants import NULL
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -18,6 +19,8 @@ const Adversary = 789;
 @external
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
+    let (local NULLptr: felt*) = alloc();
+    let (local FCNULLptr: FacetCut*) = alloc();
     local diamondCut_class_hash;
     local erc5114_class_hash;
     %{  
@@ -62,7 +65,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
     // User mints a test diamond
     %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
-    let (diamond_address) = ITCF.mintContract(TCF_address);
+    let (diamond_address) = ITCF.mintContract(TCF_address, NULL, FCNULLptr, NULL, NULLptr);
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 

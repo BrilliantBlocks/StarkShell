@@ -78,21 +78,17 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     IBFR.registerElements(TCF_address, elements_len, elements);
     %{ stop_prank() %}
 
-    // User mints a test diamond
-    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
-    let (diamond_address) = ITCF.mintContract(TCF_address);
-    %{ stop_prank() %}
-    %{ context.diamond_address = ids.diamond_address %}
-
+    // User mints a diamond with UniversalMetadata
     tempvar facetCut: FacetCut* = cast(new (FacetCut(universalMetadata_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 1;
     tempvar calldata: felt* = new (7, 0, 0, 0, 0, 0, 0, 0,);
     let calldata_len = 8;
 
-    // User adds UniversalMetadata facet to diamond
-    %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
+    let (diamond_address) = ITCF.mintContract(TCF_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
+    %{ context.diamond_address = ids.diamond_address %}
+
     return ();
 }
 

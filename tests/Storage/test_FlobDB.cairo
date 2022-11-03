@@ -80,20 +80,15 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ stop_prank() %}
 
     // User mints a test diamond
-    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
-    let (diamond_address) = ITCF.mintContract(TCF_address);
-    %{ stop_prank() %}
-    %{ context.diamond_address = ids.diamond_address %}
-
     tempvar facetCut: FacetCut* = cast(new (FacetCut(storage_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 1;
     tempvar calldata: felt* = new (0);
     let calldata_len = 1;
-
-    // User adds storage facet to diamond
-    %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
+    let (diamond_address) = ITCF.mintContract(TCF_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
+    %{ context.diamond_address = ids.diamond_address %}
+
     return ();
 }
 

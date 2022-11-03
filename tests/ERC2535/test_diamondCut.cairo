@@ -3,11 +3,11 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from src.constants import NULL
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC2535.IDiamond import IDiamond
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
+from src.constants import NULL
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -19,6 +19,8 @@ const User = 456;
 @external
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
+    let (local NULLptr: felt*) = alloc();
+    let (local FCNULLptr: FacetCut*) = alloc();
     local BFR_address;
     local TCF_address;
     local diamondCut_class_hash;
@@ -61,7 +63,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             ids.User, target_contract_address=context.TCF_address
         )
     %}
-    let (diamond_address) = ITCF.mintContract(TCF_address);
+    let (diamond_address) = ITCF.mintContract(TCF_address, NULL, FCNULLptr, NULL, NULLptr);
     %{ stop_prank_callable() %}
     %{ context.diamond_address = ids.diamond_address %}
     return ();

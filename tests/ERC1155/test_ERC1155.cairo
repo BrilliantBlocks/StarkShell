@@ -61,13 +61,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     IBFR.registerElements(TCF_address, elements_len, elements);
     %{ stop_prank() %}
 
-    // User mints a test diamond
-    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
-    let (diamond_address) = ITCF.mintContract(TCF_address);
-    %{ stop_prank() %}
-    %{ context.diamond_address = ids.diamond_address %}
-
-    // Add ERC1155 facet to diamond
+    // User mints a diamond and adds ERC-1155
     let (local facetCut: FacetCut*) = alloc();
     assert facetCut[0] = FacetCut(erc1155_class_hash, FacetCutAction.Add);
     let facetCut_len = 1;
@@ -80,9 +74,11 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     assert calldata[5] = 1;
     assert calldata[6] = 0;
     let calldata_len = 7;
-    %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
+    let (diamond_address) = ITCF.mintContract(TCF_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
+    %{ context.diamond_address = ids.diamond_address %}
+
     return ();
 }
 

@@ -7,8 +7,10 @@ from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
 from src.constants import IERC721_ID, IERC721_METADATA_ID, IERC165_ID, NULL
+from src.ERC2535.IDiamondCut import IDiamondCut, FacetCut
 from src.ERC5185.library import ERC5185
 from src.ERC721.library import ERC721, ERC721Library
+from src.ERC721.IERC721 import IERC721
 from src.Factory.library import Factory
 from src.Proxy.library import Proxy
 from src.UniversalMetadata.library import UniversalMetadata
@@ -74,15 +76,25 @@ func getContractHash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 /// @emit Transfer
 /// @return Address of the deployed contract
 @external
-func mintContract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
-) {
+func mintContract{
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+    }(_facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*) -> (res: felt) {
     alloc_locals;
+
+    // Deploy diamond with diamondCut
     let (calldata_len, calldata) = _assemble_constructor_calldata();
     let contract_address = Factory._deploy_contract(calldata_len, calldata);
-    let token_id = _compute_token_id(contract_address);
+
+    // Give temporary ownership for configuration to this factory
+    let (root) = get_contract_address();
     let (owner) = get_caller_address();
-    ERC721._mint(owner, token_id);
+    let token_id = _compute_token_id(contract_address);
+    ERC721._mint(root, token_id);
+    IDiamondCut.diamondCut(contract_address, _facetCut_len, _facetCut, _calldata_len, _calldata);
+
+    // Move ownership from factory to actual owner
+    ERC721Library._transfer(root, owner, token_id);
+
     return (res=contract_address);
 }
 

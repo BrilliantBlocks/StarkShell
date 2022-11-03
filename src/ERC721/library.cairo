@@ -183,8 +183,8 @@ namespace ERC721Library {
 
     func _assert_is_owner_or_operator{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_tokenId: Uint256) {
         alloc_locals;
-        let (caller) = get_caller_address();
-        let (owner) = owners_.read(_tokenId);
+        let (local caller: felt) = get_caller_address();
+        let (local owner: felt) = owners_.read(_tokenId);
         if (owner == caller) {
             return ();
         }
@@ -196,7 +196,7 @@ namespace ERC721Library {
         if (is_operator == TRUE) {
             return ();
         }
-        with_attr error_message("UNAUTHORIZED") {
+        with_attr error_message("UNAUTHORIZED: caller = {caller} | owner = {owner}") {
             assert 0 = 1;
         }
         return();
