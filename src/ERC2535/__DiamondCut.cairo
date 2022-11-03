@@ -23,12 +23,10 @@ func __destructor__() -> () {
 @raw_output
 func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (retdata_size=3, retdata=cast(func_selectors, felt*));
+    return (retdata_size=1, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.DIAMONDCUT.diamondCut;
-    dw FUNCTION_SELECTORS.DIAMONDCUT.setAlias;
-    dw FUNCTION_SELECTORS.DIAMONDCUT.setFunctionFee;
 }
 
 /// @dev Define all supported interfaces of this facet

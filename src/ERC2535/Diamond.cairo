@@ -27,12 +27,10 @@ func __default__{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
     alloc_locals;
-    let normalized_selector = Diamond._getAlias(selector);
-    let (facet: felt) = facetAddress(normalized_selector);
+    let (facet: felt) = facetAddress(selector);
     let (retdata_size: felt, retdata: felt*) = library_call(
-        class_hash=facet, function_selector=normalized_selector, calldata_size=calldata_size, calldata=calldata
+        class_hash=facet, function_selector=selector, calldata_size=calldata_size, calldata=calldata
     );
-    Diamond._charge_fee();
     return (retdata_size, retdata);
 }
 

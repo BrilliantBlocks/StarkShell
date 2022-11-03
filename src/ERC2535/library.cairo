@@ -21,7 +21,7 @@ from src.constants import (
     FUNCTION_SELECTORS,
     NULL,
 )
-from src.ERC2535.IDiamondCut import Fee, FacetCut, FacetCutAction, SetAlias, SetFunctionFee
+from src.ERC2535.IDiamondCut import Fee, FacetCut, FacetCutAction
 from src.ERC721.IERC721 import IERC721
 from src.BFR.IBFR import IBFR
 
@@ -36,15 +36,6 @@ func root_() -> (res: felt) {
 /// @return Bitmap
 @storage_var
 func facet_key_() -> (res: felt) {
-}
-
-/// @return Assigned selector
-@storage_var
-func alias_(alias_selector: felt) -> (res: felt) {
-}
-
-@storage_var
-func function_fee_(chargee: felt) -> (res: Fee) {
 }
 
 namespace Diamond {
@@ -333,40 +324,6 @@ namespace Diamond {
             calldata=calldata,
         );
         return r[0];
-    }
-
-    func _setAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _alias: felt, _alias_selector: felt, _assigned_selector
-    ) {
-        //Assert.selector_exists(_assigned_selector);
-        alias_.write(_alias_selector, _assigned_selector);
-        SetAlias.emit(_alias, _alias_selector, _assigned_selector);
-        return ();
-    }
-
-    func _getAlias{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _selector: felt
-    ) -> felt {
-        let (alias) = alias_.read(_selector);
-        if (alias == 0) {
-            return _selector;
-        } else {
-            return alias;
-        }
-    }
-
-    func _setFunctionFee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _chargee: felt, _charger: felt, _amount: felt, _erc20_contract: felt
-    ) {
-        Assert.selector_exists(_chargee);
-        function_fee_.write(_chargee, Fee(_charger, _amount, _erc20_contract));
-        SetFunctionFee.emit(_chargee, _charger, _amount, _erc20_contract);
-        return ();
-    }
-
-    func _charge_fee{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-        // TODO zk-sudo erc-20
-        return ();
     }
 
     namespace Assert {
