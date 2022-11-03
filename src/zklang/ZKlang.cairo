@@ -63,7 +63,7 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         );
     }
 
-    let (new_memory_len, new_memory) = Memory.update_variable(instruction.output, _memory_len, _memory, res_len, res);
+    let (new_memory_len, new_memory) = Memory.update_variable(instruction.output.selector, _memory_len, _memory, res_len, res);
 
     return exec_loop(
         _pc = _pc + 1,

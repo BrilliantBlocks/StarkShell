@@ -191,10 +191,10 @@ namespace Memory {
 
     func update_variable{
         syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }(_var: Variable, _memory_len: felt, _memory: felt*, _payload_len: felt, _payload: felt*) -> (new_memory_len: felt, new_memory: felt*) {
+    }(_var_selector: felt, _memory_len: felt, _memory: felt*, _payload_len: felt, _payload: felt*) -> (new_memory_len: felt, new_memory: felt*) {
         alloc_locals;
 
-        let (l_len, l, v_len, v, r_len, r) = _split_memory(_var.selector, _memory_len, _memory);
+        let (l_len, l, v_len, v, r_len, r) = _split_memory(_var_selector, _memory_len, _memory);
 
         with_attr error_message("CONSTS ARE IMMUTABLE") {
             assert v[Variable.protected] = FALSE;
@@ -202,7 +202,8 @@ namespace Memory {
 
         let (local new_memory: felt*) = alloc();
         memcpy(new_memory, l, l_len);
-        memcpy(new_memory + l_len, v, Variable.SIZE);
+        memcpy(new_memory + l_len, v, Variable.SIZE - 1);
+        memcpy(new_memory + l_len + Variable.SIZE - 1, new (_payload_len), 1);
         memcpy(new_memory + l_len + Variable.SIZE, _payload, _payload_len);
         memcpy(new_memory + l_len + Variable.SIZE + _payload_len, r, r_len);
         let new_memory_len = l_len + Variable.SIZE + _payload_len + r_len;
