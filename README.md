@@ -36,5 +36,9 @@ Facets require three functions:
 - [ ] NatSpec comments
 - [ ] Enforce consistency
 - [ ] CI
-- [ ] Create dedicated repository for constants
+- [ ] CONTRIBUTE.md
 - [ ] Test suite
+- [ ] Remove redundant facets
+- [ ] Add zklang interfaces
+- [ ] Purify and test code
+- [ ] Collect interfaces and constants at a single entrypoint
