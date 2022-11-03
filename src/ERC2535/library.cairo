@@ -210,8 +210,11 @@ namespace Diamond {
     }
 
     func _get_root_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
+        alloc_locals;
         let (root) = root_.read();
-        return root;
+        let (self) = get_contract_address();
+        let normalized_root = Library._if_x_is_zero_then_y_else_x(root, self);
+        return normalized_root;
     }
 
     func _set_root_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_root: felt) {
