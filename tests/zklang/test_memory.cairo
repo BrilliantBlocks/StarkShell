@@ -281,6 +281,106 @@ func test_is_variable_in_memory_returns_false_on_empty_memory{
     );
 
     assert_eq(actual_is_var_in_memory, FALSE);
+
+    return ();
+}
+
+@external
+func test_get_index_of_var_in_memory{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    tempvar var0 = new Variable(
+        selector = 3,
+        protected = FALSE,
+        type = DataTypes.FELT,
+        data_len = 5,
+            );
+    tempvar var0_data = new (4, 3, 2, 1, 0);
+
+    tempvar var1 = new Variable(
+        selector = 6,
+        protected = FALSE,
+        type = DataTypes.BOOL,
+        data_len = 1,
+            );
+    tempvar var1_data = new (TRUE);
+
+    tempvar var2 = new Variable(
+        selector = 0,
+        protected = TRUE,
+        type = DataTypes.BOOL,
+        data_len = 3,
+            );
+    tempvar var2_data = new (TRUE, FALSE, TRUE);
+
+    tempvar var3 = new Variable(
+        selector = 7,
+        protected = TRUE,
+        type = DataTypes.BOOL,
+        data_len = 2,
+            );
+    tempvar var3_data = new (TRUE, FALSE);
+
+    let (local memory: felt*) = alloc();
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+
+    // Copy first variable
+    memcpy(memory, var0, Variable.SIZE);
+    memcpy(memory + Variable.SIZE, var0_data, var0.data_len);
+
+    // Copy second variable
+    let offset = Variable.SIZE + var0.data_len;
+    memcpy(memory + offset, var1, Variable.SIZE);
+    memcpy(memory + offset + Variable.SIZE, var1_data, var1.data_len);
+
+    // Copy third variable
+    let offset = offset + Variable.SIZE + var1.data_len;
+    memcpy(memory + offset, var2, Variable.SIZE);
+    memcpy(memory + offset + Variable.SIZE, var2_data, var2.data_len);
+
+    // Copy fourth variable
+    let offset = offset + Variable.SIZE + var2.data_len;
+    memcpy(memory + offset, var3, Variable.SIZE);
+    memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
+
+    let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
+       _selector = var0.selector,
+       _i = 0,
+       _memory = memory,
+    );
+
+    assert_eq(actual_var_start, 0);
+    assert_eq(actual_var_end, 9);
+
+    let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
+       _selector = var1.selector,
+       _i = 0,
+       _memory = memory,
+    );
+
+    assert_eq(actual_var_start, 9);
+    assert_eq(actual_var_end, 14);
+
+    let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
+       _selector = var2.selector,
+       _i = 0,
+       _memory = memory,
+    );
+
+    assert_eq(actual_var_start, 14);
+    assert_eq(actual_var_end, 21);
+
+    let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
+       _selector = var3.selector,
+       _i = 0,
+       _memory = memory,
+    );
+
+    assert_eq(actual_var_start, 21);
+    assert_eq(actual_var_end, 27);
+
     return ();
 }
 

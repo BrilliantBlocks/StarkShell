@@ -262,10 +262,10 @@ namespace Memory {
     /// @dev Assume variable to be in memory
     func get_index_of_var_in_memory{
             syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-        }(_selector: felt, _i: felt, _program: felt*) -> (start: felt, end: felt) {
-        let total_var_size = Variable.SIZE + _program[Variable.data_len];
+        }(_selector: felt, _i: felt, _memory: felt*) -> (start: felt, end: felt) {
+        let total_var_size = Variable.SIZE + _memory[Variable.data_len];
 
-        if (_program[Variable.selector] == _selector) {
+        if (_memory[Variable.selector] == _selector) {
             return (
                 start = _i,
                 end = _i + total_var_size,
@@ -275,7 +275,7 @@ namespace Memory {
         return get_index_of_var_in_memory(
             _selector = _selector,
             _i = _i + total_var_size,
-            _program =_program + total_var_size,
+            _memory =_memory + total_var_size,
         );
     }
 }
