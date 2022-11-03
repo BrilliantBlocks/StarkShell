@@ -174,9 +174,9 @@ namespace Memory {
     func load_variable_payload{
         syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }(
-        _var: Variable, _memory_len: felt, _memory: felt*
+        _var_selector: felt, _memory_len: felt, _memory: felt*
         ) -> (payload_len: felt, payload: felt*) {
-        let (var_len, var) = load_variable(_var.selector, _memory_len, _memory);
+        let (var_len, var) = load_variable(_var_selector, _memory_len, _memory);
 
         return (payload_len = var_len - Variable.SIZE,
                 payload = var + Variable.SIZE);

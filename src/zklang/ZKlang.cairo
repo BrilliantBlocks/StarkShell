@@ -45,7 +45,7 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     alloc_locals;
 
     let instruction = Program.get_instruction(_pc, _program_len, _program);
-    let (calldata_len, calldata) = Memory.load_variable_payload(instruction.input, _memory_len, _memory);
+    let (calldata_len, calldata) = Memory.load_variable_payload(instruction.input.selector, _memory_len, _memory);
     let (res_len, res) = Program.execute_primitive(instruction.primitive, calldata_len, calldata);
 
     if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
