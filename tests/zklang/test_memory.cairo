@@ -602,3 +602,109 @@ func test_split_memory_split_at_a_middle_variable{
 
     return ();
 }
+
+@external
+func test_load_variable{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    tempvar var0 = new Variable(
+        selector = 3,
+        protected = FALSE,
+        type = DataTypes.FELT,
+        data_len = 5,
+            );
+    tempvar var0_data = new (4, 3, 2, 1, 0);
+
+    tempvar var1 = new Variable(
+        selector = 6,
+        protected = FALSE,
+        type = DataTypes.BOOL,
+        data_len = 1,
+            );
+    tempvar var1_data = new (TRUE);
+
+    tempvar var2 = new Variable(
+        selector = 0,
+        protected = TRUE,
+        type = DataTypes.BOOL,
+        data_len = 3,
+            );
+    tempvar var2_data = new (TRUE, FALSE, TRUE);
+
+    tempvar var3 = new Variable(
+        selector = 7,
+        protected = TRUE,
+        type = DataTypes.BOOL,
+        data_len = 2,
+            );
+    tempvar var3_data = new (TRUE, FALSE);
+
+    let (local memory: felt*) = alloc();
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+
+    // Copy first variable
+    memcpy(memory, var0, Variable.SIZE);
+    memcpy(memory + Variable.SIZE, var0_data, var0.data_len);
+
+    // Copy second variable
+    let offset = Variable.SIZE + var0.data_len;
+    memcpy(memory + offset, var1, Variable.SIZE);
+    memcpy(memory + offset + Variable.SIZE, var1_data, var1.data_len);
+
+    // Copy third variable
+    let offset = offset + Variable.SIZE + var1.data_len;
+    memcpy(memory + offset, var2, Variable.SIZE);
+    memcpy(memory + offset + Variable.SIZE, var2_data, var2.data_len);
+
+    // Copy fourth variable
+    let offset = offset + Variable.SIZE + var2.data_len;
+    memcpy(memory + offset, var3, Variable.SIZE);
+    memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
+
+    let (var_len, var) = Memory.load_variable(var0.selector, memory_len, memory);
+
+    assert_eq(var_len, Variable.SIZE + var0.data_len);
+    assert_eq(var[Variable.selector], var0.selector);
+    assert_eq(var[Variable.protected], var0.protected);
+    assert_eq(var[Variable.type], var0.type);
+    assert_eq(var[Variable.data_len], var0.data_len);
+    assert_eq(var[Variable.SIZE + 0], 4);
+    assert_eq(var[Variable.SIZE + 1], 3);
+    assert_eq(var[Variable.SIZE + 2], 2);
+    assert_eq(var[Variable.SIZE + 3], 1);
+    assert_eq(var[Variable.SIZE + 4], 0);
+
+    let (var_len, var) = Memory.load_variable(var1.selector, memory_len, memory);
+
+    assert_eq(var_len, Variable.SIZE + var1.data_len);
+    assert_eq(var[Variable.selector], var1.selector);
+    assert_eq(var[Variable.protected], var1.protected);
+    assert_eq(var[Variable.type], var1.type);
+    assert_eq(var[Variable.data_len], var1.data_len);
+    assert_eq(var[Variable.SIZE + 0], TRUE);
+
+    let (var_len, var) = Memory.load_variable(var2.selector, memory_len, memory);
+
+    assert_eq(var_len, Variable.SIZE + var2.data_len);
+    assert_eq(var[Variable.selector], var2.selector);
+    assert_eq(var[Variable.protected], var2.protected);
+    assert_eq(var[Variable.type], var2.type);
+    assert_eq(var[Variable.data_len], var2.data_len);
+    assert_eq(var[Variable.SIZE + 0], TRUE);
+    assert_eq(var[Variable.SIZE + 1], FALSE);
+    assert_eq(var[Variable.SIZE + 2], TRUE);
+
+    let (var_len, var) = Memory.load_variable(var3.selector, memory_len, memory);
+
+    assert_eq(var_len, Variable.SIZE + var3.data_len);
+    assert_eq(var[Variable.selector], var3.selector);
+    assert_eq(var[Variable.protected], var3.protected);
+    assert_eq(var[Variable.type], var3.type);
+    assert_eq(var[Variable.data_len], var3.data_len);
+    assert_eq(var[Variable.SIZE + 0], TRUE);
+    assert_eq(var[Variable.SIZE + 1], FALSE);
+
+    return ();
+}
