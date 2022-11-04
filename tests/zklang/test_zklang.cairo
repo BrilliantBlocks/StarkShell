@@ -164,13 +164,19 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 }
 
 @contract_interface
-namespace ITestZKL {
+namespace ITestZKLtuple {
     func returnCalldata(x: felt, y: felt) -> (x_res: felt, y_res: felt) {
     }
 }
 
+@contract_interface
+namespace ITestZKLarray {
+    func returnCalldata(x_len: felt, x: felt*) -> (res_len: felt, res: felt*) {
+    }
+}
+
 @external
-func test_{
+func test_returnCalldata_tuple{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
@@ -180,18 +186,27 @@ func test_{
     let (x) = IDiamond.facetAddress(setup.diamond_address, setup.fun_selector_returnCalldata);
     assert_eq(x, setup.zklang_class_hash);
 
-    // // program has expected format
-    // let (program_len, program) = IFlobDB.load(setup.repo_address, setup.program_hash);
-    // // assert_eq(program_len, 10);
-    // // assert_eq(program[0], 5);
-    // // assert_eq(program[program[0]+1], 3);
-    // assert_eq(program_len, 14);
-    // assert_eq(program[0], 6);
-    // assert_eq(program[program[0] + 1], 6);
-
-    let (x_res, y_res) = ITestZKL.returnCalldata(setup.diamond_address, 1, 2);
+    let (x_res, y_res) = ITestZKLtuple.returnCalldata(setup.diamond_address, 1, 2);
     assert_eq(x_res, 1);
-    assert_eq(x_res, 2);
+    assert_eq(y_res, 2);
+
+    return ();
+}
+
+@external
+func test_returnCalldata_array{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+
+    tempvar x: felt* = new (1, 2);
+    let x_len = 2;
+
+    let (actual_res_len, actual_res) = ITestZKLarray.returnCalldata(setup.diamond_address, x_len, x);
+    assert_eq(actual_res_len, 2);
+    assert_eq(actual_res[0], 1);
+    assert_eq(actual_res[1], 2);
 
     return ();
 }

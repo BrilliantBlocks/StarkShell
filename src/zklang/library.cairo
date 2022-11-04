@@ -89,14 +89,17 @@ namespace Program {
         syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     }(_selector: felt, _program_raw_len: felt, _program_raw: felt*) -> (program_len: felt, program: felt*) {
         alloc_locals;
-        validate(_program_raw_len, _program_raw);
+        validate(_program_raw[0], _program_raw + 1);
+        // validate(_program_raw_len, _program_raw);
 
         let (this_diamond) = get_contract_address();
         let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
 
         let (local program: felt*) = alloc();
         let program_len = _program_raw_len;
-        replace_zero_class_hashes_with_self(program, this_zklang, _program_raw_len, _program_raw);
+
+        replace_zero_class_hashes_with_self(program, this_zklang, _program_raw[0], _program_raw + 1);
+        // replace_zero_class_hashes_with_self(program, this_zklang, _program_raw_len, _program_raw);
 
         return (program_len, program);
     }
@@ -111,10 +114,16 @@ namespace Program {
             return ();
         }
         let instruction = cast(_program, Instruction*);
-        with_attr error_message("CORRUPT CODE") {
+        with_attr error_message("CORRUPT CODE input.protected") {
             assert (instruction.input.protected - 1) * instruction.input.protected = 0;
+        }
+        with_attr error_message("CORRUPT CODE output.protected") {
             assert (instruction.output.protected - 1) * instruction.output.protected = 0;
+        }
+        with_attr error_message("CORRUPT CODE input.type") {
             assert (instruction.input.type - 1) * instruction.input.type = 0;
+        }
+        with_attr error_message("CORRUPT CODE output.type") {
             assert (instruction.output.type - 1) * instruction.output.type = 0;
         }
 
