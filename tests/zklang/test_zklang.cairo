@@ -10,11 +10,13 @@ from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 from src.Storage.IFlobDB import IFlobDB
 from src.zklang.IZKlang import IZKlang
+from src.zklang.library import Function, Instruction, Primitive, Variable
 
 from protostar.asserts import assert_eq
 
 const BrilliantBlocks = 123;
-const User = 456;
+const User1 = 456;
+const User2 = 789;
 
 struct Setup {
     diamond_address: felt,
@@ -22,6 +24,7 @@ struct Setup {
     erc1155_class_hash: felt,
     program_hash: felt,
     zklang_class_hash: felt,
+    fun_selector_returnCalldata: felt,
 }
 
 func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> Setup {
@@ -36,6 +39,8 @@ func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}()
     %{ ids.program_hash = context.program_hash %}
     local zklang_class_hash;
     %{ ids.zklang_class_hash = context.zklang_class_hash %}
+    local fun_selector_returnCalldata;
+    %{ ids.fun_selector_returnCalldata = context.fun_selector_returnCalldata %}
 
     local setup: Setup = Setup(
         diamond_address,
@@ -43,6 +48,7 @@ func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}()
         erc1155_class_hash,
         program_hash,
         zklang_class_hash,
+        fun_selector_returnCalldata,
         );
     return setup;
 }
@@ -93,9 +99,14 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     // BrilliantBlocks populates facet registry
     tempvar elements: felt* = new (diamondCut_class_hash, erc1155_class_hash, zklang_class_hash, flob_db_class_hash);
     let elements_len = 4;
-    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
+    %{
+        stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address)
+    %}
+
     IBFR.registerElements(TCF_address, elements_len, elements);
-    %{ stop_prank() %}
+    %{
+        stop_prank()
+    %}
 
     // BrilliantBlocks mints a repo diamond
     tempvar facetCut: FacetCut* = cast(new (FacetCut(flob_db_class_hash, FacetCutAction.Add),), FacetCut*);
@@ -108,63 +119,43 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ context.repo_address = ids.repo_address %}
 
     // BrilliantBlocks stores diamondAdd in repo
-    local add_keyword;
     local return_keyword;
-    local var_keyword;
-    local var1_identifier;
+    local var0_identifier;
+    local fun_selector_returnCalldata;
     %{
         from starkware.starknet.public.abi import get_selector_from_name
-        ids.add_keyword = get_selector_from_name("__ZKLANG__ADD")
         ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
-        ids.var_keyword = get_selector_from_name("__ZKLANG__SET_VAR")
-        ids.var1_identifier = get_selector_from_name("var1")
+        ids.var0_identifier = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
+        context.fun_selector_returnCalldata = get_selector_from_name("returnCalldata")
+        ids.fun_selector_returnCalldata = context.fun_selector_returnCalldata
     %}
 
-    // Diamond.add(7, 8);
-    // tempvar felt_code: felt* = new (
-    //     // var foo = x + y
-    //     10,
-    //     5, // instruction_len
-    //     0, // zklang core
-    //     var_keyword,
-    //     7, // var1_identifier,
-    //     add_keyword,
-    //     0, // input is calldata
-
-    //     // return foo
-    //     3, // instruction_len
-    //     0, // zklang core
-    //     return_keyword,
-    //     var1_identifier,
-    // );
-    tempvar felt_code: felt* = new (
-        14,
-        6,
-        0,
-        var1_identifier,
-        0,
-        add_keyword,
-        1,
-        0,
-        6,
-        2,
-        0,
-        0,
-        return_keyword,
-        0,
-        var1_identifier,
+    tempvar NULLvar = Variable(0, 0, 0, 0);
+    // tempvar NULLvar: Variable* = new Variable(0, 0, 0, 0);
+    // TODO Optimize for storage, no total count (primitive first, then vars)
+    // Diamond.returnCalldata(calldata_len, calldata);
+    tempvar instruction0 = Instruction(
+        Primitive(0, return_keyword),
+        Variable(var0_identifier, 0, 0, 0),
+        NULLvar,
         );
-    let felt_code_len = 15;
+    tempvar felt_code: felt* = new (
+        1 * (Instruction.SIZE + 1),
+        Instruction.SIZE,
+        instruction0,
+    );
+    let felt_code_len = felt_code[0] + 1;
+
     let (program_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.program_hash = ids.program_hash %}
 
-    // User mints a diamond and adds ERC-1155 and ZKlang
+    // User1 mints a diamond and adds ERC-1155 and ZKlang
     tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add),FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 2;
-    tempvar calldata: felt* = new (6, User, 1, 1, 0, 1, 0, 1, 0);
-    let calldata_len = 9;
+    tempvar calldata: felt* = new (6, User1, 1, 1, 0, 1, 0, 4, 1, Function(fun_selector_returnCalldata, program_hash, repo_address));
+    let calldata_len = 12;
 
-    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
+    %{ stop_prank = start_prank(ids.User1, context.TCF_address) %}
     let (diamond_address) = ITCF.mintContract(TCF_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
@@ -173,30 +164,21 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 }
 
 @contract_interface
-namespace IDiamondCalc {
-    func diamondAdd(x: felt, y: felt) -> (res: felt) {
+namespace ITestZKL {
+    func returnCalldata(x: felt, y: felt) -> (x_res: felt, y_res: felt) {
     }
 }
 
 @external
-func test_deploy_zklang_function{
+func test_{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
     let setup = getSetup();
-    local my_func_selector;
-    %{
-        from starkware.starknet.public.abi import get_selector_from_name
-        ids.my_func_selector = get_selector_from_name("diamondAdd")
-    %}
 
-    // IZKlang.deployFunction(
-    //     setup.diamond_address, my_func_selector, setup.program_hash, setup.repo_address
-    // );
-
-    // // diamondAdd is recognized as public function
-    // let (x) = IDiamond.facetAddress(setup.diamond_address, my_func_selector);
-    // assert_eq(x, setup.zklang_class_hash);
+    // returnCalldata is recognized as public function
+    let (x) = IDiamond.facetAddress(setup.diamond_address, setup.fun_selector_returnCalldata);
+    assert_eq(x, setup.zklang_class_hash);
 
     // // program has expected format
     // let (program_len, program) = IFlobDB.load(setup.repo_address, setup.program_hash);
@@ -207,8 +189,9 @@ func test_deploy_zklang_function{
     // assert_eq(program[0], 6);
     // assert_eq(program[program[0] + 1], 6);
 
-    // let (res) = IDiamondCalc.diamondAdd(setup.diamond_address, 7, 9);
-    // assert_eq(res, 16);
+    let (x_res, y_res) = ITestZKL.returnCalldata(setup.diamond_address, 1, 2);
+    assert_eq(x_res, 1);
+    assert_eq(x_res, 2);
 
     return ();
 }

@@ -163,7 +163,7 @@ namespace Diamond {
             } else {
                 assert facetCutCalldata_len = _calldata[0];
                 with_attr error_message("INVALID CALLDATA FORMAT") {
-                    memcpy(dst=facetCutCalldata, src=_calldata + 1, len=facetCutCalldata_len);
+                    memcpy(dst=facetCutCalldata, src=_calldata + 1, len=_calldata_len - 1);
                 }
             }
         }
