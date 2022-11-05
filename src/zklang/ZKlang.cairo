@@ -3,6 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.registers import get_label_location
+from src.ERC2535.library import Diamond
 
 from src.constants import API, FUNCTION_SELECTORS
 from src.Storage.IFlobDB import IFlobDB
@@ -135,6 +136,16 @@ func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
     return ();
 }
 
+@external
+func __ZKLANG__ASSERT_ONLY_OWNER{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _calldata_len: felt, _calldata: felt*,
+) -> () {
+    assert _calldata_len = 0;
+    Diamond.Assert.only_owner();
+
+    return ();
+}
+
 // ===============
 // Facet Detection
 // ===============
@@ -161,7 +172,7 @@ func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() 
     retdata_size: felt, retdata: felt*
 ) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (retdata_size=5, retdata=cast(func_selectors, felt*));
+    return (retdata_size=6, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw API.CORE.__ZKLANG__RETURN;
@@ -170,6 +181,7 @@ func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() 
     dw API.CORE.__ZKLANG__REVERT;
     dw API.CORE.__ZKLANG__SET_FUNCTION;
     dw API.CORE.__ZKLANG__EXEC;
+    dw API.CORE.__ZKLANG__ASSERT_ONLY_OWNER;
 }
 
 // / @return Array of registered zklang functions

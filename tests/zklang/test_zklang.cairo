@@ -225,7 +225,9 @@ func test_setZKLangFun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
     tempvar x: Function = Function(setup.fun_selector_foo, setup.program_hash, setup.repo_address);
 
+    %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     ITestZKLangFun.setZKLangFun(setup.diamond_address, x);
+    %{ stop_prank() %}
 
     // New zkl function is recognized as public function
     let (facet_hash) = IDiamond.facetAddress(setup.diamond_address, setup.fun_selector_foo);
@@ -234,6 +236,23 @@ func test_setZKLangFun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
     let (x_res, y_res) = ITestZKLangFun.foo(setup.diamond_address, 3, 4);
     assert_eq(x_res, 3);
     assert_eq(y_res, 4);
+
+    return ();
+}
+
+@external
+func test_setZKLangFun_reverts_if_caller_not_owner{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+
+    tempvar x: Function = Function(setup.fun_selector_foo, setup.program_hash, setup.repo_address);
+
+    %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
+    %{ expect_revert(error_message="NOT AUTHORIZED") %}
+    ITestZKLangFun.setZKLangFun(setup.diamond_address, x);
+    %{ stop_prank() %}
 
     return ();
 }
