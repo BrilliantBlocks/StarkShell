@@ -9,7 +9,6 @@ from src.zklang.library import DataTypes, Memory, Variable
 
 from protostar.asserts import assert_eq
 
-
 @external
 func test_init_memory_on_empty_calldata{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
@@ -42,11 +41,11 @@ func test_init_memory_on_non_single_width_calldata{
     let _calldata_len = 1;
 
     tempvar var_metadata = new Variable(
-        selector = API.CORE.__ZKLANG__CALLDATA_VAR,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = _calldata_len
-    );
+        selector=API.CORE.__ZKLANG__CALLDATA_VAR,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=_calldata_len
+        );
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = Variable.SIZE + _calldata_len;
     memcpy(expected_memory, cast(var_metadata, felt*), Variable.SIZE);
@@ -73,11 +72,11 @@ func test_init_memory_on_calldata_with_five_elements{
     let _calldata_len = 5;
 
     tempvar var_metadata = new Variable(
-        selector = API.CORE.__ZKLANG__CALLDATA_VAR,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = _calldata_len
-    );
+        selector=API.CORE.__ZKLANG__CALLDATA_VAR,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=_calldata_len
+        );
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = Variable.SIZE + _calldata_len;
     memcpy(expected_memory, cast(var_metadata, felt*), Variable.SIZE);
@@ -106,35 +105,35 @@ func test_is_variable_in_memory_returns_true_if_var_in_memory{
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -158,35 +157,27 @@ func test_is_variable_in_memory_returns_true_if_var_in_memory{
     let offset = offset + Variable.SIZE + var2.data_len;
     memcpy(memory + offset, var3, Variable.SIZE);
     memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
-    
+
     let actual_is_var_in_memory = Memory.is_variable_in_memory(
-        _selector = var0.selector,
-        _memory_len = memory_len,
-        _memory = memory,
+        _selector=var0.selector, _memory_len=memory_len, _memory=memory
     );
 
     assert_eq(actual_is_var_in_memory, TRUE);
 
     let actual_is_var_in_memory = Memory.is_variable_in_memory(
-        _selector = var1.selector,
-        _memory_len = memory_len,
-        _memory = memory,
+        _selector=var1.selector, _memory_len=memory_len, _memory=memory
     );
 
     assert_eq(actual_is_var_in_memory, TRUE);
 
     let actual_is_var_in_memory = Memory.is_variable_in_memory(
-        _selector = var2.selector,
-        _memory_len = memory_len,
-        _memory = memory,
+        _selector=var2.selector, _memory_len=memory_len, _memory=memory
     );
 
     assert_eq(actual_is_var_in_memory, TRUE);
 
     let actual_is_var_in_memory = Memory.is_variable_in_memory(
-        _selector = var3.selector,
-        _memory_len = memory_len,
-        _memory = memory,
+        _selector=var3.selector, _memory_len=memory_len, _memory=memory
     );
 
     assert_eq(actual_is_var_in_memory, TRUE);
@@ -201,35 +192,35 @@ func test_is_variable_in_memory_returns_false_if_var_not_in_non_empty_memory{
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -255,9 +246,7 @@ func test_is_variable_in_memory_returns_false_if_var_not_in_non_empty_memory{
     memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
 
     let actual_is_var_in_memory = Memory.is_variable_in_memory(
-        _selector = 77,
-        _memory_len = memory_len,
-        _memory = memory,
+        _selector=77, _memory_len=memory_len, _memory=memory
     );
 
     assert_eq(actual_is_var_in_memory, FALSE);
@@ -275,9 +264,7 @@ func test_is_variable_in_memory_returns_false_on_empty_memory{
     let memory_len = 0;
 
     let actual_is_var_in_memory = Memory.is_variable_in_memory(
-        _selector = 3,
-        _memory_len = memory_len,
-        _memory = memory,
+        _selector=3, _memory_len=memory_len, _memory=memory
     );
 
     assert_eq(actual_is_var_in_memory, FALSE);
@@ -292,35 +279,35 @@ func test_get_index_of_var_in_memory{
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -346,36 +333,28 @@ func test_get_index_of_var_in_memory{
     memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
 
     let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
-       _selector = var0.selector,
-       _i = 0,
-       _memory = memory,
+        _selector=var0.selector, _i=0, _memory=memory
     );
 
     assert_eq(actual_var_start, 0);
     assert_eq(actual_var_end, 9);
 
     let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
-       _selector = var1.selector,
-       _i = 0,
-       _memory = memory,
+        _selector=var1.selector, _i=0, _memory=memory
     );
 
     assert_eq(actual_var_start, 9);
     assert_eq(actual_var_end, 14);
 
     let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
-       _selector = var2.selector,
-       _i = 0,
-       _memory = memory,
+        _selector=var2.selector, _i=0, _memory=memory
     );
 
     assert_eq(actual_var_start, 14);
     assert_eq(actual_var_end, 21);
 
     let (actual_var_start, actual_var_end) = Memory.get_index_of_var_in_memory(
-       _selector = var3.selector,
-       _i = 0,
-       _memory = memory,
+        _selector=var3.selector, _i=0, _memory=memory
     );
 
     assert_eq(actual_var_start, 21);
@@ -391,35 +370,35 @@ func test_split_memory_split_at_first_variable{
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -443,11 +422,11 @@ func test_split_memory_split_at_first_variable{
     let offset = offset + Variable.SIZE + var2.data_len;
     memcpy(memory + offset, var3, Variable.SIZE);
     memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
-    
+
     let (l_len, l, v_len, v, r_len, r) = Memory._split_memory(3, memory_len, memory);
-    
+
     assert_eq(l_len, 0);
-    assert_eq(r_len, 3*Variable.SIZE + var1.data_len + var2.data_len + var3.data_len);
+    assert_eq(r_len, 3 * Variable.SIZE + var1.data_len + var2.data_len + var3.data_len);
     assert_eq(v_len, Variable.SIZE + var0.data_len);
     assert_eq(v[Variable.selector], var0.selector);
     assert_eq(v[Variable.protected], var0.protected);
@@ -464,35 +443,35 @@ func test_split_memory_split_at_last_variable{
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -516,10 +495,10 @@ func test_split_memory_split_at_last_variable{
     let offset = offset + Variable.SIZE + var2.data_len;
     memcpy(memory + offset, var3, Variable.SIZE);
     memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
-    
+
     let (l_len, l, v_len, v, r_len, r) = Memory._split_memory(var3.selector, memory_len, memory);
-    
-    assert_eq(l_len, 3*Variable.SIZE + var0.data_len + var1.data_len + var2.data_len);
+
+    assert_eq(l_len, 3 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len);
     assert_eq(r_len, 0);
     assert_eq(v_len, Variable.SIZE + var3.data_len);
     assert_eq(v[Variable.selector], var3.selector);
@@ -537,35 +516,35 @@ func test_split_memory_split_at_a_middle_variable{
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -589,10 +568,10 @@ func test_split_memory_split_at_a_middle_variable{
     let offset = offset + Variable.SIZE + var2.data_len;
     memcpy(memory + offset, var3, Variable.SIZE);
     memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
-    
+
     let (l_len, l, v_len, v, r_len, r) = Memory._split_memory(var2.selector, memory_len, memory);
-    
-    assert_eq(l_len, 2*Variable.SIZE + var0.data_len + var1.data_len);
+
+    assert_eq(l_len, 2 * Variable.SIZE + var0.data_len + var1.data_len);
     assert_eq(r_len, Variable.SIZE + var3.data_len);
     assert_eq(v_len, Variable.SIZE + var2.data_len);
     assert_eq(v[Variable.selector], var2.selector);
@@ -604,41 +583,39 @@ func test_split_memory_split_at_a_middle_variable{
 }
 
 @external
-func test_load_variable{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}() {
+func test_load_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -710,41 +687,39 @@ func test_load_variable{
 }
 
 @external
-func test_load_variable_payload{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}() {
+func test_load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=1,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -771,70 +746,72 @@ func test_load_variable_payload{
 
     let (var_len, var) = Memory.load_variable_payload(var0.selector, memory_len, memory);
 
-    assert_eq(var_len, var0.data_len);
-    assert_eq(var[0], 4);
-    assert_eq(var[1], 3);
-    assert_eq(var[2], 2);
-    assert_eq(var[3], 1);
-    assert_eq(var[4], 0);
+    assert_eq(var_len, var0.data_len + 1);
+    assert_eq(var[0], var0.data_len);
+    assert_eq(var[1], 4);
+    assert_eq(var[2], 3);
+    assert_eq(var[3], 2);
+    assert_eq(var[4], 1);
+    assert_eq(var[5], 0);
 
     let (var_len, var) = Memory.load_variable_payload(var1.selector, memory_len, memory);
 
-    assert_eq(var_len, var1.data_len);
-    assert_eq(var[0], TRUE);
+    assert_eq(var_len, var1.data_len + 1);
+    assert_eq(var[0], var1.data_len);
+    assert_eq(var[1], TRUE);
 
     let (var_len, var) = Memory.load_variable_payload(var2.selector, memory_len, memory);
 
-    assert_eq(var_len, var2.data_len);
-    assert_eq(var[0], TRUE);
-    assert_eq(var[1], FALSE);
-    assert_eq(var[2], TRUE);
+    assert_eq(var_len, var2.data_len + 1);
+    assert_eq(var[0], var2.data_len);
+    assert_eq(var[1], TRUE);
+    assert_eq(var[2], FALSE);
+    assert_eq(var[3], TRUE);
 
     let (var_len, var) = Memory.load_variable_payload(var3.selector, memory_len, memory);
 
-    assert_eq(var_len, var3.data_len);
-    assert_eq(var[0], TRUE);
-    assert_eq(var[1], FALSE);
+    assert_eq(var_len, var3.data_len + 1);
+    assert_eq(var[0], var3.data_len);
+    assert_eq(var[1], TRUE);
+    assert_eq(var[2], FALSE);
 
     return ();
 }
 
 @external
-func test_update_variable{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}() {
+func test_update_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=0,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -862,7 +839,9 @@ func test_update_variable{
     tempvar new_var_data = new (1);
     let new_var_data_len = 1;
 
-    let (new_memory_len, new_memory) = Memory.update_variable(var0.selector, memory_len, memory, new_var_data_len, new_var_data);
+    let (new_memory_len, new_memory) = Memory.update_variable(
+        var0.selector, memory_len, memory, new_var_data_len, new_var_data
+    );
     assert_eq(new_memory_len, 23);
 
     let (var_len, var) = Memory.load_variable(var0.selector, new_memory_len, new_memory);
@@ -874,7 +853,9 @@ func test_update_variable{
     assert_eq(var[Variable.data_len], new_var_data_len);
     assert_eq(var[Variable.SIZE + 0], new_var_data[0]);
 
-    let (new_memory_len, new_memory) = Memory.update_variable(var1.selector, memory_len, memory, new_var_data_len, new_var_data);
+    let (new_memory_len, new_memory) = Memory.update_variable(
+        var1.selector, memory_len, memory, new_var_data_len, new_var_data
+    );
     assert_eq(new_memory_len, 27);
 
     let (var_len, var) = Memory.load_variable(var1.selector, new_memory_len, new_memory);
@@ -886,7 +867,9 @@ func test_update_variable{
     assert_eq(var[Variable.data_len], new_var_data_len);
     assert_eq(var[Variable.SIZE + 0], new_var_data[0]);
 
-    let (new_memory_len, new_memory) = Memory.update_variable(var3.selector, memory_len, memory, new_var_data_len, new_var_data);
+    let (new_memory_len, new_memory) = Memory.update_variable(
+        var3.selector, memory_len, memory, new_var_data_len, new_var_data
+    );
     assert_eq(new_memory_len, 26);
 
     let (var_len, var) = Memory.load_variable(var3.selector, new_memory_len, new_memory);
@@ -908,35 +891,35 @@ func test_update_variable_reverts_if_consts_are_updated{
     alloc_locals;
 
     tempvar var0 = new Variable(
-        selector = 3,
-        protected = FALSE,
-        type = DataTypes.FELT,
-        data_len = 5,
-            );
+        selector=3,
+        protected=FALSE,
+        type=DataTypes.FELT,
+        data_len=5,
+        );
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
     tempvar var1 = new Variable(
-        selector = 6,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 1,
-            );
+        selector=6,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=1,
+        );
     tempvar var1_data = new (TRUE);
 
     tempvar var2 = new Variable(
-        selector = 0,
-        protected = TRUE,
-        type = DataTypes.BOOL,
-        data_len = 3,
-            );
+        selector=2,
+        protected=TRUE,
+        type=DataTypes.BOOL,
+        data_len=3,
+        );
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
     tempvar var3 = new Variable(
-        selector = 7,
-        protected = FALSE,
-        type = DataTypes.BOOL,
-        data_len = 2,
-            );
+        selector=7,
+        protected=FALSE,
+        type=DataTypes.BOOL,
+        data_len=2,
+        );
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
@@ -965,7 +948,9 @@ func test_update_variable_reverts_if_consts_are_updated{
     let new_var_data_len = 1;
 
     %{ expect_revert(error_message="CONSTS ARE IMMUTABLE") %}
-    let (new_memory_len, new_memory) = Memory.update_variable(var2.selector, memory_len, memory, new_var_data_len, new_var_data);
+    let (new_memory_len, new_memory) = Memory.update_variable(
+        var2.selector, memory_len, memory, new_var_data_len, new_var_data
+    );
 
     return ();
 }

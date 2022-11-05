@@ -9,30 +9,27 @@ from src.zklang.library import Program, Instruction, Primitive, Variable, DataTy
 
 from protostar.asserts import assert_eq
 
-
 @external
-func test_get_instruction{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}() {
+func test_get_instruction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
     let (local program: felt*) = alloc();
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
         Primitive(1, 1), Variable(0, 1, 2, 3), Variable(4, 5, 6, 7),
-    );
+        );
     tempvar instruction_1 = new Instruction(
         Primitive(2, 2), Variable(8, 9, 10, 11), Variable(12, 13, 14, 15),
-    );
+        );
     tempvar instruction_2 = new Instruction(
         Primitive(3, 3), Variable(0, 0, -1, 0), Variable(0, 0, 0, 0),
-    );
+        );
     tempvar instruction_3 = new Instruction(
         Primitive(4, 4), Variable(0, 1, 2, 3), Variable(4, 5, 6, 7),
-    );
+        );
     tempvar instruction_4 = new Instruction(
         Primitive(5, 5), Variable(8, 9, 10, 11), Variable(12, 13, 14, 15),
-    );
+        );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -119,19 +116,19 @@ func test_validate_reverts_on_non_boolean_protected{
 
     tempvar instruction_0 = new Instruction(
         Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0),
-    );
+        );
     tempvar instruction_1 = new Instruction(
         Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 1, 1, 1),
-    );
+        );
     tempvar instruction_2 = new Instruction(
         Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 3, 0, 0),
-    );
+        );
     tempvar instruction_3 = new Instruction(
         Primitive(4, 4), Variable(0, 1, 1, 1), Variable(1, 0, 0, 1),
-    );
+        );
     tempvar instruction_4 = new Instruction(
         Primitive(5, 5), Variable(1, 0, 1, 1), Variable(1, 1, 1, 1),
-    );
+        );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -156,19 +153,19 @@ func test_validate_reverts_on_unknown_type_key{
 
     tempvar instruction_0 = new Instruction(
         Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0),
-    );
+        );
     tempvar instruction_1 = new Instruction(
         Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 1, 1, 1),
-    );
+        );
     tempvar instruction_2 = new Instruction(
         Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 1, 3, 0),
-    );
+        );
     tempvar instruction_3 = new Instruction(
         Primitive(4, 4), Variable(0, 1, 1, 1), Variable(1, 0, 0, 1),
-    );
+        );
     tempvar instruction_4 = new Instruction(
         Primitive(5, 5), Variable(1, 0, 1, 1), Variable(1, 1, 1, 1),
-    );
+        );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -177,7 +174,7 @@ func test_validate_reverts_on_unknown_type_key{
     memcpy(program + 4 * Instruction.SIZE, instruction_4, Instruction.SIZE);
 
     %{ expect_revert(error_message="CORRUPT CODE") %}
-    Program.validate(program_len, program); 
+    Program.validate(program_len, program);
 
     return ();
 }
@@ -193,19 +190,19 @@ func test_validate_returns_nothing_on_anything_else{
 
     tempvar instruction_0 = new Instruction(
         Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0),
-    );
+        );
     tempvar instruction_1 = new Instruction(
         Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 1, 1, 1),
-    );
+        );
     tempvar instruction_2 = new Instruction(
         Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 1, 1, 0),
-    );
+        );
     tempvar instruction_3 = new Instruction(
         Primitive(4, 4), Variable(0, 1, 1, 1), Variable(1, 0, 0, 1),
-    );
+        );
     tempvar instruction_4 = new Instruction(
         Primitive(5, 5), Variable(1, 0, 1, 1), Variable(1, 1, 1, 1),
-    );
+        );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -213,7 +210,7 @@ func test_validate_returns_nothing_on_anything_else{
     memcpy(program + 3 * Instruction.SIZE, instruction_3, Instruction.SIZE);
     memcpy(program + 4 * Instruction.SIZE, instruction_4, Instruction.SIZE);
 
-    Program.validate(program_len, program); 
+    Program.validate(program_len, program);
 
     return ();
 }
@@ -229,19 +226,19 @@ func test_replace_zero_class_hashes_with_self{
 
     tempvar instruction_0 = new Instruction(
         Primitive(0, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0),
-    );
+        );
     tempvar instruction_1 = new Instruction(
         Primitive(0, 2), Variable(1, 0, 1, 1), Variable(0, 1, 1, 1),
-    );
+        );
     tempvar instruction_2 = new Instruction(
         Primitive(1, 3), Variable(0, 0, 1, 0), Variable(0, 1, 1, 0),
-    );
+        );
     tempvar instruction_3 = new Instruction(
         Primitive(4, 4), Variable(0, 1, 1, 1), Variable(1, 0, 0, 1),
-    );
+        );
     tempvar instruction_4 = new Instruction(
         Primitive(0, 5), Variable(1, 0, 1, 1), Variable(1, 1, 1, 1),
-    );
+        );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -251,7 +248,7 @@ func test_replace_zero_class_hashes_with_self{
 
     let (local actual_program: felt*) = alloc();
     let actual_program_len = program_len;
-    Program.replace_zero_class_hashes_with_self(actual_program, 123456, program_len, program); 
+    Program.replace_zero_class_hashes_with_self(actual_program, 123456, program_len, program);
 
     let actual_instruction = Program.get_instruction(0, actual_program_len, actual_program);
     assert_eq(actual_instruction.primitive.class_hash, 123456);

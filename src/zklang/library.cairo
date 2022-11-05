@@ -10,7 +10,6 @@ from src.constants import API
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.library import Library
 
-
 struct Primitive {
     class_hash: felt,
     selector: felt,
@@ -27,7 +26,7 @@ struct Variable {
     selector: felt,
     protected: felt,
     type: felt,
-    data_len:felt,
+    data_len: felt,
     // owner: felt, // fun or group
 }
 
@@ -59,35 +58,37 @@ func program_hash_repo_address_mapping_(program_hash: felt) -> (repo_address: fe
 }
 
 namespace Program {
-    func get_instruction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_pc: felt, _program_len: felt, _program: felt*) -> Instruction* {
+    func get_instruction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _pc: felt, _program_len: felt, _program: felt*
+    ) -> Instruction* {
         if (_pc == 0) {
             let instruction = cast(_program, Instruction*);
             return instruction;
         }
 
         return get_instruction(
-            _pc = _pc - 1,
-            _program_len = _program_len - Instruction.SIZE,
-            _program = _program + Instruction.SIZE,
+            _pc=_pc - 1,
+            _program_len=_program_len - Instruction.SIZE,
+            _program=_program + Instruction.SIZE,
         );
     }
 
-    func execute_primitive{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }(_primitive: Primitive, _calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
+    func execute_primitive{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _primitive: Primitive, _calldata_len: felt, _calldata: felt*
+    ) -> (res_len: felt, res: felt*) {
         let (res_len, res) = library_call(
-            class_hash = _primitive.class_hash,
-            function_selector = _primitive.selector,
-            calldata_size = _calldata_len,
-            calldata = _calldata,
+            class_hash=_primitive.class_hash,
+            function_selector=_primitive.selector,
+            calldata_size=_calldata_len,
+            calldata=_calldata,
         );
 
         return (res_len, res);
     }
 
-    func prepare{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }(_selector: felt, _program_raw_len: felt, _program_raw: felt*) -> (program_len: felt, program: felt*) {
+    func prepare{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt, _program_raw_len: felt, _program_raw: felt*
+    ) -> (program_len: felt, program: felt*) {
         alloc_locals;
         validate(_program_raw[0], _program_raw + 1);
         // validate(_program_raw_len, _program_raw);
@@ -98,16 +99,15 @@ namespace Program {
         let (local program: felt*) = alloc();
         let program_len = _program_raw_len;
 
-        replace_zero_class_hashes_with_self(program, this_zklang, _program_raw[0], _program_raw + 1);
-        // replace_zero_class_hashes_with_self(program, this_zklang, _program_raw_len, _program_raw);
+        replace_zero_class_hashes_with_self(program, this_zklang, _program_raw_len, _program_raw);
 
         return (program_len, program);
     }
 
     // TODO Requires another iteration of refactoring
-    func validate{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }(_program_len: felt, _program: felt*) -> () {
+    func validate{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _program_len: felt, _program: felt*
+    ) -> () {
         alloc_locals;
 
         if (_program_len == 0) {
@@ -147,13 +147,17 @@ namespace Program {
         } else {
             memcpy(_program + Primitive.class_hash, _program_raw + Primitive.class_hash, 1);
         }
-        memcpy(_program + Primitive.class_hash + 1, _program_raw + Primitive.class_hash + 1, Instruction.SIZE - Primitive.class_hash - 1);
+        memcpy(
+            _program + Primitive.class_hash + 1,
+            _program_raw + Primitive.class_hash + 1,
+            Instruction.SIZE - Primitive.class_hash - 1,
+        );
 
         return replace_zero_class_hashes_with_self(
-            _program = _program + Instruction.SIZE,
-            _this_zklang = _this_zklang,
-            _program_raw_len = _program_raw_len - Instruction.SIZE,
-            _program_raw = _program_raw + Instruction.SIZE,
+            _program=_program + Instruction.SIZE,
+            _this_zklang=_this_zklang,
+            _program_raw_len=_program_raw_len - Instruction.SIZE,
+            _program_raw=_program_raw + Instruction.SIZE,
         );
     }
 }
@@ -163,45 +167,55 @@ namespace Program {
 // || selector || protected || type || data_len || data_0 || data_1 || ... || data_(len-1) ||
 // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 namespace Memory {
-    func init{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_calldata_len: felt, _calldata: felt*) -> (memory_len: felt, memory: felt*) {
+    func init{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _calldata_len: felt, _calldata: felt*
+    ) -> (memory_len: felt, memory: felt*) {
         alloc_locals;
 
         let (local memory: felt*) = alloc();
         let memory_len = Variable.SIZE + _calldata_len;
         tempvar var_metadata = new Variable(
-            selector = API.CORE.__ZKLANG__CALLDATA_VAR,
-            protected = FALSE,
-            type = DataTypes.FELT,
-            data_len = _calldata_len,
-        );
+            selector=API.CORE.__ZKLANG__CALLDATA_VAR,
+            protected=FALSE,
+            type=DataTypes.FELT,
+            data_len=_calldata_len,
+            );
         memcpy(memory, var_metadata, Variable.SIZE);
         memcpy(memory + Variable.SIZE, _calldata, _calldata_len);
 
         return (memory_len, memory);
     }
 
-    func load_variable_payload{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }(
+    func load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _var_selector: felt, _memory_len: felt, _memory: felt*
-        ) -> (payload_len: felt, payload: felt*) {
+    ) -> (payload_len: felt, payload: felt*) {
+        alloc_locals;
+        let (local NULLptr: felt*) = alloc();
+        if (_var_selector == 0) {
+            assert NULLptr[0] = 0;
+            return (1, NULLptr);
+        }
+
         let (var_len, var) = load_variable(_var_selector, _memory_len, _memory);
 
-        return (payload_len = var_len - Variable.SIZE,
-                payload = var + Variable.SIZE);
+        return (payload_len=var_len - Variable.SIZE + 1, payload=var + Variable.SIZE - 1);
     }
 
     func load_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _var_selector: felt, _memory_len: felt, _memory: felt*
-        ) -> (var_len: felt, var: felt*) {
+    ) -> (var_len: felt, var: felt*) {
         let (l_len, l, v_len, v, r_len, r) = _split_memory(_var_selector, _memory_len, _memory);
         return (v_len, v);
     }
 
-    func update_variable{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }(_var_selector: felt, _memory_len: felt, _memory: felt*, _payload_len: felt, _payload: felt*) -> (new_memory_len: felt, new_memory: felt*) {
+    func update_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _var_selector: felt, _memory_len: felt, _memory: felt*, _payload_len: felt, _payload: felt*
+    ) -> (new_memory_len: felt, new_memory: felt*) {
         alloc_locals;
+
+        if (_var_selector == 0) {
+            return (_memory_len, _memory);
+        }
 
         let (l_len, l, v_len, v, r_len, r) = _split_memory(_var_selector, _memory_len, _memory);
 
@@ -222,7 +236,14 @@ namespace Memory {
 
     func _split_memory{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _var_selector: felt, _memory_len: felt, _memory: felt*
-        ) -> (left_memory_len: felt, left_memory: felt*, var_len: felt, var: felt*, right_memory_len: felt, right_memory: felt*) {
+    ) -> (
+        left_memory_len: felt,
+        left_memory: felt*,
+        var_len: felt,
+        var: felt*,
+        right_memory_len: felt,
+        right_memory: felt*,
+    ) {
         alloc_locals;
         let (local left_memory: felt*) = alloc();
         let (local var: felt*) = alloc();
@@ -242,13 +263,11 @@ namespace Memory {
         } else {
             return (0, left_memory, 0, var, 0, right_memory);
         }
-
     }
 
-    func is_variable_in_memory{
-            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-        }(_selector: felt, _memory_len: felt, _memory: felt*) -> felt {
-
+    func is_variable_in_memory{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt, _memory_len: felt, _memory: felt*
+    ) -> felt {
         if (_memory_len == 0) {
             return FALSE;
         }
@@ -263,37 +282,32 @@ namespace Memory {
 
         let total_var_size = Variable.SIZE + _memory[Variable.data_len];
         return is_variable_in_memory(
-            _selector = _selector,
-            _memory_len = _memory_len -  total_var_size,
-            _memory = _memory + total_var_size,
+            _selector=_selector,
+            _memory_len=_memory_len - total_var_size,
+            _memory=_memory + total_var_size,
         );
     }
 
-    /// @dev Assume variable to be in memory
+    // / @dev Assume variable to be in memory
     func get_index_of_var_in_memory{
-            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-        }(_selector: felt, _i: felt, _memory: felt*) -> (start: felt, end: felt) {
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+    }(_selector: felt, _i: felt, _memory: felt*) -> (start: felt, end: felt) {
         let total_var_size = Variable.SIZE + _memory[Variable.data_len];
 
         if (_memory[Variable.selector] == _selector) {
-            return (
-                start = _i,
-                end = _i + total_var_size,
-            );
+            return (start=_i, end=_i + total_var_size,);
         }
 
         return get_index_of_var_in_memory(
-            _selector = _selector,
-            _i = _i + total_var_size,
-            _memory =_memory + total_var_size,
+            _selector=_selector, _i=_i + total_var_size, _memory=_memory + total_var_size
         );
     }
 }
 
 namespace State {
-    func assert_not_existing_fun{
-            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-        }(_function: Function) {
+    func assert_not_existing_fun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _function: Function
+    ) {
         let (selector) = fun_selector_program_hash_mapping_.read(_function.selector);
         with_attr error_message("FUNCTION EXISTS") {
             assert selector = 0;
@@ -301,20 +315,21 @@ namespace State {
 
         return ();
     }
-    
-    func get_fun{
-            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-        }(_selector: felt) -> Function {
+
+    func get_fun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt
+    ) -> Function {
         let (program_hash) = fun_selector_program_hash_mapping_.read(_selector);
         let (repo_address) = program_hash_repo_address_mapping_.read(program_hash);
         let fun = Function(_selector, program_hash, repo_address);
 
         return fun;
     }
-    
-    func set_fun{
-            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-        }(_function: Function) -> () {
+
+    func set_fun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _function: Function
+    ) -> () {
+        alloc_locals;
         let first_free_index = first_free_fun_index(_function.selector, 0);
         fun_selector_index_.write(first_free_index, _function.selector);
         fun_selector_program_hash_mapping_.write(_function.selector, _function.program_hash);
@@ -322,10 +337,10 @@ namespace State {
 
         return ();
     }
-    
-    func first_free_fun_index{
-            syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-        }(_selector: felt, _i: felt) -> felt {
+
+    func first_free_fun_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt, _i: felt
+    ) -> felt {
         let (fun_selector) = fun_selector_index_.read(_i);
         if (fun_selector == _selector) {
             return _i;
@@ -336,8 +351,10 @@ namespace State {
 
         return first_free_fun_index(_selector, _i + 1);
     }
-    
-    func load_selectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_ptr: felt*, _i: felt) -> felt {
+
+    func load_selectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _ptr: felt*, _i: felt
+    ) -> felt {
         alloc_locals;
 
         let (selector) = fun_selector_index_.read(_i);
