@@ -2,7 +2,6 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
@@ -10,7 +9,10 @@ from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 from src.Storage.IFlobDB import IFlobDB
 from src.zklang.IZKlang import IZKlang
-from src.zklang.library import Function, Instruction, Primitive, Variable
+from src.zklang.library import Function
+
+from tests.zklang.fun.returnCalldata import returnCalldata
+from tests.zklang.fun.setZKLangFun import setZKLangFun
 
 from protostar.asserts import assert_eq
 
@@ -124,68 +126,24 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ stop_prank() %}
     %{ context.repo_address = ids.repo_address %}
 
-    // BrilliantBlocks stores diamondAdd in repo
-    local return_keyword;
-    local var0_identifier;
-    local fun_selector_returnCalldata;
-    %{
-        from starkware.starknet.public.abi import get_selector_from_name
-        ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
-        ids.var0_identifier = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
-        context.fun_selector_returnCalldata = get_selector_from_name("returnCalldata")
-        ids.fun_selector_returnCalldata = context.fun_selector_returnCalldata
-        context.fun_selector_foo = get_selector_from_name("foo")
-    %}
-
-    tempvar NULLvar = Variable(0, 0, 0, 0);
-    // tempvar NULLvar: Variable* = new Variable(0, 0, 0, 0);
-    // TODO Optimize for storage, no total count (primitive first, then vars)
-    // Diamond.returnCalldata(calldata_len, calldata);
-    tempvar instruction0 = Instruction(
-        Primitive(0, return_keyword),
-        Variable(var0_identifier, 0, 0, 0),
-        NULLvar,
-        );
-    tempvar felt_code: felt* = new (
-        1 * Instruction.SIZE,
-        instruction0,
-        );
-    let felt_code_len = felt_code[0] + 1;
-
+    let (felt_code_len, felt_code) = returnCalldata();
     let (program_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.program_hash = ids.program_hash %}
 
-    // BrilliantBlocks stores setZKLangFun in repo
-    local fun_selector_setZKLangFun;
-    local set_function_keyword;
-    %{
-        from starkware.starknet.public.abi import get_selector_from_name
-        ids.set_function_keyword = get_selector_from_name("__ZKLANG__SET_FUNCTION")
-        context.fun_selector_setZKLangFun = get_selector_from_name("setZKLangFun")
-        ids.fun_selector_setZKLangFun = context.fun_selector_setZKLangFun
-    %}
-
-    tempvar NULLvar = Variable(0, 0, 0, 0);
-    tempvar instruction0 = Instruction(
-        Primitive(0, set_function_keyword),
-        Variable(var0_identifier, 0, 0, 0),
-        NULLvar,
-        );
-    tempvar instruction1 = Instruction(
-        Primitive(0, return_keyword),
-        // Variable(var0_identifier, 0, 0, 0),
-        NULLvar,  // TODO behavior when missing input?
-        NULLvar,
-        );
-    tempvar felt_code: felt* = new (
-        2 * Instruction.SIZE,
-        instruction0,
-        instruction1,
-        );
-    let felt_code_len = felt_code[0] + 1;
-
+    let (felt_code_len, felt_code) = setZKLangFun();
     let (setZKLangFun_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.setZKLangFun_hash = ids.setZKLangFun_hash %}
+
+    local fun_selector_returnCalldata;
+    local fun_selector_setZKLangFun;
+    %{
+        from starkware.starknet.public.abi import get_selector_from_name
+        context.fun_selector_returnCalldata = get_selector_from_name("returnCalldata")
+        ids.fun_selector_returnCalldata = context.fun_selector_returnCalldata
+        context.fun_selector_setZKLangFun = get_selector_from_name("setZKLangFun")
+        ids.fun_selector_setZKLangFun = context.fun_selector_setZKLangFun
+        context.fun_selector_foo = get_selector_from_name("foo")
+    %}
 
     // User1 mints a diamond and adds ERC-1155 and ZKlang
     tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add), FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
