@@ -10,18 +10,22 @@ from src.zklang.library import DataTypes, Memory, Variable
 from protostar.asserts import assert_eq
 
 @external
-func test_init_memory_on_empty_calldata{
+func test_init_memory_on_empty_calldata_and_empty_memory{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
     tempvar _calldata = new ();
     let _calldata_len = 0;
+    tempvar _memory = new ();
+    let _memory_len = 0;
 
     tempvar var_metadata = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
     let expected_memory = cast(var_metadata, felt*);
     let expected_memory_len = Variable.SIZE;
 
-    let (actual_memory_len, actual_memory) = Memory.init(_calldata_len, _calldata);
+    let (actual_memory_len, actual_memory) = Memory.init(
+        _memory_len, _memory, _calldata_len, _calldata
+    );
 
     assert_eq(actual_memory_len, expected_memory_len);
     assert_eq(actual_memory[Variable.selector], expected_memory[Variable.selector]);
@@ -33,12 +37,14 @@ func test_init_memory_on_empty_calldata{
 }
 
 @external
-func test_init_memory_on_non_single_width_calldata{
+func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
     tempvar _calldata = new (7);
     let _calldata_len = 1;
+    tempvar _memory = new ();
+    let _memory_len = 0;
 
     tempvar var_metadata = new Variable(
         selector=API.CORE.__ZKLANG__CALLDATA_VAR,
@@ -51,7 +57,9 @@ func test_init_memory_on_non_single_width_calldata{
     memcpy(expected_memory, cast(var_metadata, felt*), Variable.SIZE);
     memcpy(expected_memory + Variable.SIZE, _calldata, _calldata_len);
 
-    let (actual_memory_len, actual_memory) = Memory.init(_calldata_len, _calldata);
+    let (actual_memory_len, actual_memory) = Memory.init(
+        _memory_len, _memory, _calldata_len, _calldata
+    );
 
     assert_eq(actual_memory_len, expected_memory_len);
     assert_eq(actual_memory[Variable.selector], expected_memory[Variable.selector]);
@@ -64,12 +72,14 @@ func test_init_memory_on_non_single_width_calldata{
 }
 
 @external
-func test_init_memory_on_calldata_with_five_elements{
+func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
     tempvar _calldata = new (7, 0, -1, 9, 0);
     let _calldata_len = 5;
+    tempvar _memory = new ();
+    let _memory_len = 0;
 
     tempvar var_metadata = new Variable(
         selector=API.CORE.__ZKLANG__CALLDATA_VAR,
@@ -82,7 +92,9 @@ func test_init_memory_on_calldata_with_five_elements{
     memcpy(expected_memory, cast(var_metadata, felt*), Variable.SIZE);
     memcpy(expected_memory + Variable.SIZE, _calldata, _calldata_len);
 
-    let (actual_memory_len, actual_memory) = Memory.init(_calldata_len, _calldata);
+    let (actual_memory_len, actual_memory) = Memory.init(
+        _memory_len, _memory, _calldata_len, _calldata
+    );
 
     assert_eq(actual_memory_len, expected_memory_len);
     assert_eq(actual_memory[Variable.selector], expected_memory[Variable.selector]);
@@ -744,7 +756,7 @@ func test_load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     memcpy(memory + offset, var3, Variable.SIZE);
     memcpy(memory + offset + Variable.SIZE, var3_data, var3.data_len);
 
-    let (var_len, var) = Memory.load_variable_payload(var0.selector, memory_len, memory);
+    let (var_len, var) = Memory.load_variable_payload(var0.selector, 0, memory_len, memory);
 
     assert_eq(var_len, var0.data_len + 1);
     assert_eq(var[0], var0.data_len);
@@ -754,13 +766,13 @@ func test_load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     assert_eq(var[4], 1);
     assert_eq(var[5], 0);
 
-    let (var_len, var) = Memory.load_variable_payload(var1.selector, memory_len, memory);
+    let (var_len, var) = Memory.load_variable_payload(var1.selector, 0, memory_len, memory);
 
     assert_eq(var_len, var1.data_len + 1);
     assert_eq(var[0], var1.data_len);
     assert_eq(var[1], TRUE);
 
-    let (var_len, var) = Memory.load_variable_payload(var2.selector, memory_len, memory);
+    let (var_len, var) = Memory.load_variable_payload(var2.selector, 0, memory_len, memory);
 
     assert_eq(var_len, var2.data_len + 1);
     assert_eq(var[0], var2.data_len);
@@ -768,7 +780,7 @@ func test_load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     assert_eq(var[2], FALSE);
     assert_eq(var[3], TRUE);
 
-    let (var_len, var) = Memory.load_variable_payload(var3.selector, memory_len, memory);
+    let (var_len, var) = Memory.load_variable_payload(var3.selector, 0, memory_len, memory);
 
     assert_eq(var_len, var3.data_len + 1);
     assert_eq(var[0], var3.data_len);

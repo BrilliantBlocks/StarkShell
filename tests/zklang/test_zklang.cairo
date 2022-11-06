@@ -11,6 +11,7 @@ from src.Storage.IFlobDB import IFlobDB
 from src.zklang.IZKlang import IZKlang
 from src.zklang.library import Function
 
+from tests.zklang.fun.invertBoolean import invertBoolean
 from tests.zklang.fun.returnCalldata import returnCalldata
 from tests.zklang.fun.setZKLangFun import setZKLangFun
 
@@ -134,8 +135,13 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let (setZKLangFun_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.setZKLangFun_hash = ids.setZKLangFun_hash %}
 
+    let (felt_code_len, felt_code) = invertBoolean();
+    let (invertBoolean_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
+    %{ context.invertBoolean_hash = ids.invertBoolean_hash %}
+
     local fun_selector_returnCalldata;
     local fun_selector_setZKLangFun;
+    local fun_selector_invertBoolean;
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         context.fun_selector_returnCalldata = get_selector_from_name("returnCalldata")
@@ -143,13 +149,14 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         context.fun_selector_setZKLangFun = get_selector_from_name("setZKLangFun")
         ids.fun_selector_setZKLangFun = context.fun_selector_setZKLangFun
         context.fun_selector_foo = get_selector_from_name("foo")
+        ids.fun_selector_invertBoolean = get_selector_from_name("invertBoolean")
     %}
 
     // User1 mints a diamond and adds ERC-1155 and ZKlang
     tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add), FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 2;
-    tempvar calldata: felt* = new (6, User1, 1, 1, 0, 1, 0, 7, 2, Function(fun_selector_returnCalldata, program_hash, repo_address), Function(fun_selector_setZKLangFun, setZKLangFun_hash, repo_address),);
-    let calldata_len = 15;
+    tempvar calldata: felt* = new (6, User1, 1, 1, 0, 1, 0, 10, 3, Function(fun_selector_returnCalldata, program_hash, repo_address), Function(fun_selector_setZKLangFun, setZKLangFun_hash, repo_address), Function(fun_selector_invertBoolean, invertBoolean_hash, repo_address),);
+    let calldata_len = 18;
 
     %{ stop_prank = start_prank(ids.User1, context.TCF_address) %}
     let (diamond_address) = ITCF.mintContract(
@@ -216,6 +223,9 @@ namespace ITestZKLangFun {
 
     func foo(x: felt, y: felt) -> (x_res: felt, y_res: felt) {
     }
+
+    func invertBoolean(_bool: felt) -> (_invertedBool: felt) {
+    }
 }
 
 @external
@@ -253,6 +263,34 @@ func test_setZKLangFun_reverts_if_caller_not_owner{
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
     ITestZKLangFun.setZKLangFun(setup.diamond_address, x);
     %{ stop_prank() %}
+
+    return ();
+}
+
+@external
+func test_invertBoolean_returns_true_on_false{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+
+    let (actual_res) = ITestZKLangFun.invertBoolean(setup.diamond_address, FALSE);
+    let expected_res = TRUE;
+    assert_eq(actual_res, expected_res);
+
+    return ();
+}
+
+@external
+func test_invertBoolean_returns_false_on_true{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+
+    let (actual_res) = ITestZKLangFun.invertBoolean(setup.diamond_address, TRUE);
+    let expected_res = FALSE;
+    assert_eq(actual_res, expected_res);
 
     return ();
 }

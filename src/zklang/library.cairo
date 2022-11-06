@@ -32,7 +32,8 @@ struct Variable {
 
 struct Instruction {
     primitive: Primitive,
-    input: Variable,
+    input1: Variable,
+    input2: Variable,
     output: Variable,
 }
 
@@ -114,14 +115,20 @@ namespace Program {
             return ();
         }
         let instruction = cast(_program, Instruction*);
-        with_attr error_message("CORRUPT CODE input.protected") {
-            assert (instruction.input.protected - 1) * instruction.input.protected = 0;
+        with_attr error_message("CORRUPT CODE input1.protected") {
+            assert (instruction.input1.protected - 1) * instruction.input1.protected = 0;
+        }
+        with_attr error_message("CORRUPT CODE input2.protected") {
+            assert (instruction.input2.protected - 1) * instruction.input2.protected = 0;
         }
         with_attr error_message("CORRUPT CODE output.protected") {
             assert (instruction.output.protected - 1) * instruction.output.protected = 0;
         }
-        with_attr error_message("CORRUPT CODE input.type") {
-            assert (instruction.input.type - 1) * instruction.input.type = 0;
+        with_attr error_message("CORRUPT CODE input1.type") {
+            assert (instruction.input1.type - 1) * instruction.input1.type = 0;
+        }
+        with_attr error_message("CORRUPT CODE input2.type") {
+            assert (instruction.input2.type - 1) * instruction.input2.type = 0;
         }
         with_attr error_message("CORRUPT CODE output.type") {
             assert (instruction.output.type - 1) * instruction.output.type = 0;
@@ -168,37 +175,65 @@ namespace Program {
 // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 namespace Memory {
     func init{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _calldata_len: felt, _calldata: felt*
+        _memory_len: felt, _memory: felt*, _calldata_len: felt, _calldata: felt*
     ) -> (memory_len: felt, memory: felt*) {
         alloc_locals;
 
-        let (local memory: felt*) = alloc();
-        let memory_len = Variable.SIZE + _calldata_len;
         tempvar var_metadata = new Variable(
             selector=API.CORE.__ZKLANG__CALLDATA_VAR,
             protected=FALSE,
             type=DataTypes.FELT,
             data_len=_calldata_len,
             );
+
+        let (local memory: felt*) = alloc();
         memcpy(memory, var_metadata, Variable.SIZE);
         memcpy(memory + Variable.SIZE, _calldata, _calldata_len);
+
+        // TODO what if calldata var already present?
+        memcpy(memory + Variable.SIZE + _calldata_len, _memory, _memory_len);
+        let memory_len = Variable.SIZE + _calldata_len + _memory_len;
 
         return (memory_len, memory);
     }
 
     func load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _var_selector: felt, _memory_len: felt, _memory: felt*
+        _selector1: felt, _selector2: felt, _memory_len: felt, _memory: felt*
     ) -> (payload_len: felt, payload: felt*) {
         alloc_locals;
-        let (local NULLptr: felt*) = alloc();
-        if (_var_selector == 0) {
-            assert NULLptr[0] = 0;
-            return (1, NULLptr);
+
+        if (_selector1 == 0 and _selector2 == 0) {
+            tempvar NULLvariable = new (0);
+            return (1, NULLvariable);
         }
 
-        let (var_len, var) = load_variable(_var_selector, _memory_len, _memory);
+        if (_selector1 == 0) {
+            let (var_len, var) = load_variable(_selector2, _memory_len, _memory);
 
-        return (payload_len=var_len - Variable.SIZE + 1, payload=var + Variable.SIZE - 1);
+            return (payload_len=var_len - Variable.SIZE + 1, payload=var + Variable.SIZE - 1);
+        }
+
+        if (_selector2 == 0) {
+            let (var_len, var) = load_variable(_selector1, _memory_len, _memory);
+
+            return (payload_len=var_len - Variable.SIZE + 1, payload=var + Variable.SIZE - 1);
+        }
+
+        let (var1_len, var1) = load_variable(_selector1, _memory_len, _memory);
+        let (var2_len, var2) = load_variable(_selector2, _memory_len, _memory);
+
+        let (local merged_payload: felt*) = alloc();
+        local merged_payload_len = var1[Variable.data_len] + var2[Variable.data_len];
+
+        assert merged_payload[0] = merged_payload_len;
+        memcpy(merged_payload + 1, var1 + Variable.SIZE, var1[Variable.data_len]);
+        memcpy(
+            merged_payload + 1 + var1[Variable.data_len],
+            var2 + Variable.SIZE,
+            var2[Variable.data_len],
+        );
+
+        return (payload_len=merged_payload_len + 1, payload=merged_payload);
     }
 
     func load_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -251,6 +286,8 @@ namespace Memory {
 
         let var_in_memory = is_variable_in_memory(_var_selector, _memory_len, _memory);
 
+        local v_in_memory = var_in_memory;
+
         if (var_in_memory == TRUE) {
             let (var_start, var_end) = get_index_of_var_in_memory(_var_selector, 0, _memory);
             let var_len = var_end - var_start;
@@ -268,6 +305,8 @@ namespace Memory {
     func is_variable_in_memory{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _selector: felt, _memory_len: felt, _memory: felt*
     ) -> felt {
+        alloc_locals;
+
         if (_memory_len == 0) {
             return FALSE;
         }
@@ -280,12 +319,20 @@ namespace Memory {
             return TRUE;
         }
 
-        let total_var_size = Variable.SIZE + _memory[Variable.data_len];
-        return is_variable_in_memory(
-            _selector=_selector,
-            _memory_len=_memory_len - total_var_size,
-            _memory=_memory + total_var_size,
-        );
+        local total_var_size = Variable.SIZE + _memory[Variable.data_len];
+        local remaining_memory_len: felt = _memory_len - total_var_size;
+        local remaining_memory: felt* = _memory + total_var_size;
+        local v_selector = _memory[Variable.selector];
+        local v_protected = _memory[Variable.protected];
+        local v_type = _memory[Variable.type];
+        local v_data_len = _memory[Variable.data_len];
+
+        with_attr error_message(
+                "BREAKPOINT is_variable_in_memory() recursion {v_selector} {v_protected} {v_type} {v_data_len} {_memory_len} {remaining_memory_len}") {
+            return is_variable_in_memory(
+                _selector=_selector, _memory_len=remaining_memory_len, _memory=remaining_memory
+            );
+        }
     }
 
     // / @dev Assume variable to be in memory

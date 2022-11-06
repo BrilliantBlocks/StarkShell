@@ -26,11 +26,13 @@ func setZKLangFun() -> (res_len: felt, res: felt*) {
         Primitive(0, assert_only_owner_keyword),
         NULLvar,
         NULLvar,
+        NULLvar,
         );
 
     tempvar instruction1 = Instruction(
         Primitive(0, set_function_keyword),
         Variable(var0_identifier, 0, 0, 0),
+        NULLvar,
         NULLvar,
         );
 
@@ -38,14 +40,24 @@ func setZKLangFun() -> (res_len: felt, res: felt*) {
         Primitive(0, return_keyword),
         NULLvar,
         NULLvar,
+        NULLvar,
         );
 
+    tempvar memory_layout = ();
+
+    let instruction_len = 3 * Instruction.SIZE;
+    let memory_layout_len = 0;
+    let total_len = instruction_len + memory_layout_len + 1;
+    let felt_code_len = total_len + 1;
+
     tempvar felt_code: felt* = new (
-        3 * Instruction.SIZE,
+        total_len,
+        instruction_len,
         instruction0,
         instruction1,
         instruction2,
+        memory_layout,
         );
 
-    return (felt_code[0] + 1, felt_code);
+    return (felt_code_len, felt_code);
 }

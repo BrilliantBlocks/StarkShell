@@ -7,7 +7,7 @@ from src.ERC2535.library import Diamond
 
 from src.constants import API, FUNCTION_SELECTORS
 from src.Storage.IFlobDB import IFlobDB
-from src.zklang.library import Program, Memory, Function, Primitive, Variable, Instruction, State
+from src.zklang.library import Program, Memory, Function, State
 
 @event
 func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*) {
@@ -24,8 +24,13 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let fun = State.get_fun(selector);
     let (program_raw_len, program_raw) = IFlobDB.load(fun.repo_address, fun.program_hash);
 
-    let (program_len, program) = Program.prepare(selector, program_raw_len, program_raw);
-    let (memory_len, memory) = Memory.init(calldata_size, calldata);
+    local program_len: felt = program_raw[0];
+    local program: felt* = program_raw + 1;
+    local memory_len: felt = program_raw_len - 1 - program_len;
+    local memory: felt* = program_raw + 1 + program_len;
+
+    let (program_len, program) = Program.prepare(selector, program_len, program);
+    let (memory_len, memory) = Memory.init(memory_len, memory, calldata_size, calldata);
 
     let (retdata_size, retdata) = exec_loop(
         _pc=0, _program_len=program_len, _program=program, _memory_len=memory_len, _memory=memory
@@ -39,44 +44,44 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 ) -> (res_len: felt, res: felt*) {
     alloc_locals;
 
-    let instruction = Program.get_instruction(_pc, _program_len, _program);
+    with_attr error_message("ZKL-EXEC _pc={_pc} _memory_len={_memory_len}") {
+        let instruction = Program.get_instruction(_pc, _program_len, _program);
 
-    let (calldata_len, calldata) = Memory.load_variable_payload(
-        instruction.input.selector, _memory_len, _memory
-    );
+        let (calldata_len, calldata) = Memory.load_variable_payload(
+            instruction.input1.selector, instruction.input2.selector, _memory_len, _memory
+        );
 
-    local c_len = calldata_len;
-    with_attr error_message("execute_primitive @{_pc}, calldata_len = {c_len}") {
-        let (res_len, res) = Program.execute_primitive(instruction.primitive, calldata_len, calldata);
-    }
+        let (res_len, res) = Program.execute_primitive(
+            instruction.primitive, calldata_len, calldata
+        );
 
-    if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
-        return (res[0], res + 1);
-        // return (res_len, res);
-    }
+        if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
+            return (res[0], res + 1);
+        }
 
-    if (instruction.primitive.selector == API.CORE.__ZKLANG__BRANCH) {
-        let chosen_pc = res[0];
+        if (instruction.primitive.selector == API.CORE.__ZKLANG__BRANCH) {
+            local chosen_pc = res[1];
+            return exec_loop(
+                _pc=chosen_pc,
+                _program_len=_program_len,
+                _program=_program,
+                _memory_len=_memory_len,
+                _memory=_memory,
+            );
+        }
+
+        let (new_memory_len, new_memory) = Memory.update_variable(
+            instruction.output.selector, _memory_len, _memory, res_len, res
+        );
+
         return exec_loop(
-            _pc=chosen_pc,
+            _pc=_pc + 1,
             _program_len=_program_len,
             _program=_program,
-            _memory_len=_memory_len,
-            _memory=_memory,
+            _memory_len=new_memory_len,
+            _memory=new_memory,
         );
     }
-
-    let (new_memory_len, new_memory) = Memory.update_variable(
-        instruction.output.selector, _memory_len, _memory, res_len, res
-    );
-
-    return exec_loop(
-        _pc=_pc + 1,
-        _program_len=_program_len,
-        _program=_program,
-        _memory_len=new_memory_len,
-        _memory=new_memory,
-    );
 }
 
 // =================
@@ -89,14 +94,24 @@ func __ZKLANG__RETURN{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return (_res_len, _res);
 }
 
+struct Branch {
+    x: felt,
+    pc_if_true: felt,
+    pc_if_false: felt,
+}
+
 @external
 func __ZKLANG__BRANCH{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _var: felt, _pc_if_true: felt, _pc_if_false: felt
-) -> (res: felt) {
-    if (_var == TRUE) {
-        return (res=_pc_if_true);
+    _calldata_len: felt, _calldata: felt*
+) -> (res_len: felt, res: felt*) {
+    assert _calldata_len = Branch.SIZE;
+    let branch = cast(_calldata, Branch*);
+    if (branch.x == TRUE) {
+        tempvar res = new (branch.pc_if_true,);
+        return (res_len=1, res=res);
     }
-    return (res=_pc_if_false);
+    tempvar res = new (branch.pc_if_false,);
+    return (res_len=1, res=res);
 }
 
 @external
@@ -117,8 +132,7 @@ func __ZKLANG__REVERT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
 @external
 func __ZKLANG__SET_FUNCTION{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*,
-    //_function: Function
+    _calldata_len: felt, _calldata: felt*
 ) -> () {
     assert _calldata_len = Function.SIZE;
     let fun = cast(_calldata, Function*);
@@ -138,7 +152,7 @@ func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 
 @external
 func __ZKLANG__ASSERT_ONLY_OWNER{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*,
+    _calldata_len: felt, _calldata: felt*
 ) -> () {
     assert _calldata_len = 0;
     Diamond.Assert.only_owner();
