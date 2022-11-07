@@ -9,30 +9,122 @@ from src.ERC20.IERC20 import IERC20
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 
-from protostar.asserts import assert_eq, assert_not_eq
+from protostar.asserts import assert_eq
 
 const BrilliantBlocks = 123;
 const User = 456;
 const Adversary = 789;
 
+struct ERC20Calldata {
+    receiver: felt,
+    balance: Uint256,
+}
 
-@external
-func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+struct ERC20Selectors {
+    balanceOf: felt,
+    totalSupply: felt,
+    transfer: felt,
+    approve: felt,
+    allowance: felt,
+    transferFrom: felt,
+    increaseAllowance: felt,
+    decreaseAllowance: felt,
+}
+
+struct Setup {
+    diamond_address: felt,
+    diamond_class_hash: felt,
+    diamondCut_class_hash: felt,
+    erc20_class_hash: felt,
+    BFR_address: felt,
+    TCF_address: felt,
+}
+
+func getERC20Selectors() -> ERC20Selectors {
     alloc_locals;
+    local balanceOf;
+    local totalSupply;
+    local transfer;
+    local approve;
+    local allowance;
+    local transferFrom;
+    local increaseAllowance;
+    local decreaseAllowance;
+
+    %{
+        from starkware.starknet.public.abi import get_selector_from_name
+        variables = [
+            "balanceOf",
+            "totalSupply",
+            "transfer",
+            "approve",
+            "allowance",
+            "transferFrom",
+            "increaseAllowance",
+            "decreaseAllowance",
+        ]
+        [setattr(ids, v, get_selector_from_name(v)) for v in variables]
+    %}
+
+    local selectors: ERC20Selectors = ERC20Selectors(
+        balanceOf,
+        totalSupply,
+        transfer,
+        approve,
+        allowance,
+        transferFrom,
+        increaseAllowance,
+        decreaseAllowance,
+        );
+
+    return selectors;
+}
+
+func getSetup() -> Setup {
+    alloc_locals;
+    local diamond_address;
+    local diamond_class_hash;
     local diamondCut_class_hash;
     local erc20_class_hash;
-    %{  
-        # Declare diamond and facets
+    local BFR_address;
+    local TCF_address;
+
+    %{
+        variables = [
+            "diamond_address",
+            "diamond_class_hash",
+            "diamondCut_class_hash",
+            "erc20_class_hash",
+            "BFR_address",
+            "TCF_address",
+            ]
+        [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
+    %}
+
+    local setup: Setup = Setup(
+        diamond_address,
+        diamond_class_hash,
+        diamondCut_class_hash,
+        erc20_class_hash,
+        BFR_address,
+        TCF_address,
+        );
+
+    return setup;
+}
+
+func declareContracts() -> () {
+    %{
         context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
         context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
-        ids.diamondCut_class_hash = context.diamondCut_class_hash
         context.erc20_class_hash = declare("./src/ERC20/ERC20.cairo").class_hash
-        ids.erc20_class_hash = context.erc20_class_hash
     %}
-    
-    local TCF_address;
-    %{  
-        # Deploy BFR and TCF
+
+    return ();
+}
+
+func deployContracts() -> () {
+    %{
         context.BFR_address = deploy_contract(
                 "./src/main/BFR/BFR.cairo",
                 [
@@ -49,30 +141,40 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
                     0, # DO_NOT_CARE tokenURI
                 ],
         ).contract_address
-        ids.TCF_address = context.TCF_address
     %}
 
+    return ();
+}
+
+@external
+func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+    alloc_locals;
+    declareContracts();
+    deployContracts();
+    let setup = getSetup();
+
     // BrilliantBlocks populates facet registry
-    let (local elements: felt*) = alloc();
-    assert elements[0] = diamondCut_class_hash;
-    assert elements[1] = erc20_class_hash;
     let elements_len = 2;
+    tempvar elements = new (setup.diamondCut_class_hash, setup.erc20_class_hash);
+
     %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
-    IBFR.registerElements(TCF_address, elements_len, elements);
+    IBFR.registerElements(setup.TCF_address, elements_len, elements);
     %{ stop_prank() %}
 
-    // User mints a diamond and adds ERC-20
-    let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(erc20_class_hash, FacetCutAction.Add);
+    // User mints a diamond with ERC-20
     let facetCut_len = 1;
-    let (local calldata: felt*) = alloc();
-    assert calldata[0] = 3;
-    assert calldata[1] = User;
-    assert calldata[2] = 1000000;
-    assert calldata[3] = 0;
-    let calldata_len = 4;
+    tempvar facetCut = new FacetCut(setup.erc20_class_hash, FacetCutAction.Add);
+
+    let calldata_len = ERC20Calldata.SIZE + 1;
+    tempvar calldata = new (
+        ERC20Calldata.SIZE,
+        ERC20Calldata(receiver=User, balance=Uint256(1000000, 0))
+        );
+
     %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
-    let (diamond_address) = ITCF.mintContract(TCF_address, facetCut_len, facetCut, calldata_len, calldata);
+    let (diamond_address) = ITCF.mintContract(
+        setup.TCF_address, facetCut_len, facetCut, calldata_len, calldata
+    );
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 
@@ -80,113 +182,173 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 }
 
 @external
-func test_getImplementation_return_erc20{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(){
+func test_getImplementation_return_erc20{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
     alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
-    local erc20_class_hash;
-    %{ ids.erc20_class_hash = context.erc20_class_hash %}
+    let setup = getSetup();
 
-    let (token_class_hash) = IDiamond.getImplementation(diamond_address);
-    assert_eq(token_class_hash, erc20_class_hash);
+    let (token_class_hash) = IDiamond.getImplementation(setup.diamond_address);
+    assert_eq(token_class_hash, setup.erc20_class_hash);
+
     return ();
 }
 
 @external
-func test_facet_returns_only_expected_function_selectors{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(){
+func test_erc20_has_eight_functions{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
     alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
-    local erc20_class_hash;
-    %{ ids.erc20_class_hash = context.erc20_class_hash %}
-    local balanceOf_hash;
-    local totalSupply_hash;
-    local transfer_hash;
-    local approve_hash;
-    local allowance_hash;
-    local transferFrom_hash;
-    local increaseAllowance_hash;
-    local decreaseAllowance_hash;
-    %{
-        from starkware.starknet.public.abi import get_selector_from_name
-        ids.balanceOf_hash = get_selector_from_name("balanceOf")
-        ids.totalSupply_hash = get_selector_from_name("totalSupply")
-        ids.transfer_hash = get_selector_from_name("transfer")
-        ids.approve_hash = get_selector_from_name("approve")
-        ids.allowance_hash = get_selector_from_name("allowance")
-        ids.transferFrom_hash = get_selector_from_name("transferFrom")
-        ids.increaseAllowance_hash = get_selector_from_name("increaseAllowance")
-        ids.decreaseAllowance_hash = get_selector_from_name("decreaseAllowance")
-    %}
+    let setup = getSetup();
 
-    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, erc20_class_hash);
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(
+        setup.diamond_address, setup.erc20_class_hash
+    );
     assert_eq(selectors_len, 8);
 
-    let (facet) = IDiamond.facetAddress(diamond_address, balanceOf_hash);
-    assert_eq(facet, erc20_class_hash);
+    return ();
+}
 
-    let (facet) = IDiamond.facetAddress(diamond_address, totalSupply_hash);
-    assert_eq(facet, erc20_class_hash);
+@external
+func test_facetAddress_returns_erc20_for_balanceOf{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
 
-    let (facet) = IDiamond.facetAddress(diamond_address, approve_hash);
-    assert_eq(facet, erc20_class_hash);
-
-    let (facet) = IDiamond.facetAddress(diamond_address, allowance_hash);
-    assert_eq(facet, erc20_class_hash);
-
-    let (facet) = IDiamond.facetAddress(diamond_address, transfer_hash);
-    assert_eq(facet, erc20_class_hash);
-
-    let (facet) = IDiamond.facetAddress(diamond_address, transferFrom_hash);
-    assert_eq(facet, erc20_class_hash);
-
-    let (facet) = IDiamond.facetAddress(diamond_address, increaseAllowance_hash);
-    assert_eq(facet, erc20_class_hash);
-
-    let (facet) = IDiamond.facetAddress(diamond_address, decreaseAllowance_hash);
-    assert_eq(facet, erc20_class_hash);
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.balanceOf);
+    assert_eq(facet, setup.erc20_class_hash);
 
     return ();
 }
 
 @external
-func test_destructor{
+func test_facetAddress_returns_erc20_for_totalSupply{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }() {
+}() {
     alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
-    local erc20_class_hash;
-    %{ ids.erc20_class_hash = context.erc20_class_hash %}
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
 
-    // Remmove ERC20 facet to diamond
-    let (local facetCut: FacetCut*) = alloc();
-    assert facetCut[0] = FacetCut(erc20_class_hash, FacetCutAction.Remove);
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.totalSupply);
+    assert_eq(facet, setup.erc20_class_hash);
+
+    return ();
+}
+
+@external
+func test_facetAddress_returns_erc20_for_approve{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
+
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.approve);
+    assert_eq(facet, setup.erc20_class_hash);
+
+    return ();
+}
+
+@external
+func test_facetAddress_returns_erc20_for_allowance{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
+
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.allowance);
+    assert_eq(facet, setup.erc20_class_hash);
+
+    return ();
+}
+
+@external
+func test_facetAddress_returns_erc20_for_transfer{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
+
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.transfer);
+    assert_eq(facet, setup.erc20_class_hash);
+
+    return ();
+}
+
+@external
+func test_facetAddress_returns_erc20_for_transferFrom{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
+
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.transferFrom);
+    assert_eq(facet, setup.erc20_class_hash);
+
+    return ();
+}
+
+@external
+func test_facetAddress_returns_erc20_for_increaseAllowance{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
+
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.increaseAllowance);
+    assert_eq(facet, setup.erc20_class_hash);
+
+    return ();
+}
+
+@external
+func test_facetAddress_returns_erc20_for_decreaseAllowance{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+    let erc20 = getERC20Selectors();
+    let setup = getSetup();
+
+    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.decreaseAllowance);
+    assert_eq(facet, setup.erc20_class_hash);
+
+    return ();
+}
+
+@external
+func test_constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+    let setup = getSetup();
+
+    // Assert that initialzation yields expected balance for User
+    let (user_balance: Uint256) = IERC20.balanceOf(setup.diamond_address, User);
+    assert_eq(user_balance.low, 1000000);
+    assert_eq(user_balance.high, 0);
+
+    return ();
+}
+
+@external
+func test_destructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+    let setup = getSetup();
+
+    // Remove ERC20 facet from diamond
     let facetCut_len = 1;
-    let (local calldata: felt*) = alloc();
-    assert calldata[0] = 0;
+    tempvar facetCut = new FacetCut(setup.erc20_class_hash, FacetCutAction.Remove);
+
     let calldata_len = 1;
+    tempvar calldata = new (0);
+
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    IDiamondCut.diamondCut(setup.diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
-
-    local owner;
-    local balance;
-    local token_approval;
-    local operator_approval;
-    %{
-        ids.owner = load(context.diamond_address, "owners_", "felt", key=[1, 0])[0]
-        balance = load(context.diamond_address, "balances_", "Uint256", key=[ids.User])
-        ids.balance = balance[0] + 2**128 * balance[1]
-        ids.token_approval = load(context.diamond_address, "token_approvals_", "felt",key=[1, 0])[0]
-        ids.operator_approval = load(context.diamond_address, "operator_approvals_", "felt", key=[ids.User, ids.Adversary])[0]
-    %}
-
-    // Assert that storage variables are not initialized
-    assert_eq(owner, 0);
-    assert_eq(balance, 0);
-    assert_eq(token_approval, 0);
-    assert_eq(operator_approval, 0);
 
     return ();
 }
