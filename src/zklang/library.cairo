@@ -43,10 +43,6 @@ struct DataTypes {
 }
 
 @storage_var
-func process_(i: felt) -> (process_state_hash: felt) {
-}
-
-@storage_var
 func fun_selector_index_(i: felt) -> (fun_selector: felt) {
 }
 
@@ -110,6 +106,8 @@ namespace Program {
         _program_len: felt, _program: felt*
     ) -> () {
         alloc_locals;
+        // TODO verifiy all class hashes are included as facets
+        // TODO verify that facets have primitive
 
         if (_program_len == 0) {
             return ();

@@ -3,15 +3,20 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.registers import get_label_location
-from src.ERC2535.library import Diamond
 
-from src.constants import API, FUNCTION_SELECTORS
+from src.constants import API
 from src.Storage.IFlobDB import IFlobDB
 from src.zklang.library import Program, Memory, Function, State
-
-@event
-func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*) {
-}
+from src.zklang.primitives.core import (
+    __ZKLANG__EXEC,
+    __ZKLANG__EVENT,
+    __ZKLANG__RETURN,
+    __ZKLANG__BRANCH,
+    __ZKLANG__SET_FUNCTION,
+    __ZKLANG__KILL_PROCESS,
+    __ZKLANG__START_PROCESS,
+    __ZKLANG__ASSERT_ONLY_OWNER,
+)
 
 @external
 @raw_input
@@ -56,6 +61,7 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         );
 
         if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
+            // return memory?
             return (res[0], res + 1);
         }
 
@@ -84,82 +90,6 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     }
 }
 
-// =================
-// Zklang Primitives
-// =================
-@external
-func __ZKLANG__RETURN{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _res_len: felt, _res: felt*
-) -> (res_len: felt, res: felt*) {
-    return (_res_len, _res);
-}
-
-struct Branch {
-    x: felt,
-    pc_if_true: felt,
-    pc_if_false: felt,
-}
-
-@external
-func __ZKLANG__BRANCH{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
-) -> (res_len: felt, res: felt*) {
-    assert _calldata_len = Branch.SIZE;
-    let branch = cast(_calldata, Branch*);
-    if (branch.x == TRUE) {
-        tempvar res = new (branch.pc_if_true,);
-        return (res_len=1, res=res);
-    }
-    tempvar res = new (branch.pc_if_false,);
-    return (res_len=1, res=res);
-}
-
-@external
-func __ZKLANG__EVENT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _key: felt, _val_len: felt, _val: felt*
-) {
-    __ZKLANG__EMIT.emit(_key, _val_len, _val);
-    return ();
-}
-
-@view
-func __ZKLANG__REVERT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    with_attr error_message("__ZKLANG__REVERT") {
-        assert 1 = 0;
-    }
-    return ();
-}
-
-@external
-func __ZKLANG__SET_FUNCTION{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
-) -> () {
-    assert _calldata_len = Function.SIZE;
-    let fun = cast(_calldata, Function*);
-    State.set_fun(fun[0]);
-    return ();
-}
-
-@external
-func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _program_len: felt, _program: felt*
-) {
-    // TODO exec loop for code
-    // TODO emit state
-    // TODO store hash of state
-    return ();
-}
-
-@external
-func __ZKLANG__ASSERT_ONLY_OWNER{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
-) -> () {
-    assert _calldata_len = 0;
-    Diamond.Assert.only_owner();
-
-    return ();
-}
-
 // ===============
 // Facet Detection
 // ===============
@@ -186,7 +116,7 @@ func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() 
     retdata_size: felt, retdata: felt*
 ) {
     let (func_selectors) = get_label_location(selectors_start);
-    return (retdata_size=6, retdata=cast(func_selectors, felt*));
+    return (retdata_size=7, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw API.CORE.__ZKLANG__RETURN;
@@ -198,7 +128,7 @@ func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() 
     dw API.CORE.__ZKLANG__ASSERT_ONLY_OWNER;
 }
 
-// / @return Array of registered zklang functions
+// @return Array of registered zklang functions
 @view
 @raw_output
 func __get_function_selectors__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
