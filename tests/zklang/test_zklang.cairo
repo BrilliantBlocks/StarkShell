@@ -14,6 +14,7 @@ from src.zklang.library import Function
 from tests.zklang.fun.invertBoolean import invertBoolean
 from tests.zklang.fun.returnCalldata import returnCalldata
 from tests.zklang.fun.setZKLangFun import setZKLangFun
+from tests.zklang.fun.interpreteInstruction import interpreteInstruction
 
 from protostar.asserts import assert_eq
 
@@ -139,9 +140,14 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let (invertBoolean_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
     %{ context.invertBoolean_hash = ids.invertBoolean_hash %}
 
+    let (felt_code_len, felt_code) = interpreteInstruction();
+    let (interpretInstruction_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
+    %{ context.interpretInstruction_hash = ids.interpretInstruction_hash %}
+
     local fun_selector_returnCalldata;
     local fun_selector_setZKLangFun;
     local fun_selector_invertBoolean;
+    local fun_selector_interpreteInstruction;
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         context.fun_selector_returnCalldata = get_selector_from_name("returnCalldata")
@@ -150,12 +156,13 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         ids.fun_selector_setZKLangFun = context.fun_selector_setZKLangFun
         context.fun_selector_foo = get_selector_from_name("foo")
         ids.fun_selector_invertBoolean = get_selector_from_name("invertBoolean")
+        ids.fun_selector_interpreteInstruction = get_selector_from_name("interpreteInstruction")
     %}
 
     // User1 mints a diamond and adds ERC-1155 and ZKlang
     tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add), FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 2;
-    tempvar calldata: felt* = new (6, User1, 1, 1, 0, 1, 0, 10, 3, Function(fun_selector_returnCalldata, program_hash, repo_address), Function(fun_selector_setZKLangFun, setZKLangFun_hash, repo_address), Function(fun_selector_invertBoolean, invertBoolean_hash, repo_address),);
+    tempvar calldata: felt* = new (6, User1, 1, 1, 0, 1, 0, 10, 3, Function(fun_selector_returnCalldata, program_hash, repo_address), Function(fun_selector_setZKLangFun, setZKLangFun_hash, repo_address), Function(fun_selector_invertBoolean, invertBoolean_hash, repo_address), Function(fun_selector_interpreteInstruction, interpretInstruction_hash, repo_address),);
     let calldata_len = 18;
 
     %{ stop_prank = start_prank(ids.User1, context.TCF_address) %}
@@ -225,6 +232,11 @@ namespace ITestZKLangFun {
     }
 
     func invertBoolean(_bool: felt) -> (_invertedBool: felt) {
+    }
+
+    func interpreteInstruction(
+        _pid: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+    ) -> (res_len: felt, res: felt*) {
     }
 }
 
