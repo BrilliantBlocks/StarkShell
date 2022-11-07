@@ -72,6 +72,7 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             );
         }
 
+        // TODO improve error message if var not present
         let (new_memory_len, new_memory) = Memory.update_variable(
             instruction.output.selector, _memory_len, _memory, res_len, res
         );
@@ -88,14 +89,23 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @external
 func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+    //_program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+    _calldata_len: felt, _calldata: felt*
 ) -> (res_len: felt, res: felt*) {
+    alloc_locals;
+
+    tempvar program = _calldata + 1;
+    local program_len = _calldata[0];
+    tempvar memory = _calldata + program_len + 2;
+    local memory_len = _calldata[program_len + 1];
+
+    // TODO return state
     let (res_len, res, _, _) = exec_loop(
         _pc=0,
-        _program_len=_program_len,
-        _program=_program,
-        _memory_len=_memory_len,
-        _memory=_memory,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
     );
 
     return (res_len, res);

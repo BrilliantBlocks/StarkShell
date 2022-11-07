@@ -50,10 +50,10 @@ func interpreteInstruction() -> (res_len: felt, res: felt*) {
         output=NULLvar,
         );
 
-    tempvar memory_layout = ();
+    tempvar memory_layout = (ResultVar);
 
     let instruction_len = 3 * Instruction.SIZE;
-    let memory_layout_len = 0;
+    let memory_layout_len = 1 * Variable.SIZE;
     let total_len = instruction_len + memory_layout_len + 1;
     let felt_code_len = total_len + 1;
 

@@ -9,7 +9,7 @@ from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 from src.Storage.IFlobDB import IFlobDB
 from src.zklang.IZKlang import IZKlang
-from src.zklang.library import Function
+from src.zklang.library import Function, Instruction, Primitive, Variable
 
 from tests.zklang.fun.invertBoolean import invertBoolean
 from tests.zklang.fun.returnCalldata import returnCalldata
@@ -342,6 +342,51 @@ func test_interpreteInstruction_reverts_if_caller_not_owner{
         setup.diamond_address, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}
+
+    return ();
+}
+
+@external
+func test_interpreteInstruction_returnCalldata{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+
+    local return_keyword;
+    local calldata_id;
+
+    %{
+        from starkware.starknet.public.abi import get_selector_from_name
+        ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
+        ids.calldata_id = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
+    %}
+
+    tempvar NULLvar = Variable(0, 0, 0, 0);
+    tempvar Calldata = Variable(calldata_id, 0, 0, 0);
+
+    tempvar instruction0 = Instruction(
+        primitive=Primitive(setup.zklang_class_hash, return_keyword),
+        input1=Calldata,
+        input2=NULLvar,
+        output=NULLvar,
+        );
+
+    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
+    tempvar program = new (instruction0);
+    tempvar memory = new (Calldata, 3, 4);
+
+    local program_len = 1 * Instruction.SIZE;
+    local memory_len = 1 * Variable.SIZE + Calldata.data_len;
+
+    %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
+    let (res_len, res) = ITestZKLangFun.interpreteInstruction(
+        setup.diamond_address, program_len, program, memory_len, memory
+    );
+    %{ stop_prank() %}
+    assert_eq(res_len, 2);
+    assert_eq(res[0], 3);
+    assert_eq(res[1], 4);
 
     return ();
 }
