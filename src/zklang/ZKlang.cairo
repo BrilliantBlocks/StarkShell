@@ -8,7 +8,6 @@ from src.constants import API
 from src.Storage.IFlobDB import IFlobDB
 from src.zklang.library import Program, Memory, Function, State
 from src.zklang.primitives.core import (
-    __ZKLANG__EXEC,
     __ZKLANG__EVENT,
     __ZKLANG__RETURN,
     __ZKLANG__BRANCH,
@@ -87,6 +86,21 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             _memory=new_memory,
         );
     }
+}
+
+@external
+func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+) -> (res_len: felt, res: felt*) {
+    let (res_len, res, _, _) = exec_loop(
+        _pc=0,
+        _program_len=_program_len,
+        _program=_program,
+        _memory_len=_memory_len,
+        _memory=_memory,
+    );
+
+    return (res_len, res);
 }
 
 // ===============
