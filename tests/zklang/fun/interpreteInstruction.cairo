@@ -8,18 +8,23 @@ func interpreteInstruction() -> (res_len: felt, res: felt*) {
     alloc_locals;
 
     local assert_only_owner_keyword;
+    local exec_keyword;
     local return_keyword;
     local calldata_id;
-
+    local res_id;
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         ids.assert_only_owner_keyword = get_selector_from_name("__ZKLANG__ASSERT_ONLY_OWNER")
         ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
+        ids.exec_keyword = get_selector_from_name("__ZKLANG__EXEC")
         ids.calldata_id = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
+        ids.res_id = get_selector_from_name("__ZKLANG__RES_VAR")
     %}
 
+    // Init variables
     tempvar NULLvar = Variable(0, 0, 0, 0);
     tempvar Calldata = Variable(calldata_id, 0, 0, 0);
+    tempvar ResultVar = Variable(res_id, 0, 0, 0);
 
     // Diamond.assert_only_owner()
     tempvar instruction0 = Instruction(
@@ -29,9 +34,25 @@ func interpreteInstruction() -> (res_len: felt, res: felt*) {
         output=NULLvar,
         );
 
+    // res = exec(_program, _memory)
+    tempvar instruction1 = Instruction(
+        primitive=Primitive(0, exec_keyword),
+        input1=Calldata,
+        input2=NULLvar,
+        output=ResultVar,
+        );
+
+    // return res
+    tempvar instruction2 = Instruction(
+        primitive=Primitive(0, return_keyword),
+        input1=ResultVar,
+        input2=NULLvar,
+        output=NULLvar,
+        );
+
     tempvar memory_layout = ();
 
-    let instruction_len = 1 * Instruction.SIZE;
+    let instruction_len = 3 * Instruction.SIZE;
     let memory_layout_len = 0;
     let total_len = instruction_len + memory_layout_len + 1;
     let felt_code_len = total_len + 1;
@@ -40,14 +61,10 @@ func interpreteInstruction() -> (res_len: felt, res: felt*) {
         total_len,
         instruction_len,
         instruction0,
+        instruction1,
+        instruction2,
         memory_layout,
         );
 
     return (felt_code_len, felt_code);
 }
-// if memory_hash(_pid) != 0; do assert hash(_program, _memory) = memory_hash(_pid)
-// res = exec _program + _new_instructions, _memory + _new_memory from _pc = &_new_instruction
-// emit StateDelta(_pid, _new_instruction, _new_memory)
-// process_.write(_pid, hash(_program + _new_instruction, _memory + _new_memory))
-// emit Process(_pid,hash(_program + _new_instruction, _memory + _new_memory))
-// return res

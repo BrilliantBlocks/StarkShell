@@ -14,10 +14,6 @@ from src.zklang.library import Program, Memory, Function, State
 func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*) {
 }
 
-@storage_var
-func process_(_pid: felt) -> (state_hash: felt) {
-}
-
 @external
 func __ZKLANG__RETURN{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _res_len: felt, _res: felt*
@@ -69,39 +65,6 @@ func __ZKLANG__SET_FUNCTION{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
     assert _calldata_len = Function.SIZE;
     let fun = cast(_calldata, Function*);
     State.set_fun(fun[0]);
-    return ();
-}
-
-@external
-func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _pid, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*,
-) {
-    // assert only owner
-    // if memory_hash(_pid) != 0; do assert hash(_program, _memory) = memory_hash(_pid)
-    // res = exec _program + _new_instructions, _memory + _new_memory from _pc = &_new_instruction
-    // emit StateDelta(_pid, _new_instruction, _new_memory)
-    // process_.write(_pid, hash(_program + _new_instruction, _memory + _new_memory))
-    // emit Process(_pid,hash(_program + _new_instruction, _memory + _new_memory))
-    // return res
-    return ();
-}
-
-@external
-func __ZKLANG__KILL_PROCESS{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
-) {
-    assert _calldata_len = 1;
-    process_.write(_calldata[0], 0);
-    // emit Process(_pid, 0)
-    return ();
-}
-
-@external
-func __ZKLANG__START_PROCESS{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
-) {
-    assert _calldata_len = 0;
-    process_.write(_calldata[0], 0);
     return ();
 }
 

@@ -12,8 +12,6 @@ from src.zklang.primitives.core import (
     __ZKLANG__RETURN,
     __ZKLANG__BRANCH,
     __ZKLANG__SET_FUNCTION,
-    __ZKLANG__KILL_PROCESS,
-    __ZKLANG__START_PROCESS,
     __ZKLANG__ASSERT_ONLY_OWNER,
 )
 
