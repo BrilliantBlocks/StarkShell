@@ -37,7 +37,7 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let (program_len, program) = Program.prepare(selector, program_len, program);
     let (memory_len, memory) = Memory.init(memory_len, memory, calldata_size, calldata);
 
-    let (retdata_size, retdata) = exec_loop(
+    let (retdata_size, retdata, _, _) = exec_loop(
         _pc=0, _program_len=program_len, _program=program, _memory_len=memory_len, _memory=memory
     );
 
@@ -46,7 +46,7 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 
 func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _pc: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
-) -> (res_len: felt, res: felt*) {
+) -> (res_len: felt, res: felt*, state_len: felt, state: felt*) {
     alloc_locals;
 
     with_attr error_message("ZKL-EXEC _pc={_pc} _memory_len={_memory_len}") {
@@ -61,8 +61,7 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         );
 
         if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
-            // return memory?
-            return (res[0], res + 1);
+            return (res[0], res + 1, _memory_len, _memory);
         }
 
         if (instruction.primitive.selector == API.CORE.__ZKLANG__BRANCH) {
