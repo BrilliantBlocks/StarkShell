@@ -141,8 +141,8 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %{ context.invertBoolean_hash = ids.invertBoolean_hash %}
 
     let (felt_code_len, felt_code) = interpreteInstruction();
-    let (interpretInstruction_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
-    %{ context.interpretInstruction_hash = ids.interpretInstruction_hash %}
+    let (interpreteInstruction_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
+    %{ context.interpreteInstruction_hash = ids.interpreteInstruction_hash %}
 
     local fun_selector_returnCalldata;
     local fun_selector_setZKLangFun;
@@ -162,8 +162,24 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     // User1 mints a diamond and adds ERC-1155 and ZKlang
     tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add), FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 2;
-    tempvar calldata: felt* = new (6, User1, 1, 1, 0, 1, 0, 10, 3, Function(fun_selector_returnCalldata, program_hash, repo_address), Function(fun_selector_setZKLangFun, setZKLangFun_hash, repo_address), Function(fun_selector_invertBoolean, invertBoolean_hash, repo_address), Function(fun_selector_interpreteInstruction, interpretInstruction_hash, repo_address),);
-    let calldata_len = 18;
+
+    tempvar fun_returnCalldata = Function(fun_selector_returnCalldata, program_hash, repo_address);
+    tempvar fun_setZKLangFun = Function(fun_selector_setZKLangFun, setZKLangFun_hash, repo_address);
+    tempvar fun_invertBoolean = Function(fun_selector_invertBoolean, invertBoolean_hash, repo_address);
+    tempvar fun_interpreteInstruction = Function(fun_selector_interpreteInstruction, interpreteInstruction_hash, repo_address);
+    local fun_len = 4;
+    local fun_calldata_size = fun_len * Function.SIZE + 1;
+
+    tempvar calldata: felt* = new (
+        6, User1, 1, 1, 0, 1, 0,
+        fun_calldata_size,
+        fun_len,
+        fun_returnCalldata,
+        fun_setZKLangFun,
+        fun_invertBoolean,
+        fun_interpreteInstruction,
+        );
+    let calldata_len = 7 + fun_calldata_size + 1;
 
     %{ stop_prank = start_prank(ids.User1, context.TCF_address) %}
     let (diamond_address) = ITCF.mintContract(
@@ -235,7 +251,7 @@ namespace ITestZKLangFun {
     }
 
     func interpreteInstruction(
-        _pid: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+        _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
     ) -> (res_len: felt, res: felt*) {
     }
 }
@@ -303,6 +319,29 @@ func test_invertBoolean_returns_false_on_true{
     let (actual_res) = ITestZKLangFun.invertBoolean(setup.diamond_address, TRUE);
     let expected_res = FALSE;
     assert_eq(actual_res, expected_res);
+
+    return ();
+}
+
+@external
+func test_interpreteInstruction_reverts_if_caller_not_owner{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+    let setup = getSetup();
+
+    tempvar program = new ();
+    tempvar memory = new ();
+
+    local program_len = 0;
+    local memory_len = 0;
+
+    %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
+    %{ expect_revert(error_message="NOT AUTHORIZED") %}
+    ITestZKLangFun.interpreteInstruction(
+        setup.diamond_address, program_len, program, memory_len, memory
+    );
+    %{ stop_prank() %}
 
     return ();
 }
