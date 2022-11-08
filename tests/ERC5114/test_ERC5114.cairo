@@ -5,7 +5,7 @@ from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
-from src.ERC5114.IERC5114 import IERC5114
+from src.ERC5114.IERC5114 import IERC5114, NFT
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 
@@ -16,6 +16,8 @@ const User = 456;
 const Adversary = 789;
 
 struct ERC5114Calldata {
+    tokenId: Uint256,
+    nft: NFT,
 }
 
 struct ERC5114Selectors {
@@ -135,8 +137,14 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let facetCut_len = 1;
     tempvar facetCut = new FacetCut(setup.erc5114_class_hash, FacetCutAction.Add);
 
-    let calldata_len = 1;
-    tempvar calldata = new (0);
+    let calldata_len = ERC5114Calldata.SIZE + 1;
+    tempvar calldata = new (
+        ERC5114Calldata.SIZE,
+        ERC5114Calldata(
+            tokenId=Uint256(1, 0),
+            nft=NFT(0x789, Uint256(2, 0)),
+            )
+        );
 
     %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
     let (diamond_address) = ITCF.mintContract(
@@ -153,9 +161,11 @@ func test_constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     alloc_locals;
     let setup = getSetup();
 
-    // TODO Assert that initialzation yields expected owner for SBB
-    // let (owner: felt) = IERC5114.ownerOf(setup.diamond_address, Uint256(1,0));
-    // assert_eq(owner, User);
+    // Assert that initialzation yields expected owner for SBB
+    let (nft: NFT) = IERC5114.ownerOf(setup.diamond_address, Uint256(1, 0));
+    assert_eq(nft.id.low, 2);
+    assert_eq(nft.id.high, 0);
+    assert_eq(nft.address, 0x789);
 
     return ();
 }
