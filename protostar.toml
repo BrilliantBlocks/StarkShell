@@ -17,9 +17,6 @@ FlobDB = [
 ZKLANG = [
     "src/zklang/ZKlang.cairo"
 ]
-Arithmetic.zklang = [
-    "src/zklang/Arithmetic.zklang.cairo"
-]
 Diamond = [
     "src/ERC2535/Diamond.cairo",
 ]
@@ -46,7 +43,4 @@ ERC721 = [
 ]
 UniversalMetadata = [
     "src/UniversalMetadata/UniversalMetadata.cairo"
-]
-UniversalMint = [
-    "src/UniversalMint/UniversalMint.cairo"
 ]
