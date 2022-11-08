@@ -9,39 +9,50 @@ from starkware.starknet.common.syscalls import get_caller_address
 from src.constants import FUNCTION_SELECTORS, IERC721_ID
 from src.ERC721.library import ERC721, ERC721Library
 
-
 @view
-func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) -> (res: Uint256) {
+func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) -> (
+    res: Uint256
+) {
     let balance = ERC721._balanceOf(_owner);
     return (res=balance);
 }
 
 @view
-func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res: felt) {
+func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> (res: felt) {
     let is_owner = ERC721._ownerOf(_tokenId);
     return (res=is_owner);
 }
 
 @view
-func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res: felt) {
+func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> (res: felt) {
     let operator = ERC721._getApproved(_tokenId);
     return (res=operator);
 }
 
 @view
-func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt, _operator: felt) -> (res: felt) {
+func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _owner: felt, _operator: felt
+) -> (res: felt) {
     let is_approved = ERC721._isApprovedForAll(_owner, _operator);
     return (res=is_approved);
 }
 
 @external
-func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_to, _tokenId: Uint256) -> () {
+func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _to, _tokenId: Uint256
+) -> () {
     ERC721._approve(_to, _tokenId);
     return ();
 }
 
 @external
-func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_operator: felt, _approved: felt) -> () {
+func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _operator: felt, _approved: felt
+) -> () {
     let (caller) = get_caller_address();
     with_attr error_message("Either the caller or operator is the zero address") {
         assert_not_zero(caller * _operator);
@@ -54,14 +65,18 @@ func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 }
 
 @external
-func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256) -> () {
+func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _from: felt, _to: felt, _tokenId: Uint256
+) -> () {
     let (caller) = get_caller_address();
     ERC721._transferFrom(_from, _to, _tokenId);
     return ();
 }
 
 @external
-func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*) -> () {
+func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*
+) -> () {
     let (caller) = get_caller_address();
     ERC721._safeTransferFrom(_from, _to, _tokenId, data_len, data);
     return ();
@@ -71,12 +86,14 @@ func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 // Interface for UniversalMint
 // ===========================
 
-/// @notice Not included in __get_function_selectors__()
-/// @revert INVALID TOKEN ID
-/// @revert ZERO ADDRESS
-/// @revert EXISTING TOKEN ID
+// / @notice Not included in __get_function_selectors__()
+// / @revert INVALID TOKEN ID
+// / @revert ZERO ADDRESS
+// / @revert EXISTING TOKEN ID
 @external
-func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_to: felt, _tokenId: Uint256) -> () {
+func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _to: felt, _tokenId: Uint256
+) -> () {
     ERC721._mint(_to, _tokenId);
     return ();
 }
@@ -85,19 +102,29 @@ func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_to: 
 // Mandatory functions
 // ===================
 
-/// @dev Initialize this facet
+// @dev Initialize this facet
 @external
-func __constructor__() -> () {
+func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _to: felt, _tokenId_len: felt, _tokenId: Uint256*
+) {
+    alloc_locals;
+
+    if (_tokenId_len == 0) {
+        return ();
+    }
+
+    ERC721._mint(_to, _tokenId[0]);
+
+    return __constructor__(_to, _tokenId_len - 1, _tokenId + Uint256.SIZE);
+}
+
+// @dev Remove this facet
+@external
+func __destructor__() {
     return ();
 }
 
-/// @dev Remove this facet
-@external
-func __destructor__() -> () {
-    return ();
-}
-
-/// @dev Exported view and invokable functions of this facet
+// @dev Exported view and invokable functions of this facet
 @view
 @raw_output
 func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
@@ -115,7 +142,7 @@ func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
     dw FUNCTION_SELECTORS.ERC721.safeTransferFrom;
 }
 
-/// @dev Define all supported interfaces of this facet
+// @dev Define all supported interfaces of this facet
 @view
 func __supports_interface__(_interface_id: felt) -> (res: felt) {
     if (_interface_id == IERC721_ID) {

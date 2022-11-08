@@ -2,6 +2,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC2535.IDiamond import IDiamond
@@ -11,10 +12,15 @@ from src.constants import NULL
 
 from protostar.asserts import assert_eq, assert_not_eq
 
-
 const BrilliantBlocks = 123;
 const User = 456;
 
+struct ERC721Calldata {
+    receiver: felt,
+    tokenId_len: felt,  // 2
+    tokenId0: Uint256,
+    tokenId1: Uint256,
+}
 
 @external
 func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
@@ -69,11 +75,11 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     return ();
 }
 
-/// @dev DiamondCut facet has an empty destructor
+// / @dev DiamondCut facet has an empty destructor
 @external
 func test_diamondCut_remove_diamondCut{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }() {
+}() {
     alloc_locals;
     local TCF_address;
     local erc721_class_hash;
@@ -108,11 +114,9 @@ func test_diamondCut_remove_diamondCut{
     return ();
 }
 
-/// @dev ERC721 facet has an empty constructor
+// / @dev ERC721 facet has an empty constructor
 @external
-func test_diamondCut_add_erc721{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-    }() {
+func test_diamondCut_add_erc721{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
     local erc721_class_hash;
     local diamondCut_class_hash;
@@ -131,9 +135,18 @@ func test_diamondCut_add_erc721{
     assert facetCut[0].facetAddress = erc721_class_hash;
     assert facetCut[0].facetCutAction = FacetCutAction.Add;
     let facetCut_len = 1;
-    let (local calldata: felt*) = alloc();
-    assert calldata[0] = 0;
-    let calldata_len = 1;
+
+    let calldata_len = ERC721Calldata.SIZE + 1;
+    tempvar calldata = new (
+        ERC721Calldata.SIZE,
+        ERC721Calldata(
+            receiver=User,
+            tokenId_len=2,
+            tokenId0=Uint256(1, 0),
+            tokenId1=Uint256(3, 0),
+            ),
+        );
+
     IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank_callable() %}
 

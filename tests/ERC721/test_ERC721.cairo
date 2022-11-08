@@ -16,6 +16,10 @@ const User = 456;
 const Adversary = 789;
 
 struct ERC721Calldata {
+    receiver: felt,
+    tokenId_len: felt,  // 2
+    tokenId0: Uint256,
+    tokenId1: Uint256,
 }
 
 struct ERC721Selectors {
@@ -165,7 +169,12 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let calldata_len = ERC721Calldata.SIZE + 1;
     tempvar calldata = new (
         ERC721Calldata.SIZE,
-        // ERC721Calldata(receiver=User, tokenBatch=tokenBatch),
+        ERC721Calldata(
+            receiver=User,
+            tokenId_len=2,
+            tokenId0=Uint256(1, 0),
+            tokenId1=Uint256(3, 0),
+            ),
         );
 
     %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
@@ -183,9 +192,12 @@ func test_constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     alloc_locals;
     let setup = getSetup();
 
-    // TODO Assert that initialzation yields expected token for user
-    // let (owner: felt) = IERC721.ownerOf(setup.diamond_address, Uint256(1,0));
-    // assert_eq(owner, User);
+    // Assert that initialzation yields expected token for user
+    let (owner: felt) = IERC721.ownerOf(setup.diamond_address, Uint256(1, 0));
+    assert_eq(owner, User);
+
+    let (owner: felt) = IERC721.ownerOf(setup.diamond_address, Uint256(3, 0));
+    assert_eq(owner, User);
 
     return ();
 }
