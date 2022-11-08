@@ -6,10 +6,9 @@ from starkware.starknet.common.syscalls import library_call
 from src.constants import IERC165_ID, IDIAMONDLOUPE_ID
 from src.ERC2535.library import Diamond
 
-
-/// @param _root: Address of TCF
-/// @param _facet_key Bitmap encoding included facets
-/// @param _init_calldata TODO
+// @param _root: Address of TCF
+// @param _facet_key Bitmap encoding included facets
+// @param _init_calldata TODO
 @constructor
 func constructor{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -19,7 +18,7 @@ func constructor{
     return ();
 }
 
-/// @revert UNKNOWN FUNCTION if selector not found in any facet
+// @revert UNKNOWN FUNCTION if selector not found in any facet
 @external
 @raw_input
 @raw_output
@@ -34,7 +33,7 @@ func __default__{
     return (retdata_size, retdata);
 }
 
-/// @return Array of included class hashes
+// @return Array of included class hashes
 @view
 func facetAddresses{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -43,9 +42,9 @@ func facetAddresses{
     return (facets_len, facets);
 }
 
-/// @dev Resolve alias as if they were the actual function
-/// @revert UNKNOWN FUNCTION if selector not found in any facet
-/// @return Class hash implementing _functionSelector
+// @dev Resolve alias as if they were the actual function
+// @revert UNKNOWN FUNCTION if selector not found in any facet
+// @return Class hash implementing _functionSelector
 @view
 func facetAddress{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -54,8 +53,8 @@ func facetAddress{
     return (res=class_hash);
 }
 
-/// @revert FACET NOT FOUND
-/// @return Array of selectors implemented in a facet
+// @revert FACET NOT FOUND
+// @return Array of selectors implemented in a facet
 @view
 func facetFunctionSelectors{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -65,8 +64,8 @@ func facetFunctionSelectors{
     return (selectors_len, selectors);
 }
 
-/// @dev Same as facetAddresses()
-/// @return Array of included class hashes
+// @dev Same as facetAddresses()
+// @return Array of included class hashes
 @view
 func facets{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -74,7 +73,7 @@ func facets{
     return facetAddresses();
 }
 
-/// @dev Calls all facets for their supported interfaces
+// @dev Calls all facets for their supported interfaces
 @view
 func supportsInterface{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -90,9 +89,9 @@ func supportsInterface{
     return Diamond._supportsInterface(interface_id, facets_len, facets);
 }
 
-/// @dev Aspect requires this function for token type detection
-/// @notice The respective facet must be included at deploy time
-/// @return Class hash of token type. Return 0 if no token is included
+// @dev Aspect requires this function for token type detection
+// @notice The respective facet must be included at deploy time
+// @return Class hash of token type. Return 0 if no token is included
 @view
 func getImplementation{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
@@ -102,7 +101,7 @@ func getImplementation{
     return (res=token_facet);
 }
 
-/// @return Address of root factory
+// @return Address of root factory
 @view
 func getRoot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
     let root = Diamond._get_root_();
