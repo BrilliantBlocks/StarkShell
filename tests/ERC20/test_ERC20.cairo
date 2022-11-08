@@ -161,7 +161,7 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     IBFR.registerElements(setup.TCF_address, elements_len, elements);
     %{ stop_prank() %}
 
-    // User mints a diamond with ERC-20
+    // User mints a diamond with ERC20
     let facetCut_len = 1;
     tempvar facetCut = new FacetCut(setup.erc20_class_hash, FacetCutAction.Add);
 
@@ -177,6 +177,38 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     );
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
+
+    return ();
+}
+
+@external
+func test_constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+    let setup = getSetup();
+
+    // Assert that initialzation yields expected balance for User
+    let (user_balance: Uint256) = IERC20.balanceOf(setup.diamond_address, User);
+    assert_eq(user_balance.low, 1000000);
+    assert_eq(user_balance.high, 0);
+
+    return ();
+}
+
+@external
+func test_destructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+    let setup = getSetup();
+
+    // Remove ERC20 facet from diamond
+    let facetCut_len = 1;
+    tempvar facetCut = new FacetCut(setup.erc20_class_hash, FacetCutAction.Remove);
+
+    let calldata_len = 1;
+    tempvar calldata = new (0);
+
+    %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
+    IDiamondCut.diamondCut(setup.diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    %{ stop_prank() %}
 
     return ();
 }
@@ -317,38 +349,6 @@ func test_facetAddress_returns_erc20_for_decreaseAllowance{
 
     let (facet) = IDiamond.facetAddress(setup.diamond_address, erc20.decreaseAllowance);
     assert_eq(facet, setup.erc20_class_hash);
-
-    return ();
-}
-
-@external
-func test_constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    alloc_locals;
-    let setup = getSetup();
-
-    // Assert that initialzation yields expected balance for User
-    let (user_balance: Uint256) = IERC20.balanceOf(setup.diamond_address, User);
-    assert_eq(user_balance.low, 1000000);
-    assert_eq(user_balance.high, 0);
-
-    return ();
-}
-
-@external
-func test_destructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    alloc_locals;
-    let setup = getSetup();
-
-    // Remove ERC20 facet from diamond
-    let facetCut_len = 1;
-    tempvar facetCut = new FacetCut(setup.erc20_class_hash, FacetCutAction.Remove);
-
-    let calldata_len = 1;
-    tempvar calldata = new (0);
-
-    %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(setup.diamond_address, facetCut_len, facetCut, calldata_len, calldata);
-    %{ stop_prank() %}
 
     return ();
 }
