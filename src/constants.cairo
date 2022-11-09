@@ -45,6 +45,13 @@ namespace FUNCTION_SELECTORS {
         const loadRange = 0x1aeca00e94515d2f6b26e6d60776bba9e2786fa0e615fe600d22a096f711521;
     }
 
+    namespace IBFR {
+        const calculateKey = 0x2a5b44d6ee0a59c8c56c2e1fff32c18d3b87c4ec460920be3297c2355cec67f;
+        const resolveKey = 0x34ea21e3feb6a55c5631f40cdf6d951f873a548a2eb398ea8f2ad9be519c25;
+        const registerElement = 0x1f89a3afca1cd2076a205fe4fc46370aaed0c49f69700691b395a723e96acaf;
+        const registerElements = 0x3a0ee961d57284081ae38806062751e01756e9e9e17a6d14e80baa5095b602;
+    }
+
     namespace ZKLANG {
         const deployFunction = 0x1008fe667b9955289844cffb814a4b61b214ab7a1a21f3fc65d2c0f8282925d;
         const deleteFunction = 0x2de4b6e06c340728301857560302e43269482dbe0cd4924767a1652d8941549;
@@ -52,6 +59,10 @@ namespace FUNCTION_SELECTORS {
         const __ZKLANG__ARITHMETIC__ADD = 0x1af2cf64315936187c966982e51c7895c3739948ae40fd37e0c616d982bb779;
         const __ZKLANG__ARITHMETIC__SUB = 0x286d1bf0077cee93474ec5fc6e5cafe256dfb90b491eae4c2331af87e2e6172;
         const __ZKLANG__CONDITIONAL__IF = 0xdf1eed657783673942e00c5368c0f086bb31d1fce2ee2227e92272def63b03;
+    }
+
+    namespace Init {
+        const init = 0x3b6771b04b068edcfb8c265b21ed5c6a5748d427138f776f3f164cc45f75b31;
     }
 
     namespace DIAMONDCUT {

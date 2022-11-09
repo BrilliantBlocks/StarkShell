@@ -12,9 +12,10 @@ from src.ERC2535.library import Diamond
 @constructor
 func constructor{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
-}(_root: felt, _facet_key: felt) {
+}(_root: felt, _facet_key: felt, _init_facet: felt) {
     Diamond._set_facet_key_(_facet_key);
     Diamond._set_root_(_root);
+    Diamond._set_init_root_(_init_facet);
     return ();
 }
 

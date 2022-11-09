@@ -26,7 +26,7 @@ func diamondCut{
 
 // @dev Initialize this facet
 @external
-func __constructor__() -> () {
+func __constructor__(_x_len: felt, _x: felt*) -> () {
     return ();
 }
 

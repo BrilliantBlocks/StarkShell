@@ -25,17 +25,20 @@ from src.ERC2535.IDiamondCut import Fee, FacetCut, FacetCutAction
 from src.ERC721.IERC721 import IERC721
 from src.BFR.IBFR import IBFR
 
-
-/// @dev Store the address of the factory contract
-/// @return Address of its parent smart contract
+// / @dev Store the address of the factory contract
+// / @return Address of its parent smart contract
 @storage_var
 func root_() -> (res: felt) {
 }
 
-/// @dev Use bitmap of facet configuration in facet flyweight
-/// @return Bitmap
+// / @dev Use bitmap of facet configuration in facet flyweight
+// / @return Bitmap
 @storage_var
 func facet_key_() -> (res: felt) {
+}
+
+@storage_var
+func init_root_() -> (res: felt) {
 }
 
 namespace Diamond {
@@ -46,10 +49,22 @@ namespace Diamond {
         range_check_ptr,
     }() -> (res_len: felt, res: felt*) {
         alloc_locals;
+
         let (key: felt) = facet_key_.read();
+
+        // set root self address after first diamondCut?
         let (r: felt) = root_.read();
-        let (f_len: felt, f: felt*) = IBFR.resolveKey(r, key);
-        return (f_len, f);
+
+        // if root; do return predefined list of facets
+        if (r == 0) {
+            let (diamondCut_facet: felt) = init_root_.read();
+            let f_len = 1;
+            tempvar f: felt* = new (diamondCut_facet);
+            return (f_len, f);
+        } else {
+            let (f_len: felt, f: felt*) = IBFR.resolveKey(r, key);
+            return (f_len, f);
+        }
     }
 
     func _facetAddress{
@@ -111,9 +126,7 @@ namespace Diamond {
         pedersen_ptr: HashBuiltin*,
         bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
-    }(
-    _facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*
-    ) -> () {
+    }(_facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*) -> () {
         alloc_locals;
 
         if (_facetCut_len == 0) {
@@ -123,7 +136,8 @@ namespace Diamond {
             return ();
         }
 
-        let (root) = root_.read();
+        // let (root) = root_.read();
+        let root = _get_root_();
         let (facets_len, facets) = _facetAddresses();
 
         let (local new_facet: felt*) = alloc();
@@ -158,46 +172,61 @@ namespace Diamond {
         if (_calldata_len == 0) {
             assert facetCutCalldata_len = 0;
         } else {
-            if (_calldata[0] == 0){
+            if (_calldata[0] == 0) {
                 assert facetCutCalldata_len = 0;
             } else {
                 assert facetCutCalldata_len = _calldata[0];
-                with_attr error_message("INVALID CALLDATA FORMAT") {
+                local x = _facetCut_len;
+                with_attr error_message(
+                        "INVALID CALLDATA FORMAT x={x} _calldata_len={_calldata_len} {facetCutCalldata_len}") {
                     memcpy(dst=facetCutCalldata, src=_calldata + 1, len=_calldata_len - 1);
                 }
             }
         }
         let selector = Library._if_x_eq_true_return_y_else_z(
-                    x=_facetCut[0].facetCutAction,
-                    y=FUNCTION_SELECTORS.FACET.__destructor__,
-                    z=FUNCTION_SELECTORS.FACET.__constructor__,
-                );
-        library_call(
-            class_hash=_facetCut[0].facetAddress,
-            function_selector=selector,
-            calldata_size=facetCutCalldata_len,
-            calldata=facetCutCalldata,
+            x=_facetCut[0].facetCutAction,
+            y=FUNCTION_SELECTORS.FACET.__destructor__,
+            z=FUNCTION_SELECTORS.FACET.__constructor__,
         );
 
-        let (local new_calldata: felt*) =  alloc();
+        local y = facetCutCalldata_len;
+        local a0 = facetCutCalldata[0];
+        local a1 = facetCutCalldata[1];
+        local a2 = facetCutCalldata[2];
+        local a3 = facetCutCalldata[3];
+        local a4 = facetCutCalldata[4];
+        local a5 = facetCutCalldata[5];
+        // local a4 = facetCutCalldata[4];
+        with_attr error_message("ERROR in library_call {y} {a0} {a1} {a2} {a3} {a4} {a5}") {
+            library_call(
+                class_hash=_facetCut[0].facetAddress,
+                function_selector=selector,
+                calldata_size=facetCutCalldata_len,
+                calldata=facetCutCalldata,
+            );
+        }
+
+        let (local new_calldata: felt*) = alloc();
         let new_calldata_len = _calldata_len - facetCutCalldata_len - 1;
 
         if (_calldata_len == 0) {
-            with_attr error_message("INVALID CALLDATA FORMAT") {
+            local y = _facetCut_len;
+            with_attr error_message("INVALID CALLDATA FORMAT y={y}") {
                 assert _facetCut_len = 1;
             }
         } else {
             // TODO test
             // memcpy(dst=new_calldata, src=_calldata, len=0);
             // memcpy(dst=new_calldata, src=_calldata, len=1); // => new_calldata[0] = 3
-            memcpy(dst=new_calldata, src=_calldata + facetCutCalldata_len + 1, len=_calldata_len - facetCutCalldata_len - 1);
+            memcpy(
+                dst=new_calldata,
+                src=_calldata + facetCutCalldata_len + 1,
+                len=_calldata_len - facetCutCalldata_len - 1,
+            );
         }
 
         return _diamondCut(
-            _facetCut_len - 1,
-            _facetCut + FacetCut.SIZE,
-            new_calldata_len,
-            new_calldata,
+            _facetCut_len - 1, _facetCut + FacetCut.SIZE, new_calldata_len, new_calldata
         );
     }
 
@@ -219,6 +248,13 @@ namespace Diamond {
 
     func _set_root_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_root: felt) {
         root_.write(_root);
+        return ();
+    }
+
+    func _set_init_root_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _facet: felt
+    ) {
+        init_root_.write(_facet);
         return ();
     }
 
@@ -266,7 +302,10 @@ namespace Diamond {
     }
 
     func _supportsInterface{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(interface_id: felt, facets_len: felt, facets: felt*) -> (res: felt) {
         alloc_locals;
         if (facets_len == 0) {
@@ -280,7 +319,10 @@ namespace Diamond {
     }
 
     func _find_token_facet{
-        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
     }(facets_len: felt, facets: felt*) -> felt {
         if (facets_len == 0) {
             return NULL;

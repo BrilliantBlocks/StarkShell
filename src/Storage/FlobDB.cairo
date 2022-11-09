@@ -103,7 +103,11 @@ func loadCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 // / @dev Initialize this facet
 @external
-func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _data_len: felt, _data: felt*
+) -> () {
+    store(_data_len, _data);
+
     return ();
 }
 

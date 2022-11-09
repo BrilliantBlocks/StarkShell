@@ -119,6 +119,7 @@ func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
     _fun_len: felt, _fun: Function*
 ) -> () {
     alloc_locals;
+
     if (_fun_len == 0) {
         return ();
     }
