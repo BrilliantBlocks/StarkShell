@@ -125,7 +125,7 @@ func declareContracts() -> () {
 }
 
 func deployRootDiamondFactory() -> () {
-    %{ context.rootFactory = deploy_contract("./src/ERC2535/Init.cairo").contract_address %}
+    %{ context.rootFactory = deploy_contract("./src/ERC2535/Init.cairo", []).contract_address %}
 
     return ();
 }

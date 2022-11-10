@@ -6,7 +6,8 @@ from starkware.cairo.common.registers import get_label_location
 
 from src.constants import API
 from src.Storage.IFlobDB import IFlobDB
-from src.zklang.library import Program, Memory, Function, State
+from src.zklang.library import Program, Memory, State
+from src.zklang.structs import Function
 from src.zklang.primitives.core import (
     __ZKLANG__EVENT,
     __ZKLANG__RETURN,

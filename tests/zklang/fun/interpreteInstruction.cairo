@@ -1,8 +1,7 @@
-%lang starknet
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 
-from src.zklang.library import Function, Instruction, Primitive, Variable
+from src.zklang.structs import Primitive, Variable, Instruction
 
 func interpreteInstruction() -> (res_len: felt, res: felt*) {
     alloc_locals;

@@ -9,38 +9,7 @@ from starkware.starknet.common.syscalls import get_contract_address, library_cal
 from src.constants import API
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.library import Library
-
-struct Primitive {
-    class_hash: felt,
-    selector: felt,
-}
-
-struct Function {
-    selector: felt,
-    program_hash: felt,
-    repo_address: felt,
-    // group: felt,
-}
-
-struct Variable {
-    selector: felt,
-    protected: felt,
-    type: felt,
-    data_len: felt,
-    // owner: felt, // fun or group
-}
-
-struct Instruction {
-    primitive: Primitive,
-    input1: Variable,
-    input2: Variable,
-    output: Variable,
-}
-
-struct DataTypes {
-    FELT: felt,
-    BOOL: felt,
-}
+from src.zklang.structs import DataTypes, Instruction, Function, Primitive, Variable
 
 @storage_var
 func fun_selector_index_(i: felt) -> (fun_selector: felt) {

@@ -8,7 +8,7 @@ from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 from src.Storage.IFlobDB import IFlobDB
-from src.zklang.library import Function, Instruction, Primitive, Variable
+from src.zklang.structs import Function, Instruction, Primitive, Variable
 
 from tests.zklang.fun.invertBoolean import invertBoolean
 from tests.zklang.fun.returnCalldata import returnCalldata

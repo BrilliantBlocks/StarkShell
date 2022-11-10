@@ -1,27 +1,7 @@
-// %lang starknet
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
-// TODO import structs
 
-struct Primitive {
-    class_hash: felt,
-    selector: felt,
-}
-
-struct Variable {
-    selector: felt,
-    protected: felt,
-    type: felt,
-    data_len: felt,
-    // owner: felt, // fun or group
-}
-
-struct Instruction {
-    primitive: Primitive,
-    input1: Variable,
-    input2: Variable,
-    output: Variable,
-}
+from src.zklang.structs import Primitive, Variable, Instruction
 
 func setZKLangFun() -> (res_len: felt, res: felt*) {
     alloc_locals;

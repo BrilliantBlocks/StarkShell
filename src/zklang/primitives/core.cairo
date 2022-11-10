@@ -7,7 +7,8 @@ from src.ERC2535.library import Diamond
 
 from src.constants import API, FUNCTION_SELECTORS
 from src.Storage.IFlobDB import IFlobDB
-from src.zklang.library import Program, Memory, Function, State
+from src.zklang.library import Program, Memory, State
+from src.zklang.structs import Function
 
 
 @event
