@@ -165,7 +165,35 @@ func __setup__{
 }
 
 @external
-func test_{
+func test_getRoot_returns_rootAddress{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let addr: Address = getAddresses();
+
+    let (root: felt) = IDiamond.getRoot(addr.rootDiamond);
+    assert_eq(root, addr.rootDiamond);
+
+    return ();
+}
+
+@external
+func test_facets_returns_five_class_hashes{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let addr: Address = getAddresses();
+
+    let (facets_len, _) = IDiamond.facets(addr.rootDiamond);
+    assert_eq(facets_len, 5);
+
+    return ();
+}
+
+@external
+func test_getImplementation_returns_erc721_hash{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
@@ -173,7 +201,8 @@ func test_{
     let ch: ClassHash = getClassHashes();
     let addr: Address = getAddresses();
 
-    assert_not_eq(addr.rootDiamond, 0);
+    let (implementation: felt) = IDiamond.getImplementation(addr.rootDiamond);
+    assert_eq(implementation, ch.erc721);
 
     return ();
 }

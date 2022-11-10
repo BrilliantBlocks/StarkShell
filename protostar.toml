@@ -14,11 +14,14 @@ cairo_path = ["./lib/cairo_streams/src/"]
 Init = [
     "src/ERC2535/Init.cairo",
 ]
+BFR = [
+    "src/BFR/BFR.cairo",
+]
 FlobDB = [
-    "src/Storage/FlobDB.cairo"
+    "src/Storage/FlobDB.cairo",
 ]
 ZKLANG = [
-    "src/zklang/ZKlang.cairo"
+    "src/zklang/ZKlang.cairo",
 ]
 Diamond = [
     "src/ERC2535/Diamond.cairo",
@@ -26,24 +29,18 @@ Diamond = [
 DiamondCut = [
     "src/ERC2535/DiamondCut.cairo",
 ]
-BFR = [
-    "src/main/BFR/BFR.cairo"
-]
-TCF = [
-    "src/main/TCF/TCF.cairo"
-]
 ERC1155 = [
-    "src/ERC1155/ERC1155.cairo"
+    "src/ERC1155/ERC1155.cairo",
 ]
 ERC20 = [
-    "src/ERC20/ERC20.cairo"
+    "src/ERC20/ERC20.cairo",
 ]
 ERC5114 = [
-    "src/ERC5114/ERC5114.cairo"
+    "src/ERC5114/ERC5114.cairo",
 ]
 ERC721 = [
-    "src/ERC721/ERC721.cairo"
+    "src/ERC721/ERC721.cairo",
 ]
 UniversalMetadata = [
-    "src/UniversalMetadata/UniversalMetadata.cairo"
+    "src/UniversalMetadata/UniversalMetadata.cairo",
 ]

@@ -3,7 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
 from starkware.starknet.common.syscalls import library_call
-from src.constants import IERC165_ID, IDIAMONDLOUPE_ID
+from src.constants import FUNCTION_SELECTORS, IERC165_ID, IDIAMONDLOUPE_ID
 from src.ERC2535.library import Diamond
 
 // @param _root: Address of TCF
@@ -27,10 +27,35 @@ func __default__{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(selector: felt, calldata_size: felt, calldata: felt*) -> (retdata_size: felt, retdata: felt*) {
     alloc_locals;
-    let (facet: felt) = facetAddress(selector);
-    let (retdata_size: felt, retdata: felt*) = library_call(
-        class_hash=facet, function_selector=selector, calldata_size=calldata_size, calldata=calldata
-    );
+    local facet: felt;
+    local retdata_size: felt;
+    local retdata: felt*;
+
+    const BFR = 3261151192973093659944309522837038540251789525308420142061432178155060881721;
+    if (selector == FUNCTION_SELECTORS.IBFR.resolveKey) {
+        // library call to BFR facet
+        let (retdata_size: felt, retdata: felt*) = library_call(
+            class_hash=BFR,
+            function_selector=selector,
+            calldata_size=calldata_size,
+            calldata=calldata,
+        );
+        tempvar pedersen_ptr = pedersen_ptr;
+        tempvar bitwise_ptr = bitwise_ptr;
+        tempvar range_check_ptr = range_check_ptr;
+    } else {
+        let (facet: felt) = facetAddress(selector);
+        let (retdata_size: felt, retdata: felt*) = library_call(
+            class_hash=facet,
+            function_selector=selector,
+            calldata_size=calldata_size,
+            calldata=calldata,
+        );
+        tempvar pedersen_ptr = pedersen_ptr;
+        tempvar bitwise_ptr = bitwise_ptr;
+        tempvar range_check_ptr = range_check_ptr;
+    }
+
     return (retdata_size, retdata);
 }
 

@@ -5,6 +5,7 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
 from starkware.cairo.common.math import split_felt, assert_not_zero
 from starkware.cairo.common.memcpy import memcpy
+from starkware.cairo.common.pow import pow
 from starkware.cairo.common.registers import get_label_location
 from starkware.starknet.common.syscalls import (
     deploy,
@@ -61,6 +62,11 @@ struct DiamondCalldata {
 func NewRootDiamond(address: felt) {
 }
 
+@constructor
+func constructor(_x_len: felt, _x: felt*) {
+    return ();
+}
+
 @external
 func deployRootDiamond{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
@@ -87,7 +93,8 @@ func deployRootDiamond{
     }
 
     // Root diamonds are created with this contract as their only facet
-    with_attr error_message("FAILED DEPLOYMENT") {
+    local x = _class.diamond;
+    with_attr error_message("FAILED DEPLOYMENT x={x}") {
         let (address) = deploy(
             class_hash=_class.diamond,
             contract_address_salt=salt,
@@ -181,9 +188,11 @@ func init{
 
     Diamond._diamondCut(facetCut_len, facetCut, calldata_len, calldata);
 
+    let (facetKey) = pow(2, facetCut_len);
+    let facetKey = facetKey - 1;
     // Activate configuration
     Diamond._set_root_(self);
-    Diamond._set_facet_key_(facetCut_len ** 2 - 1);
+    Diamond._set_facet_key_(facetKey);
     Diamond._set_init_root_(0);
 
     return ();
