@@ -1,14 +1,16 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC1155.IERC1155 import TokenBatch
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC1155.IERC1155 import IERC1155
+from src.ERC2535.Init import IRootDiamondFactory, ClassHash
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
+from tests.zklang.fun.setZKLangFun import setZKLangFun
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -16,153 +18,162 @@ const BrilliantBlocks = 123;
 const User = 456;
 const Adversary = 789;
 
-struct Setup {
-    bfr_classHash: felt,
-    diamond_classHash: felt,
-    diamondCut_classHash: felt,
-    erc721_classHash: felt,
-    flobDb_classHash: felt,
-    rootAddress: felt,
-    self_classHash: felt,
-    zklang_classHash: felt,
+struct Selector {
+    setZKLangFun: felt,
 }
 
-func getSetup() -> Setup {
+func getSelectors() -> Selector {
     alloc_locals;
-    local rootAddress;
-    local self_classHash;
-    local diamond_classHash;
-    local diamondCut_classHash;
-    local erc721_classHash;
-    local bfr_classHash;
-    local zklang_classHash;
-    local flobDb_classHash;
+    local setZKLangFun;
 
     %{
         variables = [
-            "bfr_classHash",
-            "diamond_classHash",
-            "diamondCut_classHash",
-            "erc721_classHash",
-            "flobDb_classHash",
-            "rootAddress",
-            "self_classHash",
-            "zklang_classHash",
+            "setZKLangFun",
             ]
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
 
-    local setup: Setup = Setup(
-        bfr_classHash,
-        diamond_classHash,
-        diamondCut_classHash,
-        erc721_classHash,
-        flobDb_classHash,
-        rootAddress,
-        self_classHash,
-        zklang_classHash,
+    local selectors: Selector = Selector(
+        setZKLangFun,
         );
 
-    return setup;
+    return selectors;
+}
+
+func getClassHashes() -> ClassHash {
+    alloc_locals;
+    local bfr;
+    local diamond;
+    local diamondCut;
+    local erc721;
+    local flobDb;
+    local rootDiamondFactory;
+    local zklang;
+
+    %{
+        variables = [
+            "bfr",
+            "diamond",
+            "diamondCut",
+            "erc721",
+            "flobDb",
+            "rootDiamondFactory",
+            "zklang",
+            ]
+        [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
+    %}
+
+    local classHashes: ClassHash = ClassHash(
+        bfr,
+        diamond,
+        diamondCut,
+        erc721,
+        flobDb,
+        rootDiamondFactory,
+        zklang,
+        );
+
+    return classHashes;
+}
+
+struct Address {
+    rootDiamond: felt,
+    rootFactory: felt,
+}
+
+func getAddresses() -> Address {
+    alloc_locals;
+    local rootDiamond;
+    local rootFactory;
+
+    %{
+        variables = [
+            "rootDiamond",
+            "rootFactory",
+            ]
+        [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
+    %}
+
+    local addresses: Address = Address(
+        rootDiamond,
+        rootFactory,
+        );
+
+    return addresses;
+}
+func computeSelectors() -> () {
+    %{
+        from starkware.starknet.public.abi import get_selector_from_name
+        context.setZKLangFun = get_selector_from_name("setZKLangFun")
+    %}
+
+    return ();
 }
 
 func declareContracts() -> () {
     %{
-        context.bfr_classHash = declare("./src/BFR/BFR.cairo").class_hash
-        context.diamond_classHash = declare("./src/ERC2535/Diamond.cairo").class_hash
-        context.diamondCut_classHash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
-        context.erc721_classHash = declare("./src/ERC721/ERC721.cairo").class_hash
-        context.flobDb_classHash = declare("./src/Storage/FlobDB.cairo").class_hash
-        context.self_classHash = declare("./src/ERC2535/Init.cairo").class_hash
-        context.zklang_classHash = declare("./src/zklang/ZKlang.cairo").class_hash
+        context.bfr = declare("./src/BFR/BFR.cairo").class_hash
+        context.diamond = declare("./src/ERC2535/Diamond.cairo").class_hash
+        context.diamondCut = declare("./src/ERC2535/DiamondCut.cairo").class_hash
+        context.erc721 = declare("./src/ERC721/ERC721.cairo").class_hash
+        context.flobDb = declare("./src/Storage/FlobDB.cairo").class_hash
+        context.rootDiamondFactory = declare("./src/ERC2535/Init.cairo").class_hash
+        context.zklang = declare("./src/zklang/ZKlang.cairo").class_hash
     %}
 
     return ();
 }
 
-func deployContracts() -> () {
-    %{
-        from starkware.starknet.public.abi import get_selector_from_name
+func deployRootDiamondFactory() -> () {
+    %{ context.rootFactory = deploy_contract("./src/ERC2535/Init.cairo").contract_address %}
 
-        deploy_contract(
-                "./src/ERC2535/Init.cairo",
-                [
-                    context.bfr_classHash,
-                    context.diamond_classHash,
-                    context.diamondCut_classHash,
-                    context.erc721_classHash,
-                    context.flobDb_classHash,
-                    context.self_classHash,
-                    context.zklang_classHash,
-                    get_selector_from_name("setZKLfun"),
-                    44,  # TODO check
-                    43,
-                    42,
-                    0,
-                    1620705241796055304510457292927685118155156568947456526887978951060064028940,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    697690658782096418850967652735536154956637934916358722464095605827630102898,
-                    1708453804671938969318547263299793886104586653786513881017476101842785786944,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    519474789671654844181102151028020004295727249970389940992831474254071560581,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                ]
-        )
-    %}
+    return ();
+}
+
+func deployRootDiamond{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+
+    let addr: Address = getAddresses();
+    let ch: ClassHash = getClassHashes();
+    let sel: Selector = getSelectors();
+
+    let (code_len, code) = setZKLangFun();
+
+    let (rootDiamond) = IRootDiamondFactory.deployRootDiamond(
+        addr.rootFactory, ch, sel.setZKLangFun, code_len, code
+    );
+
+    %{ context.rootDiamond = ids.rootDiamond %}
 
     return ();
 }
 
 @external
-func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+func __setup__{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
     alloc_locals;
+
+    computeSelectors();
     declareContracts();
-    deployContracts();
-    let setup = getSetup();
+    deployRootDiamondFactory();
+    deployRootDiamond();
 
     return ();
 }
 
 @external
-func test_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+func test_{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
     alloc_locals;
-    let setup = getSetup();
 
-    assert_eq(0, 0);
+    let ch: ClassHash = getClassHashes();
+    let addr: Address = getAddresses();
+
+    assert_not_eq(addr.rootDiamond, 0);
 
     return ();
 }

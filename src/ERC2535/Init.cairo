@@ -1,7 +1,7 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
-from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
+from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
 from starkware.cairo.common.math import split_felt, assert_not_zero
 from starkware.cairo.common.memcpy import memcpy
@@ -20,7 +20,7 @@ from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction
 from src.ERC2535.library import Diamond
 from src.BFR.IBFR import IBFR
 from src.zklang.library import Function
-from src.Factory.library import Factory
+from src.ERC2535.IRootDiamondFactory import IRootDiamondFactory, ClassHash
 
 struct BFRCalldata {
     erc721ClassHash: felt,
@@ -57,39 +57,19 @@ struct DiamondCalldata {
     initFacet: felt,
 }
 
-struct ClassHash {
-    bfr: felt,
-    diamond: felt,
-    diamondCut: felt,
-    erc721: felt,
-    flobDb: felt,
-    self: felt,
-    zklang: felt,
+@event
+func NewRootDiamond(address: felt) {
 }
 
-@contract_interface
-namespace IBootstrap {
-    func init(
-        _owner: felt,
-        _tokenId: Uint256,
-        _class: ClassHash,
-        _setZKLfun_selector: felt,
-        _setZKLfun_hash: felt,
-        _setZKLfun_compiled_len: felt,
-        _setZKLfun_compiled: felt*,
-    ) -> () {
-    }
-}
-
-@constructor
-func constructor{
+@external
+func deployRootDiamond{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }(
     _class: ClassHash,
     _setZKLfun_selector: felt,
     _setZKLfun_compiled_len: felt,
     _setZKLfun_compiled: felt*,
-) {
+) -> (rootAddress: felt) {
     alloc_locals;
 
     let (caller) = get_caller_address();
@@ -106,17 +86,19 @@ func constructor{
         assert_not_zero(_class.diamond);
     }
 
+    // Root diamonds are created with this contract as their only facet
     with_attr error_message("FAILED DEPLOYMENT") {
-        let (rootAddress) = deploy(
+        let (address) = deploy(
             class_hash=_class.diamond,
             contract_address_salt=salt,
             constructor_calldata_size=DiamondCalldata.SIZE,
-            constructor_calldata=new (DiamondCalldata(0, 0, _class.self)),
+            constructor_calldata=new (DiamondCalldata(0, 0, _class.rootDiamondFactory)),
             deploy_from_zero=FALSE,
         );
     }
-    IBootstrap.init(
-        rootAddress,
+
+    IRootDiamondFactory.init(
+        address,
         caller,
         selfTokenId,
         _class,
@@ -126,10 +108,12 @@ func constructor{
         _setZKLfun_compiled,
     );
 
-    return ();
+    NewRootDiamond.emit(address);
+
+    return (rootAddress=address);
 }
 
-// Pseudo-facet
+// Called as a facet function from RootDiamond
 @external
 func init{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
