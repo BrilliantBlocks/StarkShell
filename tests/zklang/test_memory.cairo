@@ -8,7 +8,7 @@ from src.constants import API
 from src.zklang.library import Memory
 from src.zklang.structs import DataTypes, Variable
 
-from protostar.asserts import assert_eq
+from protostar.asserts import assert_eq, assert_not_eq
 
 @external
 func test_init_memory_on_empty_calldata_and_empty_memory{
@@ -19,10 +19,18 @@ func test_init_memory_on_empty_calldata_and_empty_memory{
     let _calldata_len = 0;
     tempvar _memory = new ();
     let _memory_len = 0;
+    let (local expected_memory: felt*) = alloc();
+    let expected_memory_len = 0;
 
-    tempvar var_metadata = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
-    let expected_memory = cast(var_metadata, felt*);
-    let expected_memory_len = Variable.SIZE;
+    tempvar calldata_var = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
+    tempvar calldata_var_len = Variable.SIZE + calldata_var.data_len;
+    memcpy(expected_memory + expected_memory_len, calldata_var, calldata_var_len);
+    tempvar expected_memory_len = expected_memory_len + calldata_var_len;
+
+    tempvar caller_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar caller_address_var_len = Variable.SIZE + caller_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, caller_address_var, caller_address_var_len);
+    tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata
@@ -33,6 +41,22 @@ func test_init_memory_on_empty_calldata_and_empty_memory{
     assert_eq(actual_memory[Variable.protected], expected_memory[Variable.protected]);
     assert_eq(actual_memory[Variable.type], expected_memory[Variable.type]);
     assert_eq(actual_memory[Variable.data_len], expected_memory[Variable.data_len]);
+
+    assert_eq(
+        actual_memory[Variable.SIZE + Variable.selector],
+        expected_memory[Variable.SIZE + Variable.selector],
+    );
+    assert_eq(
+        actual_memory[Variable.SIZE + Variable.protected],
+        expected_memory[Variable.SIZE + Variable.protected],
+    );
+    assert_eq(
+        actual_memory[Variable.SIZE + Variable.type], expected_memory[Variable.SIZE + Variable.type]
+    );
+    assert_eq(
+        actual_memory[Variable.SIZE + Variable.data_len],
+        expected_memory[Variable.SIZE + Variable.data_len],
+    );
 
     return ();
 }
@@ -46,17 +70,25 @@ func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     let _calldata_len = 1;
     tempvar _memory = new ();
     let _memory_len = 0;
-
-    tempvar var_metadata = new Variable(
-        selector=API.CORE.__ZKLANG__CALLDATA_VAR,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=_calldata_len
-        );
     let (local expected_memory: felt*) = alloc();
-    let expected_memory_len = Variable.SIZE + _calldata_len;
-    memcpy(expected_memory, cast(var_metadata, felt*), Variable.SIZE);
-    memcpy(expected_memory + Variable.SIZE, _calldata, _calldata_len);
+    let expected_memory_len = 0;
+
+    tempvar calldata_var = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
+    tempvar calldata_var_len = Variable.SIZE + calldata_var.data_len;
+    memcpy(expected_memory + expected_memory_len, calldata_var, Variable.SIZE);
+    memcpy(expected_memory + expected_memory_len + Variable.SIZE, _calldata, _calldata_len);
+    tempvar expected_memory_len = expected_memory_len + calldata_var_len;
+
+    tempvar caller_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar caller_address_data = new (0x7);
+    tempvar caller_address_var_len = Variable.SIZE + caller_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, caller_address_var, Variable.SIZE);
+    memcpy(
+        expected_memory + expected_memory_len + Variable.SIZE,
+        caller_address_data,
+        caller_address_var.data_len,
+    );
+    tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata
@@ -81,17 +113,25 @@ func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
     let _calldata_len = 5;
     tempvar _memory = new ();
     let _memory_len = 0;
-
-    tempvar var_metadata = new Variable(
-        selector=API.CORE.__ZKLANG__CALLDATA_VAR,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=_calldata_len
-        );
     let (local expected_memory: felt*) = alloc();
-    let expected_memory_len = Variable.SIZE + _calldata_len;
-    memcpy(expected_memory, cast(var_metadata, felt*), Variable.SIZE);
-    memcpy(expected_memory + Variable.SIZE, _calldata, _calldata_len);
+    let expected_memory_len = 0;
+
+    tempvar calldata_var = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
+    tempvar calldata_var_len = Variable.SIZE + calldata_var.data_len;
+    memcpy(expected_memory + expected_memory_len, calldata_var, Variable.SIZE);
+    memcpy(expected_memory + expected_memory_len + Variable.SIZE, _calldata, _calldata_len);
+    tempvar expected_memory_len = expected_memory_len + calldata_var_len;
+
+    tempvar caller_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar caller_address_data = new (0x7);
+    tempvar caller_address_var_len = Variable.SIZE + caller_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, caller_address_var, Variable.SIZE);
+    memcpy(
+        expected_memory + expected_memory_len + Variable.SIZE,
+        caller_address_data,
+        caller_address_var.data_len,
+    );
+    tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata

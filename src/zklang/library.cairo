@@ -4,7 +4,11 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
 
-from starkware.starknet.common.syscalls import get_contract_address, library_call
+from starkware.starknet.common.syscalls import (
+    get_caller_address,
+    get_contract_address,
+    library_call,
+)
 
 from src.constants import API
 from src.ERC2535.IDiamond import IDiamond
@@ -143,25 +147,55 @@ namespace Program {
 namespace Memory {
     func init{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _memory_len: felt, _memory: felt*, _calldata_len: felt, _calldata: felt*
-    ) -> (memory_len: felt, memory: felt*) {
+    ) -> (mem_len: felt, mem: felt*) {
+        alloc_locals;
+        let mem_len = 0;
+        let (local mem: felt*) = alloc();
+
+        let mem_len = create_calldata_var(mem_len, mem + mem_len, _calldata_len, _calldata);
+        let mem_len = create_caller_address_var(mem_len, mem);
+
+        // get_contract_address()
+        // get_block_number()
+        // get_timestampe()
+
+        // TODO what if calldata var already present?
+        // Make this update_memory
+        memcpy(mem + mem_len, _memory, _memory_len);
+        let mem_len = mem_len + _memory_len;
+
+        return (mem_len, mem);
+    }
+
+    func create_caller_address_var{syscall_ptr: felt*}(_ptr_len: felt, _ptr: felt*) -> felt {
         alloc_locals;
 
-        tempvar var_metadata = new Variable(
+        tempvar caller_address_var = new Variable(
+            selector=API.CORE.__ZKLANG__CALLER_ADDRESS_VAR,
+            protected=TRUE,
+            type=DataTypes.FELT,
+            data_len=1,
+            );
+        let (caller) = get_caller_address();
+        memcpy(_ptr + _ptr_len, caller_address_var, Variable.SIZE);
+        assert _ptr[_ptr_len + Variable.SIZE] = caller;
+
+        return _ptr_len + Variable.SIZE + caller_address_var.data_len;
+    }
+
+    func create_calldata_var(
+        _ptr_len: felt, _ptr: felt*, _calldata_len: felt, _calldata: felt*
+    ) -> felt {
+        tempvar calldata_var = new Variable(
             selector=API.CORE.__ZKLANG__CALLDATA_VAR,
             protected=FALSE,
             type=DataTypes.FELT,
             data_len=_calldata_len,
             );
+        memcpy(_ptr + _ptr_len, calldata_var, Variable.SIZE);
+        memcpy(_ptr + _ptr_len + Variable.SIZE, _calldata, _calldata_len);
 
-        let (local memory: felt*) = alloc();
-        memcpy(memory, var_metadata, Variable.SIZE);
-        memcpy(memory + Variable.SIZE, _calldata, _calldata_len);
-
-        // TODO what if calldata var already present?
-        memcpy(memory + Variable.SIZE + _calldata_len, _memory, _memory_len);
-        let memory_len = Variable.SIZE + _calldata_len + _memory_len;
-
-        return (memory_len, memory);
+        return _ptr_len + Variable.SIZE + _calldata_len;
     }
 
     func load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
