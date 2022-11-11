@@ -11,6 +11,7 @@ from src.ERC2535.Init import IRootDiamondFactory, ClassHash
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 from tests.zklang.fun.setZKLangFun import setZKLangFun
+from tests.zklang.fun.mintContract import mintContract
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -19,21 +20,25 @@ const User = 456;
 const Adversary = 789;
 
 struct Selector {
+    mintContract: felt,
     setZKLangFun: felt,
 }
 
 func getSelectors() -> Selector {
     alloc_locals;
+    local mintContract;
     local setZKLangFun;
 
     %{
         variables = [
+            "mintContract",
             "setZKLangFun",
             ]
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
 
     local selectors: Selector = Selector(
+        mintContract,
         setZKLangFun,
         );
 
@@ -104,6 +109,7 @@ func getAddresses() -> Address {
 func computeSelectors() -> () {
     %{
         from starkware.starknet.public.abi import get_selector_from_name
+        context.mintContract = get_selector_from_name("mintContract")
         context.setZKLangFun = get_selector_from_name("setZKLangFun")
     %}
 
@@ -140,9 +146,17 @@ func deployRootDiamond{
     let sel: Selector = getSelectors();
 
     let (code_len, code) = setZKLangFun();
+    let (mintContract_code_len, mintContract_code) = mintContract();
 
     let (rootDiamond) = IRootDiamondFactory.deployRootDiamond(
-        addr.rootFactory, ch, sel.setZKLangFun, code_len, code
+        addr.rootFactory,
+        ch,
+        sel.setZKLangFun,
+        code_len,
+        code,
+        sel.mintContract,
+        mintContract_code_len,
+        mintContract_code,
     );
 
     %{ context.rootDiamond = ids.rootDiamond %}

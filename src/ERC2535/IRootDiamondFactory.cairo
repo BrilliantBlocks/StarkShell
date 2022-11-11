@@ -10,6 +10,9 @@ namespace IRootDiamondFactory {
         _setZKLfun_selector: felt,
         _setZKLfun_compiled_len: felt,
         _setZKLfun_compiled: felt*,
+        _mintContract_selector: felt,
+        _mintContract_compiled_len: felt,
+        _mintContract_compiled: felt*,
     ) -> (rootAddress: felt) {
     }
 
@@ -21,6 +24,10 @@ namespace IRootDiamondFactory {
         _setZKLfun_hash: felt,
         _setZKLfun_compiled_len: felt,
         _setZKLfun_compiled: felt*,
+        _mintContract_selector: felt,
+        _mintContract_hash: felt,
+        _mintContract_compiled_len: felt,
+        _mintContract_compiled: felt*,
     ) -> () {
     }
 }

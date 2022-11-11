@@ -104,11 +104,14 @@ func loadCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 // / @dev Initialize this facet
 @external
 func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _data_len: felt, _data: felt*
+    _n: felt, _data_len: felt, _data: felt*
 ) -> () {
+    if (_n == 0) {
+        return ();
+    }
     store(_data_len, _data);
 
-    return ();
+    return __constructor__(_n - 1, _data_len - _data[0] - 1, _data + _data[0] + 1);
 }
 
 // / @dev Remove this facet

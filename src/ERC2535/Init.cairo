@@ -45,7 +45,8 @@ struct FlobDbCalldata {
 }
 
 struct ZKLangCalldata {
-    function: Function,
+    function0: Function,
+    function1: Function,
 }
 
 struct DiamondCutCalldata {
@@ -76,12 +77,16 @@ func deployRootDiamond{
     _setZKLfun_selector: felt,
     _setZKLfun_compiled_len: felt,
     _setZKLfun_compiled: felt*,
+    _mintContract_selector: felt,
+    _mintContract_compiled_len: felt,
+    _mintContract_compiled: felt*,
 ) -> (rootAddress: felt) {
     alloc_locals;
 
     let (caller) = get_caller_address();
     let (self) = get_contract_address();
-    let (hash) = hash_chain{hash_ptr=pedersen_ptr}(_setZKLfun_compiled);
+    let (setZKLangFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(_setZKLfun_compiled);
+    let (mintContract_hash) = hash_chain{hash_ptr=pedersen_ptr}(_mintContract_compiled);
     let (block_number) = get_block_number();
     let salt = block_number * caller;
 
@@ -111,9 +116,13 @@ func deployRootDiamond{
         selfTokenId,
         _class,
         _setZKLfun_selector,
-        hash,
+        setZKLangFun_hash,
         _setZKLfun_compiled_len,
         _setZKLfun_compiled,
+        _mintContract_selector,
+        mintContract_hash,
+        _mintContract_compiled_len,
+        _mintContract_compiled,
     );
 
     NewRootDiamond.emit(address);
@@ -133,6 +142,10 @@ func init{
     _setZKLfun_hash: felt,
     _setZKLfun_compiled_len: felt,
     _setZKLfun_compiled: felt*,
+    _mintContract_selector: felt,
+    _mintContract_hash: felt,
+    _mintContract_compiled_len: felt,
+    _mintContract_compiled: felt*,
 ) -> () {
     alloc_locals;
 
@@ -149,10 +162,7 @@ func init{
         ), FacetCut*);
 
     let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (ZKLangCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1);
-    // let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 2) + (ZKLangCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 2);
     tempvar tmp = cast(new (
-        // BFRCalldata.SIZE + 1,
-        // tmp_len + _setZKLfun_compiled_len + 1,
         BFRCalldata.SIZE + 1,
         BFRCalldata.SIZE,
         BFRCalldata(
@@ -162,7 +172,6 @@ func init{
             _class.zklang,
             _class.diamondCut,
             ),
-        // ERC721Calldata.SIZE + 1,
         ERC721Calldata.SIZE,
         ERC721Calldata(
             receiver=_owner,
@@ -171,21 +180,45 @@ func init{
             tokenId_high=high,
             ),
         ZKLangCalldata.SIZE + 1,
-        1,
-        ZKLangCalldata(Function(_setZKLfun_selector, _setZKLfun_hash, 0)),  // TODO if 0 look for self
+        2,
+        ZKLangCalldata(Function(_setZKLfun_selector, _setZKLfun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0)),
         // DiamondCutCalldata.SIZE,
         // DiamondCutCalldata(0),
         1, 0,
         ), felt*);
 
     let (local calldata: felt*) = alloc();
+
     memcpy(calldata, tmp, tmp_len);
-    assert calldata[tmp_len] = _setZKLfun_compiled_len;
-    // assert calldata[tmp_len + 1] = _setZKLfun_compiled_len;
-    memcpy(calldata + tmp_len + 1, _setZKLfun_compiled, _setZKLfun_compiled_len);
-    let calldata_len = tmp_len + (_setZKLfun_compiled_len + 1);
-    // memcpy(calldata + tmp_len + 2, _setZKLfun_compiled, _setZKLfun_compiled_len);
-    // let calldata_len = tmp_len + (_setZKLfun_compiled_len + 2);
+    let new_len = tmp_len;
+
+    assert calldata[new_len] = 1 + _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1 + 1;
+    let new_len = new_len + 1;
+
+    assert calldata[new_len] = 2;
+    let new_len = new_len + 1;
+
+    // total array len
+    assert calldata[new_len] = _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1;
+    let new_len = new_len + 1;
+
+    // assert first array_len
+    assert calldata[new_len] = _setZKLfun_compiled_len;
+    let new_len = new_len + 1;
+
+    // memcpy first_array
+    memcpy(calldata + new_len, _setZKLfun_compiled, _setZKLfun_compiled_len);
+    let new_len = new_len + _setZKLfun_compiled_len;
+
+    // assert second array_len
+    assert calldata[new_len] = _mintContract_compiled_len;
+    let new_len = new_len + 1;
+
+    // memcpy second array
+    memcpy(calldata + new_len, _mintContract_compiled, _mintContract_compiled_len);
+    let new_len = new_len + _mintContract_compiled_len;
+
+    let calldata_len = new_len;
 
     Diamond._diamondCut(facetCut_len, facetCut, calldata_len, calldata);
 
