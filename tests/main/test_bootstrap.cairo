@@ -207,6 +207,21 @@ func test_facets_returns_five_class_hashes{
 }
 
 @external
+func test_getFacetFunctionSelectors_returns_two_functions_for_zklang{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let addr: Address = getAddresses();
+    let ch: ClassHash = getClassHashes();
+
+    let (fun_len, _) = IDiamond.facetFunctionSelectors(addr.rootDiamond, ch.zklang);
+    assert_eq(fun_len, 2);
+
+    return ();
+}
+
+@external
 func test_getImplementation_returns_erc721_hash{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
