@@ -32,6 +32,11 @@ func test_init_memory_on_empty_calldata_and_empty_memory{
     memcpy(expected_memory + expected_memory_len, caller_address_var, caller_address_var_len);
     tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
+    tempvar contract_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar contract_address_var_len = Variable.SIZE + contract_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, contract_address_var, contract_address_var_len);
+    tempvar expected_memory_len = expected_memory_len + contract_address_var_len;
+
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata
     );
@@ -90,6 +95,17 @@ func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     );
     tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
+    tempvar contract_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar caller_address_data = new (0x13);
+    tempvar contract_address_var_len = Variable.SIZE + contract_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, contract_address_var, Variable.SIZE);
+    memcpy(
+        expected_memory + expected_memory_len + Variable.SIZE,
+        caller_address_data,
+        contract_address_var.data_len,
+    );
+    tempvar expected_memory_len = expected_memory_len + contract_address_var_len;
+
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata
     );
@@ -130,6 +146,17 @@ func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
         expected_memory + expected_memory_len + Variable.SIZE,
         caller_address_data,
         caller_address_var.data_len,
+    );
+    tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
+
+    tempvar contract_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar contract_address_data = new (0x7);
+    tempvar caller_address_var_len = Variable.SIZE + contract_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, contract_address_var, Variable.SIZE);
+    memcpy(
+        expected_memory + expected_memory_len + Variable.SIZE,
+        contract_address_data,
+        contract_address_var.data_len,
     );
     tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 

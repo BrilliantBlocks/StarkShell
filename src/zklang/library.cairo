@@ -152,10 +152,10 @@ namespace Memory {
         let mem_len = 0;
         let (local mem: felt*) = alloc();
 
-        let mem_len = create_calldata_var(mem_len, mem + mem_len, _calldata_len, _calldata);
-        let mem_len = create_caller_address_var(mem_len, mem);
+        let mem_len = append_calldata_var(mem_len, mem, _calldata_len, _calldata);
+        let mem_len = append_caller_address_var(mem_len, mem);
+        let mem_len = append_contract_address_var(mem_len, mem);
 
-        // get_contract_address()
         // get_block_number()
         // get_timestampe()
 
@@ -167,7 +167,23 @@ namespace Memory {
         return (mem_len, mem);
     }
 
-    func create_caller_address_var{syscall_ptr: felt*}(_ptr_len: felt, _ptr: felt*) -> felt {
+    func append_contract_address_var{syscall_ptr: felt*}(_ptr_len: felt, _ptr: felt*) -> felt {
+        alloc_locals;
+
+        tempvar contract_address_var = new Variable(
+            selector=API.CORE.__ZKLANG__CONTRACT_ADDRESS_VAR,
+            protected=TRUE,
+            type=DataTypes.FELT,
+            data_len=1,
+            );
+        let (contract_address) = get_contract_address();
+        memcpy(_ptr + _ptr_len, contract_address_var, Variable.SIZE);
+        assert _ptr[_ptr_len + Variable.SIZE] = contract_address;
+
+        return _ptr_len + Variable.SIZE + contract_address_var.data_len;
+    }
+
+    func append_caller_address_var{syscall_ptr: felt*}(_ptr_len: felt, _ptr: felt*) -> felt {
         alloc_locals;
 
         tempvar caller_address_var = new Variable(
@@ -183,7 +199,7 @@ namespace Memory {
         return _ptr_len + Variable.SIZE + caller_address_var.data_len;
     }
 
-    func create_calldata_var(
+    func append_calldata_var(
         _ptr_len: felt, _ptr: felt*, _calldata_len: felt, _calldata: felt*
     ) -> felt {
         tempvar calldata_var = new Variable(
