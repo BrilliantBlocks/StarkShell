@@ -6,16 +6,21 @@ from starkware.starknet.common.syscalls import library_call
 from src.constants import FUNCTION_SELECTORS, IERC165_ID, IDIAMONDLOUPE_ID
 from src.ERC2535.library import Diamond
 
+@storage_var
+func bfr_facet_() -> (res: felt) {
+}
+
 // @param _root: Address of TCF
 // @param _facet_key Bitmap encoding included facets
 // @param _init_calldata TODO
 @constructor
 func constructor{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
-}(_root: felt, _facet_key: felt, _init_facet: felt) {
+}(_root: felt, _facet_key: felt, _init_facet: felt, _bfr_facet: felt) {
     Diamond._set_facet_key_(_facet_key);
     Diamond._set_root_(_root);
     Diamond._set_init_root_(_init_facet);
+    bfr_facet_.write(_bfr_facet);
     return ();
 }
 
@@ -31,11 +36,13 @@ func __default__{
     local retdata_size: felt;
     local retdata: felt*;
 
-    const BFR = 3261151192973093659944309522837038540251789525308420142061432178155060881721;
+    // TODO
+    // if root = self BFR ask class hash, else call root
     if (selector == FUNCTION_SELECTORS.IBFR.resolveKey) {
+        let (bfr) = bfr_facet_.read();
         // library call to BFR facet
         let (retdata_size: felt, retdata: felt*) = library_call(
-            class_hash=BFR,
+            class_hash=bfr,
             function_selector=selector,
             calldata_size=calldata_size,
             calldata=calldata,

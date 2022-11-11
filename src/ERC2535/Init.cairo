@@ -56,6 +56,7 @@ struct DiamondCalldata {
     root: felt,
     facetKey: felt,
     initFacet: felt,
+    bfrFacet: felt,
 }
 
 @event
@@ -99,7 +100,7 @@ func deployRootDiamond{
             class_hash=_class.diamond,
             contract_address_salt=salt,
             constructor_calldata_size=DiamondCalldata.SIZE,
-            constructor_calldata=new (DiamondCalldata(0, 0, _class.rootDiamondFactory)),
+            constructor_calldata=new (DiamondCalldata(0, 0, _class.rootDiamondFactory, _class.bfr)),
             deploy_from_zero=FALSE,
         );
     }
