@@ -192,27 +192,29 @@ func init{
     memcpy(calldata, tmp, tmp_len);
     let new_len = tmp_len;
 
-    assert calldata[new_len] = 1 + _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1 + 1;
+    assert calldata[new_len] = 1 + _setZKLfun_compiled_len + _mintContract_compiled_len + 1;
+    // assert calldata[new_len] = 1 + _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1 + 1;
     let new_len = new_len + 1;
 
     assert calldata[new_len] = 2;
     let new_len = new_len + 1;
 
     // total array len
-    assert calldata[new_len] = _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1;
+    assert calldata[new_len] = _setZKLfun_compiled_len + _mintContract_compiled_len;
+    // assert calldata[new_len] = _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1;
     let new_len = new_len + 1;
 
-    // assert first array_len
-    assert calldata[new_len] = _setZKLfun_compiled_len;
-    let new_len = new_len + 1;
+    // // assert first array_len
+    // assert calldata[new_len] = _setZKLfun_compiled_len;
+    // let new_len = new_len + 1;
 
     // memcpy first_array
     memcpy(calldata + new_len, _setZKLfun_compiled, _setZKLfun_compiled_len);
     let new_len = new_len + _setZKLfun_compiled_len;
 
-    // assert second array_len
-    assert calldata[new_len] = _mintContract_compiled_len;
-    let new_len = new_len + 1;
+    // // assert second array_len
+    // assert calldata[new_len] = _mintContract_compiled_len;
+    // let new_len = new_len + 1;
 
     // memcpy second array
     memcpy(calldata + new_len, _mintContract_compiled, _mintContract_compiled_len);

@@ -46,6 +46,8 @@ namespace Program {
     func execute_primitive{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _primitive: Primitive, _calldata_len: felt, _calldata: felt*
     ) -> (res_len: felt, res: felt*) {
+        alloc_locals;
+
         let (res_len, res) = library_call(
             class_hash=_primitive.class_hash,
             function_selector=_primitive.selector,

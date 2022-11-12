@@ -10,6 +10,7 @@ from src.ERC1155.IERC1155 import IERC1155
 from src.ERC2535.Init import IRootDiamondFactory, ClassHash
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
+from src.zklang.IZKlang import IZKlang
 from tests.zklang.fun.setZKLangFun import setZKLangFun
 from tests.zklang.fun.mintContract import mintContract
 
@@ -146,8 +147,9 @@ func deployRootDiamond{
     let sel: Selector = getSelectors();
 
     let (code_len, code) = setZKLangFun();
-    let (mintContract_code_len, mintContract_code) = mintContract();
+    let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
 
+    // TODO prank cheatcode?
     let (rootDiamond) = IRootDiamondFactory.deployRootDiamond(
         addr.rootFactory,
         ch,
@@ -232,6 +234,33 @@ func test_getImplementation_returns_erc721_hash{
 
     let (implementation: felt) = IDiamond.getImplementation(addr.rootDiamond);
     assert_eq(implementation, ch.erc721);
+
+    local x = ch.diamond;
+    %{ print(ids.x) %}
+
+    return ();
+}
+
+@external
+func test_mintContract{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    alloc_locals;
+
+    let addr: Address = getAddresses();
+    let (local NULLptr: felt*) = alloc();
+    let (local FCNULLptr: FacetCut*) = alloc();
+    const NULL = 0;
+
+    %{
+        stop_prank_callable = start_prank(
+            ids.User, target_contract_address=context.rootDiamond
+        )
+    %}
+    let (diamond_address) = ITCF.mintContract(addr.rootDiamond, NULL, FCNULLptr, NULL, NULLptr);
+    %{ stop_prank_callable() %}
+
+    assert_not_eq(diamond_address, 0);
 
     return ();
 }

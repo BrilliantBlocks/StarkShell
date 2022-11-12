@@ -5,7 +5,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
 
 from src.constants import API
-from src.zklang.structs import Program, Instruction, Primitive, Variable, DataTypes
+from src.zklang.structs import Instruction, Primitive, Variable, DataTypes
+from src.zklang.library import Program
 
 from protostar.asserts import assert_eq
 

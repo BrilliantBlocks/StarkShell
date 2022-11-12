@@ -3,8 +3,10 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.registers import get_label_location
+from starkware.starknet.common.syscalls import get_contract_address
 
 from src.constants import API
+from src.ERC2535.library import Library
 from src.Storage.IFlobDB import IFlobDB
 from src.zklang.library import Program, Memory, State
 from src.zklang.structs import Function
@@ -14,6 +16,10 @@ from src.zklang.primitives.core import (
     __ZKLANG__BRANCH,
     __ZKLANG__SET_FUNCTION,
     __ZKLANG__ASSERT_ONLY_OWNER,
+    __ZKLANG__DEPLOY,
+    __ZKLANG__NOOP,
+    __ZKLANG__CALL_CONTRACT,
+    __ZKLANG__FELT_TO_UINT256,
 )
 
 @external
@@ -25,7 +31,12 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     alloc_locals;
 
     let fun = State.get_fun(selector);
-    let (program_raw_len, program_raw) = IFlobDB.load(fun.repo_address, fun.program_hash);
+
+    let (self) = get_contract_address();
+
+    let normalized_repo_address = Library._if_x_is_zero_then_y_else_x(self, fun.repo_address);
+
+    let (program_raw_len, program_raw) = IFlobDB.load(normalized_repo_address, fun.program_hash);
 
     local program_len: felt = program_raw[0];
     local program: felt* = program_raw + 1;
@@ -47,16 +58,27 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 ) -> (res_len: felt, res: felt*, state_len: felt, state: felt*) {
     alloc_locals;
 
-    with_attr error_message("ZKL-EXEC _pc={_pc} _memory_len={_memory_len}") {
+    with_attr error_message("ZKL-EXEC _pc={_pc} _program_len={_program_len} _memory_len={_memory_len}") {
         let instruction = Program.get_instruction(_pc, _program_len, _program);
 
+        // local x = instruction.input1.selector;
+        // local x = instruction.input1.data_len;
+        // local y = instruction.input2.selector;
+        // local y = instruction.input2.data_len;
+        // with_attr error_message("BREAKPOINT x={x} y={y}") {
+        //     assert 1 = 0;
+        // }
         let (calldata_len, calldata) = Memory.load_variable_payload(
             instruction.input1.selector, instruction.input2.selector, _memory_len, _memory
         );
 
-        let (res_len, res) = Program.execute_primitive(
-            instruction.primitive, calldata_len, calldata
-        );
+        local x_len = calldata_len;
+        local x0 = calldata[0];
+        with_attr error_message("BREAKOINT PRMTV {x_len} {x0}") {
+            let (res_len, res) = Program.execute_primitive(
+                instruction.primitive, calldata_len, calldata
+            );
+        }
 
         if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
             return (res[0], res + 1, _memory_len, _memory);
@@ -149,6 +171,7 @@ func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() 
     dw API.CORE.__ZKLANG__SET_FUNCTION;
     dw API.CORE.__ZKLANG__EXEC;
     dw API.CORE.__ZKLANG__ASSERT_ONLY_OWNER;
+    dw API.CORE.__ZKLANG__DEPLOY;
 }
 
 // @return Array of registered zklang functions

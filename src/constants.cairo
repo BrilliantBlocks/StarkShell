@@ -37,8 +37,10 @@ namespace API {
         const __ZKLANG__CALLER_ADDRESS_VAR = 0x322f3db6714056d8d260dfc87d0ebe50e764b25f536f9aea41d6544f025077b;
         const __ZKLANG__CONTRACT_ADDRESS_VAR = 0x3b6b7fdff7b925dac637ced22595f8b097b895737f63123221f0e4ec0c89242;
         const __ZKLANG__CALL_CONTRACT = 0x312f27d7b0a81e57007cc55c68e29ea785910acec2974f2bad0e32bc93147d5;
-        const __ZKLANG__MERGE_VARS = 0x3f3e895a79b7f1625dd2d4097555d11d830e40db4ad7895e570c9087e2c705e;
+        // TODO make NOOP zero and transform during init
+        const __ZKLANG__NOOP = 0x3f3e895a79b7f1625dd2d4097555d11d830e40db4ad7895e570c9087e2c705e;
         const __ZKLANG__FELT_TO_UINT256 = 0x3726882ac05e3fc9b328e583644a4818c6fca2ca42d90d300f0d451eba6fdcc;
+        const __ZKLANG__DEPLOY = 0x198a90daab7e1dfab015a5564a3305ffcaaf28717870a466d15194efdcca578;
     }
 }
 

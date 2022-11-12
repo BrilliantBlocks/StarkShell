@@ -112,15 +112,17 @@ func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_calldata_len: felt, _calldata:
 @external
 func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_calldata_len: felt, _calldata: felt*) -> (res: felt) {
     alloc_locals;
-    local x = _calldata[0];
-    local y = _calldata[1];
+    local x0 = _calldata[0];
+    local x1 = _calldata[1];
+    local x2 = _calldata[2];
+    local x3 = _calldata[3];
 
-    with_attr error_message("BREAKPOINT INSIDE DEPLOY PRIMITIVE {x}") {
+    with_attr error_message("BREAKPOINT INSIDE DEPLOY PRIMITIVE {x0} {x1} {x2} {x3}") {
         let (contract_address) = deploy(
-            class_hash=_calldata[0],
-            contract_address_salt=_calldata[1],
-            constructor_calldata_size=_calldata_len - 2,
-            constructor_calldata=_calldata + 2,
+            class_hash=_calldata[1],
+            contract_address_salt=_calldata[2],
+            constructor_calldata_size=_calldata[3],
+            constructor_calldata=_calldata + 3,
             deploy_from_zero=FALSE,
         );
     }
@@ -129,16 +131,6 @@ func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_calldata_len: felt, _calldata: felt*)
 }
 
 @view
-func __ZKLANG__MERGE_VARS(_calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
-    alloc_locals;
-
-    let first_var_len = _calldata[Variable.data_len];
-    let second_var_len = _calldata[Variable.SIZE + first_var_len + Variable.data_len];
-
-    let (local res: felt*) = alloc();
-    let res_len = first_var_len + second_var_len;
-    memcpy(res, _calldata + Variable.SIZE, first_var_len);
-    memcpy(res + first_var_len, _calldata + Variable.SIZE + first_var_len + Variable.SIZE, second_var_len);
-
-    return (res_len, res);
+func __ZKLANG__NOOP(_x_len: felt, _x: felt*) -> (x_len: felt, x: felt*) {
+    return (x_len=_x_len, x=_x);
 }

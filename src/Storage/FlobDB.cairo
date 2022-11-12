@@ -29,11 +29,13 @@ func store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _data_len: felt, _data: felt*
 ) -> (res: felt) {
     alloc_locals;
+
     let (hash) = hash_chain{hash_ptr=pedersen_ptr}(_data);
     storage_internal_temp_var.write(hash);
     stream.foreach(_storeCell, _data_len, _data);
     storage_internal_temp_var.write(0);
     Store.emit(hash, _data_len, _data);
+
     return (res=hash);
 }
 
@@ -76,7 +78,8 @@ func loadRange{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _hash: felt, _offset_start: felt, _offset_end: felt
 ) -> (res_len: felt, res: felt*) {
     alloc_locals;
-    with_attr error_message("INVALID OFFSETS") {
+    with_attr error_message(
+            "INVALID OFFSETS hash={_hash} start={_offset_start} < end={_offset_end}") {
         assert_le(_offset_start, _offset_end);
     }
     let (blob_len) = storage_.read(_hash);
