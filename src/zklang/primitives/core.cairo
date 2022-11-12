@@ -91,8 +91,8 @@ func __ZKLANG__ASSERT_ONLY_OWNER{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*,
 
 @view
 func __ZKLANG__FELT_TO_UINT256{range_check_ptr}(_calldata_len: felt, _calldata: felt*) -> (res: Uint256) {
-    assert _calldata_len = 2;
-    let (high, low) = split_felt(_calldata[0], _calldata[1]);
+    assert _calldata_len = 1;
+    let (high, low) = split_felt(_calldata[0]);
 
     return (res=Uint256(low, high));
 }
@@ -111,13 +111,19 @@ func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_calldata_len: felt, _calldata:
 
 @external
 func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_calldata_len: felt, _calldata: felt*) -> (res: felt) {
-    let (contract_address) = deploy(
-        class_hash=_calldata[0],
-        contract_address_salt=_calldata[1],
-        constructor_calldata_size=_calldata_len - 2,
-        constructor_calldata=_calldata + 2,
-        deploy_from_zero=FALSE,
-    );
+    alloc_locals;
+    local x = _calldata[0];
+    local y = _calldata[1];
+
+    with_attr error_message("BREAKPOINT INSIDE DEPLOY PRIMITIVE {x}") {
+        let (contract_address) = deploy(
+            class_hash=_calldata[0],
+            contract_address_salt=_calldata[1],
+            constructor_calldata_size=_calldata_len - 2,
+            constructor_calldata=_calldata + 2,
+            deploy_from_zero=FALSE,
+        );
+    }
 
     return (res=contract_address);
 }
@@ -127,12 +133,12 @@ func __ZKLANG__MERGE_VARS(_calldata_len: felt, _calldata: felt*) -> (res_len: fe
     alloc_locals;
 
     let first_var_len = _calldata[Variable.data_len];
-    let second_var_len = _calldata[first_var_len + 1];
+    let second_var_len = _calldata[Variable.SIZE + first_var_len + Variable.data_len];
 
     let (local res: felt*) = alloc();
     let res_len = first_var_len + second_var_len;
-    memcpy(res, _calldata + 1, first_var_len);
-    memcpy(res + first_var_len + 1, _calldata + first_var_len + 1, second_var_len);
+    memcpy(res, _calldata + Variable.SIZE, first_var_len);
+    memcpy(res + first_var_len, _calldata + Variable.SIZE + first_var_len + Variable.SIZE, second_var_len);
 
     return (res_len, res);
 }
