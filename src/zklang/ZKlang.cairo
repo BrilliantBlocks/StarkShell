@@ -78,7 +78,9 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and instruction.input1.selector == 0){
             let (var_len, var) = Memory.load_variable(instruction.input2.selector, _memory_len, _memory);
             let prefix_size = Variable.SIZE - 1;
-            let (var_len, var) = Memory.pop(var_len - prefix_size, var + prefix_size);
+            with_attr error_message("POP UPDATE ERROR") {
+                let (var_len, var) = Memory.pop(var_len - prefix_size, var + prefix_size);
+            }
             let (new_memory_len, new_memory) = Memory.update_variable(
                 instruction.output.selector, _memory_len, _memory, var[0], var + 1
             );
@@ -95,7 +97,9 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and instruction.input2.selector == 0){
             let (var_len, var) = Memory.load_variable(instruction.input1.selector, _memory_len, _memory);
             let prefix_size = Variable.SIZE - 1;
-            let (var_len, var) = Memory.push(var_len - prefix_size, var + prefix_size);
+            with_attr error_message("PUSH UPDATE ERROR") {
+                let (var_len, var) = Memory.push(var_len - prefix_size, var + prefix_size);
+            }
             let (new_memory_len, new_memory) = Memory.update_variable(
                 instruction.output.selector, _memory_len, _memory, var[0], var + 1
             );

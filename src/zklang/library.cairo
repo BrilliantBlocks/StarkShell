@@ -374,7 +374,7 @@ namespace Memory {
         let (local data: felt*) = alloc();
 
         assert data[0] = _data_len;
-        memcpy(data, _data + 1, _data_len);
+        memcpy(data + 1, _data, _data_len);
 
         return (data_len=_data_len + 1, data=data);
     }

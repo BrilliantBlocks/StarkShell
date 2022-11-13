@@ -74,6 +74,14 @@ func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 }
 
 @external
+func _transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _from: felt, _to: felt, _tokenId: Uint256
+) -> () {
+    ERC721Library._transfer(_from, _to, _tokenId);
+    return ();
+}
+
+@external
 func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*
 ) -> () {

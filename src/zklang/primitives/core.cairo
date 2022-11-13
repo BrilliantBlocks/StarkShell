@@ -104,16 +104,27 @@ func __ZKLANG__FELT_TO_UINT256{range_check_ptr}(_x: felt) -> (res: Uint256) {
 
 @external
 func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_address: felt, _selector: felt, _calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
+    alloc_locals;
+    // local x0 = _address;
+    // local x1 = _selector;
+    // local x2 = _calldata_len;
+    // with_attr error_message("BREAKPOINT {x0} {x1} {x2}") {
+    // with_attr error_message("BREAKPOINT") {
+    //     assert 1 = 0;
+    // }
 
-    with_attr error_message("BREAKPOINT") {
-        assert 1 = 0;
-    }
     let (res_len, res) = call_contract(
         contract_address=_address,
         function_selector=_selector,
         calldata_size=_calldata_len,
         calldata=_calldata,
     );
+    // let (res_len, res) = call_contract(
+    //     contract_address=calldata[3],
+    //     function_selector=calldata[4],
+    //     calldata_size=calldata_size - 4,
+    //     calldata=calldata + 4,
+    // );
     return (res_len, res);
 }
 

@@ -279,8 +279,10 @@ func test_mintContract{
             ids.User, target_contract_address=context.rootDiamond
         )
     %}
-    // let (diamond_address) = ITCF.mintContract(addr.rootDiamond, 1, facetCut, calldata_len, calldata);
-    let (diamond_address) = ITCF.mintContract(addr.rootDiamond, NULL, FCNULLptr, NULL, NULLptr);
+    let (diamond_address) = ITCF.mintContract(
+        addr.rootDiamond, 1, facetCut, calldata_len, calldata
+    );
+    // let (diamond_address) = ITCF.mintContract(addr.rootDiamond, NULL, FCNULLptr, NULL, NULLptr);
     %{ stop_prank_callable() %}
 
     assert_not_eq(diamond_address, 0);
@@ -288,13 +290,13 @@ func test_mintContract{
     let (root) = IDiamond.getRoot(diamond_address);
     assert_eq(root, addr.rootDiamond);
 
-    %{
-        stop_prank_callable = start_prank(
-            ids.User, target_contract_address=ids.diamond_address
-        )
-    %}
-    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
-    %{ stop_prank_callable() %}
+    // %{
+    //     stop_prank_callable = start_prank(
+    //         ids.User, target_contract_address=ids.diamond_address
+    //     )
+    // %}
+    // IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    // %{ stop_prank_callable() %}
 
     // Assert that initialzation yields expected token for user
     let (owner: felt) = IERC721.ownerOf(diamond_address, Uint256(1, 0));
@@ -302,6 +304,9 @@ func test_mintContract{
 
     let (owner: felt) = IERC721.ownerOf(diamond_address, Uint256(3, 0));
     assert_eq(owner, User);
+
+    let (facets_len, _) = IDiamond.facets(diamond_address);
+    assert_eq(facets_len, 2);
 
     return ();
 }
