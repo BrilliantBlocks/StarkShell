@@ -24,6 +24,15 @@ func diamondCut{
     return ();
 }
 
+@external
+func _diamondCut{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
+}(_facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*) -> () {
+    alloc_locals;
+    Diamond._diamondCut(_facetCut_len, _facetCut, _calldata_len, _calldata);
+    return ();
+}
+
 // @dev Initialize this facet
 @external
 func __constructor__(_x_len: felt, _x: felt*) -> () {

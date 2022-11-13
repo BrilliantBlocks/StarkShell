@@ -147,7 +147,9 @@ func deployRootDiamond{
     let sel: Selector = getSelectors();
 
     let (code_len, code) = setZKLangFun();
-    let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
+    let (mintContract_code_len, mintContract_code) = mintContract(
+        ch.diamond, ch.erc721, ch.diamondCut
+    );
 
     // TODO prank cheatcode?
     let (rootDiamond) = IRootDiamondFactory.deployRootDiamond(
@@ -234,9 +236,6 @@ func test_getImplementation_returns_erc721_hash{
 
     let (implementation: felt) = IDiamond.getImplementation(addr.rootDiamond);
     assert_eq(implementation, ch.erc721);
-
-    local x = ch.diamond;
-    %{ print(ids.x) %}
 
     return ();
 }

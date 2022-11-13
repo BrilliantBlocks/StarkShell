@@ -3,11 +3,20 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
+from starkware.starknet.cairo.syscalls import library_call
 
-from src.zklang.primitives.core import __ZKLANG__MERGE_VARS
+from src.constants import API
+from src.zklang.primitives.core import __ZKLANG__NOOP
 from src.zklang.structs import DataTypes, Variable
 
 from protostar.asserts import assert_eq, assert_not_eq
+
+@external
+func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    // TODO declare ZKLang.cairo
+
+    return ();
+}
 
 @external
 func test_merge_vars_on_two_non_empty_vars{
@@ -25,7 +34,7 @@ func test_merge_vars_on_two_non_empty_vars{
     tempvar payload_size = var0.data_len + var1.data_len;
     tempvar calldata_len = 2 * Variable.SIZE + payload_size;
 
-    let (actual_res_len, actual_res) = __ZKLANG__MERGE_VARS(calldata_len, calldata);
+    let (actual_res_len, actual_res) = __ZKLANG__NOOP(0, calldata_len, calldata);
     assert_eq(actual_res_len, 5);
     assert_eq(actual_res[0], 11);
     assert_eq(actual_res[1], 12);
@@ -52,7 +61,7 @@ func test_merge_vars_on_empty_and_non_empty_vars{
     tempvar payload_size = var0.data_len + var1.data_len;
     tempvar calldata_len = 2 * Variable.SIZE + payload_size;
 
-    let (actual_res_len, actual_res) = __ZKLANG__MERGE_VARS(calldata_len, calldata);
+    let (actual_res_len, actual_res) = __ZKLANG__NOOP(0, calldata_len, calldata);
     assert_eq(actual_res_len, 3);
     assert_eq(actual_res[0], 21);
     assert_eq(actual_res[1], 22);
@@ -77,7 +86,7 @@ func test_merge_vars_on_two_empty_vars{
     tempvar payload_size = var0.data_len + var1.data_len;
     tempvar calldata_len = 2 * Variable.SIZE + payload_size;
 
-    let (actual_res_len, actual_res) = __ZKLANG__MERGE_VARS(calldata_len, calldata);
+    let (actual_res_len, actual_res) = __ZKLANG__NOOP(0, calldata_len, calldata);
     assert_eq(actual_res_len, 0);
 
     return ();

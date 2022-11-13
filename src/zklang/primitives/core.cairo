@@ -19,9 +19,15 @@ func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*) {
     // TODO syscall
 }
 
-@external
-func __ZKLANG__RETURN(_res_len: felt, _res: felt*) -> (res_len: felt, res: felt*) {
-    return (_res_len, _res);
+// @external
+// func __ZKLANG__RETURN(_res_len: felt, _res: felt*) -> (res_len: felt, res: felt*) {
+//     return (_res_len, _res);
+// }
+
+@view
+@raw_input
+func __ZKLANG__RETURN(selector: felt, calldata_size: felt, calldata: felt*) -> (x_len: felt, x: felt*) {
+    return (x_len=calldata_size, x=calldata);
 }
 
 struct Branch {
@@ -90,39 +96,40 @@ func __ZKLANG__ASSERT_ONLY_OWNER{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*,
 }
 
 @view
-func __ZKLANG__FELT_TO_UINT256{range_check_ptr}(_calldata_len: felt, _calldata: felt*) -> (res: Uint256) {
-    assert _calldata_len = 1;
-    let (high, low) = split_felt(_calldata[0]);
+func __ZKLANG__FELT_TO_UINT256{range_check_ptr}(_x: felt) -> (res: Uint256) {
+    let (high, low) = split_felt(_x);
 
     return (res=Uint256(low, high));
 }
 
 @external
-func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
+func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_address: felt, _selector: felt, _calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
 
+    with_attr error_message("BREAKPOINT") {
+        assert 1 = 0;
+    }
     let (res_len, res) = call_contract(
-        contract_address=_calldata[0],
-        function_selector=_calldata[1],
-        calldata_size=_calldata_len - 2,
-        calldata=_calldata + 2,
+        contract_address=_address,
+        function_selector=_selector,
+        calldata_size=_calldata_len,
+        calldata=_calldata,
     );
     return (res_len, res);
 }
 
 @external
-func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_calldata_len: felt, _calldata: felt*) -> (res: felt) {
+func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_class_hash: felt, _salt: felt, _constructor_calldata_len: felt, _constructor_calldata: felt*) -> (res: felt) {
     alloc_locals;
-    local x0 = _calldata[0];
-    local x1 = _calldata[1];
-    local x2 = _calldata[2];
-    local x3 = _calldata[3];
+    local x0 = _class_hash;
+    local x1 = _salt;
+    local x2 = _constructor_calldata_len;
 
-    with_attr error_message("BREAKPOINT INSIDE DEPLOY PRIMITIVE {x0} {x1} {x2} {x3}") {
+    with_attr error_message("BREAKPOINT INSIDE DEPLOY PRIMITIVE {x0} {x1} {x2}") {
         let (contract_address) = deploy(
-            class_hash=_calldata[1],
-            contract_address_salt=_calldata[2],
-            constructor_calldata_size=_calldata[3],
-            constructor_calldata=_calldata + 3,
+            class_hash=_class_hash,
+            contract_address_salt=_salt,
+            constructor_calldata_size=_constructor_calldata_len,
+            constructor_calldata=_constructor_calldata,
             deploy_from_zero=FALSE,
         );
     }
@@ -131,6 +138,7 @@ func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_calldata_len: felt, _calldata: felt*)
 }
 
 @view
-func __ZKLANG__NOOP(_x_len: felt, _x: felt*) -> (x_len: felt, x: felt*) {
-    return (x_len=_x_len, x=_x);
+@raw_input
+func __ZKLANG__NOOP(selector: felt, calldata_size: felt, calldata: felt*) -> (x_len: felt, x: felt*) {
+    return (x_len=calldata_size, x=calldata);
 }

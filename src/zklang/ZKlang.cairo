@@ -9,7 +9,7 @@ from src.constants import API
 from src.ERC2535.library import Library
 from src.Storage.IFlobDB import IFlobDB
 from src.zklang.library import Program, Memory, State
-from src.zklang.structs import Function
+from src.zklang.structs import Function, Variable
 from src.zklang.primitives.core import (
     __ZKLANG__EVENT,
     __ZKLANG__RETURN,
@@ -61,24 +61,79 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     with_attr error_message("ZKL-EXEC _pc={_pc} _program_len={_program_len} _memory_len={_memory_len}") {
         let instruction = Program.get_instruction(_pc, _program_len, _program);
 
-        // local x = instruction.input1.selector;
-        // local x = instruction.input1.data_len;
-        // local y = instruction.input2.selector;
-        // local y = instruction.input2.data_len;
-        // with_attr error_message("BREAKPOINT x={x} y={y}") {
-        //     assert 1 = 0;
+        // let (y_len, y) = Memory.load_variable(1735920706216604943978043612916965331422467783673060814787662446889856103197, _memory_len, _memory);
+        // if (_pc ==  2) {
+        //     local y_len = y_len;
+        //     local y0 = y[0];
+        //     local y1 = y[1];
+        //     local y2 = y[2];
+        //     local y3 = y[3];
+        //     local y4 = y[4];
+        //     local y5 = y[5];
+        //     local y6 = y[6];
+        //     with_attr error_message("len={y_len} | {y0} {y1} {y2} {y3} {y4} {y5} {y6}") {
+        //         assert 1 = 0;
+        //     }
         // }
+        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and instruction.input1.selector == 0){
+            let (var_len, var) = Memory.load_variable(instruction.input2.selector, _memory_len, _memory);
+            let prefix_size = Variable.SIZE - 1;
+            let (var_len, var) = Memory.pop(var_len - prefix_size, var + prefix_size);
+            let (new_memory_len, new_memory) = Memory.update_variable(
+                instruction.output.selector, _memory_len, _memory, var[0], var + 1
+            );
+
+            return exec_loop(
+                _pc=_pc + 1,
+                _program_len=_program_len,
+                _program=_program,
+                _memory_len=new_memory_len,
+                _memory=new_memory,
+            );
+        }
+
+        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and instruction.input2.selector == 0){
+            let (var_len, var) = Memory.load_variable(instruction.input1.selector, _memory_len, _memory);
+            let prefix_size = Variable.SIZE - 1;
+            let (var_len, var) = Memory.push(var_len - prefix_size, var + prefix_size);
+            let (new_memory_len, new_memory) = Memory.update_variable(
+                instruction.output.selector, _memory_len, _memory, var[0], var + 1
+            );
+
+            return exec_loop(
+                _pc=_pc + 1,
+                _program_len=_program_len,
+                _program=_program,
+                _memory_len=new_memory_len,
+                _memory=new_memory,
+            );
+        }
+
         let (calldata_len, calldata) = Memory.load_variable_payload(
             instruction.input1.selector, instruction.input2.selector, _memory_len, _memory
         );
 
-        local x_len = calldata_len;
-        local x0 = calldata[0];
-        with_attr error_message("BREAKOINT PRMTV {x_len} {x0}") {
-            let (res_len, res) = Program.execute_primitive(
-                instruction.primitive, calldata_len, calldata
-            );
-        }
+        // Temporary fix
+        let calldata_len = calldata[0];
+        let calldata = calldata + 1;
+
+        // local x_len = calldata_len;
+        // if (_pc ==  8) {
+        //     local x0 = calldata[0];
+        //     local x1 = calldata[1];
+        //     local x2 = calldata[2];
+        //     // local x3 = calldata[3];
+        //     // local x4 = calldata[4];
+        //     // local x5 = calldata[5];
+        //     // local x6 = calldata[6];
+        //     with_attr error_message("BREAKPOINT PRMTV {x_len} {x0} {x1} {x2}") {
+        //         assert 1 = 0;
+        //     }
+        // }
+
+        let (res_len, res) = Program.execute_primitive(
+            instruction.primitive, calldata_len, calldata
+        );
 
         if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
             return (res[0], res + 1, _memory_len, _memory);

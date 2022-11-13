@@ -368,6 +368,25 @@ namespace Memory {
             _selector=_selector, _i=_i + total_var_size, _memory=_memory + total_var_size
         );
     }
+
+    func push(_data_len: felt, _data: felt*) -> (data_len: felt, data: felt*) {
+        alloc_locals;
+        let (local data: felt*) = alloc();
+
+        assert data[0] = _data_len;
+        memcpy(data, _data + 1, _data_len);
+
+        return (data_len=_data_len + 1, data=data);
+    }
+
+    func pop(_data_len: felt, _data: felt*) -> (data_len: felt, data: felt*) {
+        alloc_locals;
+        let (local data: felt*) = alloc();
+
+        memcpy(data, _data + 1, _data_len - 1);
+
+        return (data_len=_data_len - 1, data=data);
+    }
 }
 
 namespace State {
