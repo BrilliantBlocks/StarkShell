@@ -5,6 +5,7 @@ export STARKNET_NETWORK=alpha-goerli
 export BOOTSTRAPPER_SRC=./build/Bootstrapper.json
 export BFR_SRC=./build/BFR.json
 export ERC721_SRC=./build/ERC721.json
+export ERC1155_SRC=./build/ERC1155.json
 export FLOB_SRC=./build/FlobDB.json
 export ZKLANG_SRC=./build/ZKLANG.json
 export DIAMOND_SRC=./build/Diamond.json
@@ -40,8 +41,16 @@ EOL
 
 # NOTICE Account address is hardcoded
 echo "Fund account"
-curl $DEVNET/mint -X POST -H 'Content-Type:application/json' --data '{"address": "0x148d26c1a88c45fa685db24983079a29dd942c20d9436394ff0741c4c7f0b64", "amount": 1000000000000000000000}'  &> /dev/null
-starknet deploy_account --gateway_url $DEVNET --feeder_gateway_url $DEVNET &> /dev/null
+
+curl $DEVNET/mint \
+    -X POST -H 'Content-Type:application/json' \
+    --data '{"address": "0x148d26c1a88c45fa685db24983079a29dd942c20d9436394ff0741c4c7f0b64", "amount": 1000000000000000000000}' \
+    &> /dev/null
+
+starknet deploy_account \
+    --gateway_url $DEVNET \
+    --feeder_gateway_url $DEVNET \
+    &> /dev/null
 
 
 echo "Declare contracts"
@@ -49,34 +58,55 @@ echo "Declare contracts"
 echo -ne "         (0%)\r"
 
 BOOTSTRAPPER_HASH=$(starknet declare --contract $BOOTSTRAPPER_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "#       (14%)\r"
+echo -ne "#       (12.5%)\r"
 
 BFR_HASH=$(starknet declare --contract $BFR_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "##      (29%)\r"
+echo -ne "##      (25.0%)\r"
 
 FLOB_HASH=$(starknet declare --contract $FLOB_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "###      (43%)\r"
+echo -ne "###      (37.5%)\r"
 
 ZKLANG_HASH=$(starknet declare --contract $ZKLANG_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "####     (57%)\r"
+echo -ne "####     (50.0%)\r"
 
 DIAMOND_HASH=$(starknet declare --contract $DIAMOND_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "#####    (71%)\r"
+echo -ne "#####    (62.5%)\r"
 
 DIAMOND_CUT_HASH=$(starknet declare --contract $DIAMOND_CUT_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "#####    (86%)\r"
+echo -ne "#####    (75.0%)\r"
 
 ERC721_HASH=$(starknet declare --contract $ERC721_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "####### (100%)\r"
+echo -ne "####### (87.5%)\r"
+echo -ne "\n"
+
+ERC1155_HASH=$(starknet declare --contract $ERC1155_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
+echo -ne "######## (100%)\r"
 echo -ne "\n"
 
 
-echo "Deploy root diamond factory"
+echo "Deploy Bootstrapper"
 
 DRF_ADDR=$(starknet deploy --class_hash $BOOTSTRAPPER_HASH --gateway_url $DEVNET --feeder_gateway_url $DEVNET --inputs 0 | grep "address" | awk '{print $NF}')
 
 
-echo "Deploy root diamond from factory"
+echo "Deploy root diamond from Bootstrapper"
 
 # NOTICE zklang fun len are hardcoded
-    starknet invoke --address $DRF_ADDR --function deployRootDiamond --inputs $BFR_HASH $DIAMOND_HASH $DIAMOND_CUT_HASH $ERC721_HASH $FLOB_HASH $BOOTSTRAPPER_HASH $ZKLANG_HASH  $SETZKLANGFUN 44 $(cairo-run --program build/printZKLangCode.json --print_output --layout=small | tail -n +2 | xargs) $MINT_CONTRACT 267 $(cairo-run --program build/printMintContractCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Bootstrapper_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET
+starknet invoke \
+    --address $DRF_ADDR \
+    --function deployRootDiamond \
+    --inputs \
+        $BFR_HASH \
+        $DIAMOND_HASH \
+        $DIAMOND_CUT_HASH \
+        $ERC721_HASH \
+        $ERC1155_HASH \
+        $FLOB_HASH \
+        $BOOTSTRAPPER_HASH \
+        $ZKLANG_HASH \
+        $SETZKLANGFUN \
+        44 \
+        $(cairo-run --program build/printZKLangCode.json --print_output --layout=small | tail -n +2 | xargs) \
+        $MINT_CONTRACT \
+        267 \
+        $(cairo-run --program build/printMintContractCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Bootstrapper_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET

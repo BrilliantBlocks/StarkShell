@@ -29,6 +29,7 @@ struct BFRCalldata {
     flobDbClassHash: felt,
     zklangClassHash: felt,
     diamondCutClassHash: felt,
+    erc1155ClassHash: felt,
 }
 
 struct ERC721Calldata {
@@ -171,6 +172,7 @@ func init{
             _class.flobDb,
             _class.zklang,
             _class.diamondCut,
+            _class.erc1155,
             ),
         ERC721Calldata.SIZE,
         ERC721Calldata(

@@ -1,14 +1,23 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from src.ERC1155.IERC1155 import TokenBatch
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC1155.IERC1155 import IERC1155
-from src.main.BFR.IBFR import IBFR
-from src.main.TCF.ITCF import ITCF
+from src.interfaces.IBFR import IBFR
+from src.interfaces.ITCF import ITCF
+
+from tests.setup import (
+    ClassHash,
+    getClassHashes,
+    computeSelectors,
+    declareContracts,
+    deployRootDiamondFactory,
+    deployRootDiamond,
+)
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -29,15 +38,6 @@ struct ERC1155Selectors {
     setApprovalForAll: felt,
     safeTransferFrom: felt,
     safeBatchTransferFrom: felt,
-}
-
-struct Setup {
-    diamond_address: felt,
-    diamond_class_hash: felt,
-    diamondCut_class_hash: felt,
-    erc1155_class_hash: felt,
-    BFR_address: felt,
-    TCF_address: felt,
 }
 
 func getERC1155Selectors() -> ERC1155Selectors {
@@ -74,89 +74,25 @@ func getERC1155Selectors() -> ERC1155Selectors {
     return selectors;
 }
 
-func getSetup() -> Setup {
-    alloc_locals;
-    local diamond_address;
-    local diamond_class_hash;
-    local diamondCut_class_hash;
-    local erc1155_class_hash;
-    local BFR_address;
-    local TCF_address;
-
-    %{
-        variables = [
-            "diamond_address",
-            "diamond_class_hash",
-            "diamondCut_class_hash",
-            "erc1155_class_hash",
-            "BFR_address",
-            "TCF_address",
-            ]
-        [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
-    %}
-
-    local setup: Setup = Setup(
-        diamond_address,
-        diamond_class_hash,
-        diamondCut_class_hash,
-        erc1155_class_hash,
-        BFR_address,
-        TCF_address,
-        );
-
-    return setup;
-}
-
-func declareContracts() -> () {
-    %{
-        context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
-        context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
-        context.erc1155_class_hash = declare("./src/ERC1155/ERC1155.cairo").class_hash
-    %}
-
-    return ();
-}
-
-func deployContracts() -> () {
-    %{
-        context.BFR_address = deploy_contract(
-                "./src/main/BFR/BFR.cairo",
-                [
-                    ids.BrilliantBlocks, # Owner
-                ],
-        ).contract_address
-        context.TCF_address = deploy_contract(
-                "./src/main/TCF/TCF.cairo",
-                [
-                    context.diamond_class_hash,
-                    context.BFR_address,
-                    0, # DO_NOT_CARE name
-                    0, # DO_NOT_CARE symbol
-                    0, # DO_NOT_CARE tokenURI
-                ],
-        ).contract_address
-    %}
-
-    return ();
-}
-
 @external
-func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+func __setup__{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
     alloc_locals;
-    declareContracts();
-    deployContracts();
-    let setup = getSetup();
 
-    // BrilliantBlocks populates facet registry
-    let elements_len = 2;
-    tempvar elements = new (setup.diamondCut_class_hash, setup.erc1155_class_hash);
-    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
-    IBFR.registerElements(setup.TCF_address, elements_len, elements);
-    %{ stop_prank() %}
+    computeSelectors();
+    declareContracts();
+    deployRootDiamondFactory();
+    deployRootDiamond();
+
+    local rootDiamond;
+    %{ ids.rootDiamond = context.rootDiamond %}
+
+    let ch: ClassHash = getClassHashes();
 
     // User mints a diamond with ERC1155
     let facetCut_len = 1;
-    tempvar facetCut = new FacetCut(setup.erc1155_class_hash, FacetCutAction.Add);
+    tempvar facetCut = new FacetCut(ch.erc1155, FacetCutAction.Add);
 
     let calldata_len = ERC1155Calldata.SIZE + 1;
     tempvar calldata = new (
@@ -170,12 +106,15 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
                 ),
             ),
         );
-
-    %{ stop_prank = start_prank(ids.User, context.TCF_address) %}
+    %{
+        stop_prank_callable = start_prank(
+            ids.User, target_contract_address=context.rootDiamond
+        )
+    %}
     let (diamond_address) = ITCF.mintContract(
-        setup.TCF_address, facetCut_len, facetCut, calldata_len, calldata
+        rootDiamond, facetCut_len, facetCut, calldata_len, calldata
     );
-    %{ stop_prank() %}
+    %{ stop_prank_callable() %}
     %{ context.diamond_address = ids.diamond_address %}
 
     return ();
@@ -184,10 +123,11 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 @external
 func test_constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
 
     // Assert that initialzation yields expected balance for User
-    let (user_balance: Uint256) = IERC1155.balanceOf(setup.diamond_address, User, Uint256(1, 0));
+    let (user_balance: Uint256) = IERC1155.balanceOf(diamond_address, User, Uint256(1, 0));
     assert_eq(user_balance.low, 1);
     assert_eq(user_balance.high, 0);
 
@@ -197,17 +137,19 @@ func test_constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 @external
 func test_destructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
     // Remmove ERC1155 facet to diamond
     let facetCut_len = 1;
-    tempvar facetCut = new FacetCut(setup.erc1155_class_hash, FacetCutAction.Remove);
+    tempvar facetCut = new FacetCut(ch.erc1155, FacetCutAction.Remove);
 
     let calldata_len = 1;
     tempvar calldata = new (0);
 
     %{ stop_prank = start_prank(ids.User, context.diamond_address) %}
-    IDiamondCut.diamondCut(setup.diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
 
     return ();
@@ -218,10 +160,13 @@ func test_getImplementation_return_erc1155{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
-    let (token_class_hash) = IDiamond.getImplementation(setup.diamond_address);
-    assert_eq(token_class_hash, setup.erc1155_class_hash);
+    let (token_class_hash) = IDiamond.getImplementation(diamond_address);
+    assert_eq(token_class_hash, ch.erc1155);
+
     return ();
 }
 
@@ -230,11 +175,11 @@ func test_erc1155_has_six_functions{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
-    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(
-        setup.diamond_address, setup.erc1155_class_hash
-    );
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, ch.erc1155);
     assert_eq(selectors_len, 6);
 
     return ();
@@ -245,11 +190,13 @@ func test_facetAddress_returns_erc1155_for_balanceOf{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
     let erc1155 = getERC1155Selectors();
-    let setup = getSetup();
 
-    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc1155.balanceOf);
-    assert_eq(facet, setup.erc1155_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, erc1155.balanceOf);
+    assert_eq(facet, ch.erc1155);
 
     return ();
 }
@@ -260,10 +207,12 @@ func test_facetAddress_returns_erc1155_for_balanceOfBatch{
 }() {
     alloc_locals;
     let erc1155 = getERC1155Selectors();
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
-    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc1155.balanceOfBatch);
-    assert_eq(facet, setup.erc1155_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, erc1155.balanceOfBatch);
+    assert_eq(facet, ch.erc1155);
 
     return ();
 }
@@ -274,10 +223,12 @@ func test_facetAddress_returns_erc1155_for_isApprovedForAll{
 }() {
     alloc_locals;
     let erc1155 = getERC1155Selectors();
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
-    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc1155.isApprovedForAll);
-    assert_eq(facet, setup.erc1155_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, erc1155.isApprovedForAll);
+    assert_eq(facet, ch.erc1155);
 
     return ();
 }
@@ -288,10 +239,12 @@ func test_facetAddress_returns_erc1155_for_setApprovalForAll{
 }() {
     alloc_locals;
     let erc1155 = getERC1155Selectors();
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
-    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc1155.setApprovalForAll);
-    assert_eq(facet, setup.erc1155_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, erc1155.setApprovalForAll);
+    assert_eq(facet, ch.erc1155);
 
     return ();
 }
@@ -302,10 +255,12 @@ func test_facetAddress_returns_erc1155_for_safeTransferFrom{
 }() {
     alloc_locals;
     let erc1155 = getERC1155Selectors();
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
-    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc1155.safeTransferFrom);
-    assert_eq(facet, setup.erc1155_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, erc1155.safeTransferFrom);
+    assert_eq(facet, ch.erc1155);
 
     return ();
 }
@@ -316,10 +271,12 @@ func test_facetAddress_returns_erc1155_for_safeBatchTransferFrom{
 }() {
     alloc_locals;
     let erc1155 = getERC1155Selectors();
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
-    let (facet) = IDiamond.facetAddress(setup.diamond_address, erc1155.safeBatchTransferFrom);
-    assert_eq(facet, setup.erc1155_class_hash);
+    let (facet) = IDiamond.facetAddress(diamond_address, erc1155.safeBatchTransferFrom);
+    assert_eq(facet, ch.erc1155);
 
     return ();
 }
