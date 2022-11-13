@@ -3,9 +3,7 @@ from starkware.cairo.common.bool import FALSE, TRUE
 
 from src.zklang.structs import Primitive, Variable, Instruction
 
-func mintContract(_diamond_hash: felt, _erc721_hash: felt, _diamondCut_hash: felt) -> (
-    res_len: felt, res: felt*
-) {
+func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, res: felt*) {
     alloc_locals;
     local deploy_primitive;
     local mint_primitive;

@@ -10,6 +10,7 @@ export ZKLANG_SRC=./build/ZKLANG.json
 export DIAMOND_SRC=./build/Diamond.json
 export DIAMOND_CUT_SRC=./build/DiamondCut.json
 export SETZKLANGFUN=$(python3.9 -c "from starkware.starknet.public.abi import get_selector_from_name; print(get_selector_from_name('setZKLangFun'))")
+export MINT_CONTRACT=$(python3.9 -c "from starkware.starknet.public.abi import get_selector_from_name; print(get_selector_from_name('mintContract'))")
 
 
 echo "Compile contracts"
@@ -18,6 +19,7 @@ protostar build
 
 echo "Compile ZKLang functions"
 cairo-compile tests/zklang/fun/printZKLangCode.cairo --output build/printZKLangCode.json
+cairo-compile tests/zklang/fun/printMintContractCode.cairo --output build/printMintContractCode.json
 
 
 echo "Create account"
@@ -76,4 +78,5 @@ DRF_ADDR=$(starknet deploy --class_hash $DRF_HASH --gateway_url $DEVNET --feeder
 
 echo "Deploy root diamond from factory"
 
-starknet invoke --address $DRF_ADDR --function deployRootDiamond --inputs $BFR_HASH $DIAMOND_HASH $DIAMOND_CUT_HASH $ERC721_HASH $FLOB_HASH $DRF_HASH $ZKLANG_HASH  $SETZKLANGFUN 44 $(cairo-run --program build/printZKLangCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Init_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET
+# NOTICE zklang fun len are hardcoded
+    starknet invoke --address $DRF_ADDR --function deployRootDiamond --inputs $BFR_HASH $DIAMOND_HASH $DIAMOND_CUT_HASH $ERC721_HASH $FLOB_HASH $DRF_HASH $ZKLANG_HASH  $SETZKLANGFUN 44 $(cairo-run --program build/printZKLangCode.json --print_output --layout=small | tail -n +2 | xargs) $MINT_CONTRACT 267 $(cairo-run --program build/printMintContractCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Init_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET

@@ -127,6 +127,8 @@ func declareContracts() -> () {
         context.flobDb = declare("./src/Storage/FlobDB.cairo").class_hash
         context.rootDiamondFactory = declare("./src/ERC2535/Init.cairo").class_hash
         context.zklang = declare("./src/zklang/ZKlang.cairo").class_hash
+        print(context.diamond)
+        print(context.erc721)
     %}
 
     return ();
@@ -148,9 +150,7 @@ func deployRootDiamond{
     let sel: Selector = getSelectors();
 
     let (code_len, code) = setZKLangFun();
-    let (mintContract_code_len, mintContract_code) = mintContract(
-        ch.diamond, ch.erc721, ch.diamondCut
-    );
+    let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
 
     // TODO prank cheatcode?
     let (rootDiamond) = IRootDiamondFactory.deployRootDiamond(
