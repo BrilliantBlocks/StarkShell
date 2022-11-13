@@ -64,10 +64,10 @@ struct DiamondCalldata {
 func NewRootDiamond(address: felt) {
 }
 
-// @constructor
-// func constructor(_x_len: felt, _x: felt*) {
-//     return ();
-// }
+@constructor
+func constructor(_dont_care: felt) {
+    return ();
+}
 
 @external
 func deployRootDiamond{
