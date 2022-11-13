@@ -11,8 +11,8 @@ cairo_path = ["./lib/cairo_streams/src/"]
 cairo_path = ["./lib/cairo_streams/src/"]
 
 ["protostar.contracts"]
-Init = [
-    "src/ERC2535/Init.cairo",
+Bootstrapper = [
+    "bootstrap/Bootstrapper.cairo",
 ]
 BFR = [
     "src/Storage/BFR/BFR.cairo",

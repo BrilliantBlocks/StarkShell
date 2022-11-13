@@ -7,7 +7,7 @@ from src.ERC1155.IERC1155 import TokenBatch
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC1155.IERC1155 import IERC1155
-from src.ERC2535.Init import IRootDiamondFactory, ClassHash
+from bootstrap.Bootstrapper import IBootstrapper, ClassHash
 from src.ERC721.IERC721 import IERC721
 from src.interfaces.IBFR import IBFR
 from src.interfaces.ITCF import ITCF
@@ -125,7 +125,7 @@ func declareContracts() -> () {
         context.diamondCut = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         context.erc721 = declare("./src/ERC721/ERC721.cairo").class_hash
         context.flobDb = declare("./src/Storage/FlobDB.cairo").class_hash
-        context.rootDiamondFactory = declare("./src/ERC2535/Init.cairo").class_hash
+        context.rootDiamondFactory = declare("./bootstrap/Bootstrapper.cairo").class_hash
         context.zklang = declare("./src/zklang/ZKlang.cairo").class_hash
         print(context.diamond)
         print(context.erc721)
@@ -135,7 +135,7 @@ func declareContracts() -> () {
 }
 
 func deployRootDiamondFactory() -> () {
-    %{ context.rootFactory = deploy_contract("./src/ERC2535/Init.cairo", [0]).contract_address %}
+    %{ context.rootFactory = deploy_contract("./bootstrap/Bootstrapper.cairo", [0]).contract_address %}
 
     return ();
 }
@@ -153,7 +153,7 @@ func deployRootDiamond{
     let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
 
     // TODO prank cheatcode?
-    let (rootDiamond) = IRootDiamondFactory.deployRootDiamond(
+    let (rootDiamond) = IBootstrapper.deployRootDiamond(
         addr.rootFactory,
         ch,
         sel.setZKLangFun,

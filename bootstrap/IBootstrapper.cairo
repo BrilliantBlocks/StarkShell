@@ -1,10 +1,10 @@
 %lang starknet
 from starkware.cairo.common.uint256 import Uint256
 
-from src.ERC2535.Structs import ClassHash
+from bootstrap.Structs import ClassHash
 
 @contract_interface
-namespace IRootDiamondFactory {
+namespace IBootstrapper {
     func deployRootDiamond(
         _class: ClassHash,
         _setZKLfun_selector: felt,

@@ -21,7 +21,7 @@ from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction
 from src.ERC2535.library import Diamond
 from src.Storage.BFR.IBFR import IBFR
 from src.zklang.library import Function
-from src.ERC2535.IRootDiamondFactory import IRootDiamondFactory, ClassHash
+from bootstrap.IBootstrapper import IBootstrapper, ClassHash
 
 struct BFRCalldata {
     erc721ClassHash: felt,
@@ -110,7 +110,7 @@ func deployRootDiamond{
         );
     }
 
-    IRootDiamondFactory.init(
+    IBootstrapper.init(
         address,
         caller,
         selfTokenId,
