@@ -20,7 +20,9 @@ func diamondCut{
 }(_facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*) -> () {
     alloc_locals;
     Diamond.Assert.only_owner();
-    Diamond._diamondCut(_facetCut_len, _facetCut, _calldata_len, _calldata);
+    with_attr error_message("PUBLIC diamondCut {_facetCut_len} {_calldata_len}") {
+        Diamond._diamondCut(_facetCut_len, _facetCut, _calldata_len, _calldata);
+    }
     return ();
 }
 

@@ -106,7 +106,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt, _diamondCut_hash: fel
         output=NULLvar,
         );
 
-    // diamondCut()
+    // diamondCut() TODO delegate call
     tempvar instruction6 = Instruction(
         primitive=Primitive(_diamondCut_hash, diamondCut_primitive),
         input1=Variable(calldata_var, 0, 0, 0),
@@ -153,7 +153,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt, _diamondCut_hash: fel
     tempvar transferFrom_calldata = Variable(transferFrom_calldata_var, 0, 0, 0);
 
     tempvar memory_layout = (
-        facet_key, 1, 0, 0,
+        facet_key, 16, 0, 0,
         diamond_addr,
         tokenId,
         diamond_constructor_calldata,

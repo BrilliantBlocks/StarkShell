@@ -188,15 +188,7 @@ namespace Diamond {
             z=FUNCTION_SELECTORS.FACET.__constructor__,
         );
 
-        local y = facetCutCalldata_len;
-        local a0 = facetCutCalldata[0];
-        local a1 = facetCutCalldata[1];
-        local a2 = facetCutCalldata[2];
-        local a3 = facetCutCalldata[3];
-        local a4 = facetCutCalldata[46];
-        local a5 = facetCutCalldata[47];
-        with_attr error_message(
-                "ERROR in library_call {_calldata_len} {y} {a0} {a1} {a2} {a3} {a4} {a5}") {
+        with_attr error_message("ERROR IN FACET CONSTRUCTOR / DESTRUCTOR") {
             library_call(
                 class_hash=_facetCut[0].facetAddress,
                 function_selector=selector,

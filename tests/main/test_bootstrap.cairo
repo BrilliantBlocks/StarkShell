@@ -8,6 +8,7 @@ from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC1155.IERC1155 import IERC1155
 from src.ERC2535.Init import IRootDiamondFactory, ClassHash
+from src.ERC721.IERC721 import IERC721
 from src.main.BFR.IBFR import IBFR
 from src.main.TCF.ITCF import ITCF
 from src.zklang.IZKlang import IZKlang
@@ -240,6 +241,13 @@ func test_getImplementation_returns_erc721_hash{
     return ();
 }
 
+struct ERC721Calldata {
+    receiver: felt,
+    tokenId_len: felt,  // 2
+    tokenId0: Uint256,
+    tokenId1: Uint256,
+}
+
 @external
 func test_mintContract{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
@@ -247,19 +255,53 @@ func test_mintContract{
     alloc_locals;
 
     let addr: Address = getAddresses();
+    let ch: ClassHash = getClassHashes();
     let (local NULLptr: felt*) = alloc();
     let (local FCNULLptr: FacetCut*) = alloc();
     const NULL = 0;
 
+    let facetCut_len = 1;
+    tempvar facetCut = new FacetCut(ch.erc721, FacetCutAction.Add);
+
+    let calldata_len = ERC721Calldata.SIZE;
+    let calldata_len = ERC721Calldata.SIZE + 1;
+    tempvar calldata = new (
+        ERC721Calldata.SIZE,
+        ERC721Calldata(
+            receiver=User,
+            tokenId_len=2,
+            tokenId0=Uint256(1, 0),
+            tokenId1=Uint256(3, 0),
+            ),
+        );
     %{
         stop_prank_callable = start_prank(
             ids.User, target_contract_address=context.rootDiamond
         )
     %}
+    // let (diamond_address) = ITCF.mintContract(addr.rootDiamond, 1, facetCut, calldata_len, calldata);
     let (diamond_address) = ITCF.mintContract(addr.rootDiamond, NULL, FCNULLptr, NULL, NULLptr);
     %{ stop_prank_callable() %}
 
     assert_not_eq(diamond_address, 0);
+
+    let (root) = IDiamond.getRoot(diamond_address);
+    assert_eq(root, addr.rootDiamond);
+
+    %{
+        stop_prank_callable = start_prank(
+            ids.User, target_contract_address=ids.diamond_address
+        )
+    %}
+    IDiamondCut.diamondCut(diamond_address, facetCut_len, facetCut, calldata_len, calldata);
+    %{ stop_prank_callable() %}
+
+    // Assert that initialzation yields expected token for user
+    let (owner: felt) = IERC721.ownerOf(diamond_address, Uint256(1, 0));
+    assert_eq(owner, User);
+
+    let (owner: felt) = IERC721.ownerOf(diamond_address, Uint256(3, 0));
+    assert_eq(owner, User);
 
     return ();
 }
