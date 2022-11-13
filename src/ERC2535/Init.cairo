@@ -19,7 +19,7 @@ from starkware.cairo.common.uint256 import Uint256
 from src.constants import FUNCTION_SELECTORS
 from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction
 from src.ERC2535.library import Diamond
-from src.BFR.IBFR import IBFR
+from src.Storage.BFR.IBFR import IBFR
 from src.zklang.library import Function
 from src.ERC2535.IRootDiamondFactory import IRootDiamondFactory, ClassHash
 
@@ -64,10 +64,10 @@ struct DiamondCalldata {
 func NewRootDiamond(address: felt) {
 }
 
-@constructor
-func constructor(_x_len: felt, _x: felt*) {
-    return ();
-}
+// @constructor
+// func constructor(_x_len: felt, _x: felt*) {
+//     return ();
+// }
 
 @external
 func deployRootDiamond{

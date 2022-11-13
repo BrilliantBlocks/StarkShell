@@ -9,8 +9,8 @@ from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
 from src.ERC1155.IERC1155 import IERC1155
 from src.ERC2535.Init import IRootDiamondFactory, ClassHash
 from src.ERC721.IERC721 import IERC721
-from src.main.BFR.IBFR import IBFR
-from src.main.TCF.ITCF import ITCF
+from src.interfaces.IBFR import IBFR
+from src.interfaces.ITCF import ITCF
 from src.zklang.IZKlang import IZKlang
 from tests.zklang.fun.setZKLangFun import setZKLangFun
 from tests.zklang.fun.mintContract import mintContract
@@ -120,7 +120,7 @@ func computeSelectors() -> () {
 
 func declareContracts() -> () {
     %{
-        context.bfr = declare("./src/BFR/BFR.cairo").class_hash
+        context.bfr = declare("./src/Storage/BFR/BFR.cairo").class_hash
         context.diamond = declare("./src/ERC2535/Diamond.cairo").class_hash
         context.diamondCut = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         context.erc721 = declare("./src/ERC721/ERC721.cairo").class_hash

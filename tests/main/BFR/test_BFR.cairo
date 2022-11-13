@@ -1,17 +1,14 @@
 %lang starknet
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from src.BFR.IBFR import IBFR
+from src.Storage.BFR.IBFR import IBFR
 
 const OWNER = 1;
 
 @external
 func __setup__() {
-    %{
-        context.BFR_address = deploy_contract("./src/main/BFR/BFR.cairo", [1]).contract_address
-    %}
+    %{ context.BFR_address = deploy_contract("./src/main/BFR/BFR.cairo", [1]).contract_address %}
     return ();
 }
-
 
 @external
 func test_registerElement{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
@@ -24,8 +21,6 @@ func test_registerElement{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
         )
     %}
     IBFR.registerElement(BFR, 7);
-    %{
-        stop_prank_callable()
-    %}
+    %{ stop_prank_callable() %}
     return ();
 }

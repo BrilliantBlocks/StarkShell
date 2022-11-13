@@ -15,7 +15,7 @@ Init = [
     "src/ERC2535/Init.cairo",
 ]
 BFR = [
-    "src/BFR/BFR.cairo",
+    "src/Storage/BFR/BFR.cairo",
 ]
 FlobDB = [
     "src/Storage/FlobDB.cairo",

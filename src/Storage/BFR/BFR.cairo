@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.registers import get_label_location
 
 from src.constants import FUNCTION_SELECTORS
-from src.BFR.library import BFR
+from src.Storage.BFR.library import BFR
 
 // @dev Register element in bitmap
 // @emit Register(_bitId, _element)

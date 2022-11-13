@@ -23,7 +23,7 @@ from src.constants import (
 )
 from src.ERC2535.IDiamondCut import Fee, FacetCut, FacetCutAction
 from src.ERC721.IERC721 import IERC721
-from src.BFR.IBFR import IBFR
+from src.Storage.BFR.IBFR import IBFR
 
 // / @dev Store the address of the factory contract
 // / @return Address of its parent smart contract
