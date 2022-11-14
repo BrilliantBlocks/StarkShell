@@ -29,10 +29,10 @@ struct BFRCalldata {
     flobDbClassHash: felt,
     zklangClassHash: felt,
     diamondCutClassHash: felt,
+    metadata: felt,
     erc1155ClassHash: felt,
     erc20ClassHash: felt,
     erc5114ClassHash: felt,
-    metadata: felt,
 }
 
 struct ERC721Calldata {
@@ -156,16 +156,17 @@ func init{
     let (self) = get_contract_address();
     let (high, low) = split_felt(self);
 
-    let facetCut_len = 5;
+    let facetCut_len = 6;
     tempvar facetCut: FacetCut* = cast(new (
         FacetCut(_class.bfr, FacetCutAction.Add),
         FacetCut(_class.erc721, FacetCutAction.Add),
         FacetCut(_class.zklang, FacetCutAction.Add),
         FacetCut(_class.diamondCut, FacetCutAction.Add),
+        FacetCut(_class.metadata, FacetCutAction.Add),
         FacetCut(_class.flobDb, FacetCutAction.Add),
         ), FacetCut*);
 
-    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (ZKLangCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1);
+    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (ZKLangCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1) + 10;
     tempvar tmp = cast(new (
         BFRCalldata.SIZE + 1,
         BFRCalldata.SIZE,
@@ -175,10 +176,10 @@ func init{
             _class.flobDb,
             _class.zklang,
             _class.diamondCut,
+            _class.metadata,
             _class.erc1155,
             _class.erc20,
             _class.erc5114,
-            _class.metadata,
             ),
         ERC721Calldata.SIZE,
         ERC721Calldata(
@@ -193,6 +194,8 @@ func init{
         // DiamondCutCalldata.SIZE,
         // DiamondCutCalldata(0),
         1, 0,
+        // TODO metadata
+        9, 0, 0, 0, 2, 184555836509371486645839001305511529563953210002131601274755952162965647151, 525788472421, FALSE, 0, 0,  // https://www.brilliantblocks.io/zkode
         ), felt*);
 
     let (local calldata: felt*) = alloc();
@@ -201,7 +204,6 @@ func init{
     let new_len = tmp_len;
 
     assert calldata[new_len] = 1 + _setZKLfun_compiled_len + _mintContract_compiled_len + 1;
-    // assert calldata[new_len] = 1 + _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1 + 1;
     let new_len = new_len + 1;
 
     assert calldata[new_len] = 2;
@@ -209,20 +211,11 @@ func init{
 
     // total array len
     assert calldata[new_len] = _setZKLfun_compiled_len + _mintContract_compiled_len;
-    // assert calldata[new_len] = _setZKLfun_compiled_len + 1 + _mintContract_compiled_len + 1;
     let new_len = new_len + 1;
-
-    // // assert first array_len
-    // assert calldata[new_len] = _setZKLfun_compiled_len;
-    // let new_len = new_len + 1;
 
     // memcpy first_array
     memcpy(calldata + new_len, _setZKLfun_compiled, _setZKLfun_compiled_len);
     let new_len = new_len + _setZKLfun_compiled_len;
-
-    // // assert second array_len
-    // assert calldata[new_len] = _mintContract_compiled_len;
-    // let new_len = new_len + 1;
 
     // memcpy second array
     memcpy(calldata + new_len, _mintContract_compiled, _mintContract_compiled_len);
@@ -231,12 +224,12 @@ func init{
     let calldata_len = new_len;
 
     Diamond._diamondCut(facetCut_len, facetCut, calldata_len, calldata);
+    let (facet_key) = pow(2, facetCut_len);
+    let facet_key = facet_key - 1;
 
-    let (facetKey) = pow(2, facetCut_len);
-    let facetKey = facetKey - 1;
     // Activate configuration
     Diamond._set_root_(self);
-    Diamond._set_facet_key_(facetKey);
+    Diamond._set_facet_key_(facet_key);
     Diamond._set_init_root_(0);
 
     return ();
