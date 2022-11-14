@@ -9,4 +9,5 @@ struct ClassHash {
     flobDb: felt,
     rootDiamondFactory: felt,
     zklang: felt,
+    metadata: felt,
 }

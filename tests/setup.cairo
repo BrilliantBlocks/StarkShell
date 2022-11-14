@@ -59,6 +59,7 @@ func getClassHashes() -> ClassHash {
     local flobDb;
     local rootDiamondFactory;
     local zklang;
+    local metadata;
 
     %{
         variables = [
@@ -72,6 +73,7 @@ func getClassHashes() -> ClassHash {
             "flobDb",
             "rootDiamondFactory",
             "zklang",
+            "metadata",
             ]
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
@@ -87,6 +89,7 @@ func getClassHashes() -> ClassHash {
         flobDb,
         rootDiamondFactory,
         zklang,
+        metadata,
         );
 
     return classHashes;
@@ -139,6 +142,7 @@ func declareContracts() -> () {
         context.flobDb = declare("./src/Storage/FlobDB.cairo").class_hash
         context.rootDiamondFactory = declare("./bootstrap/Bootstrapper.cairo").class_hash
         context.zklang = declare("./src/zklang/ZKlang.cairo").class_hash
+        context.metadata = declare("./src/UniversalMetadata/UniversalMetadata.cairo").class_hash
         print(context.diamond)
         print(context.erc721)
     %}

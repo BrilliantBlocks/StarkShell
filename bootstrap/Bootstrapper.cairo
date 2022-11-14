@@ -32,6 +32,7 @@ struct BFRCalldata {
     erc1155ClassHash: felt,
     erc20ClassHash: felt,
     erc5114ClassHash: felt,
+    metadata: felt,
 }
 
 struct ERC721Calldata {
@@ -177,6 +178,7 @@ func init{
             _class.erc1155,
             _class.erc20,
             _class.erc5114,
+            _class.metadata,
             ),
         ERC721Calldata.SIZE,
         ERC721Calldata(
