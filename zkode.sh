@@ -57,40 +57,40 @@ starknet deploy_account \
 
 
 echo "Declare contracts"
-echo -ne " $(echo $((100 * 0/11)))% | Bootstrapper \r"
+echo -ne " $(echo $((100 * 0/11)))% | Bootstrapper        \r"
 
 BOOTSTRAPPER_HASH=$(starknet declare --contract $BOOTSTRAPPER_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 1/11)))% | BFR \r"
+echo -ne " $(echo $((100 * 1/11)))% | BFR                 \r"
 
 BFR_HASH=$(starknet declare --contract $BFR_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 2/11)))% | FlobDB \r"
+echo -ne " $(echo $((100 * 2/11)))% | FlobDB              \r"
 
 FLOB_HASH=$(starknet declare --contract $FLOB_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 3/11)))% | ZKLang \r"
+echo -ne " $(echo $((100 * 3/11)))% | ZKLang              \r"
 
 ZKLANG_HASH=$(starknet declare --contract $ZKLANG_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 4/11)))% | Diamond \r"
+echo -ne " $(echo $((100 * 4/11)))% | Diamond             \r"
 
 DIAMOND_HASH=$(starknet declare --contract $DIAMOND_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 5/11)))% | DiamondCut \r"
+echo -ne " $(echo $((100 * 5/11)))% | DiamondCut         \r"
 
 DIAMOND_CUT_HASH=$(starknet declare --contract $DIAMOND_CUT_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 6/11)))% | ERC721 \r"
+echo -ne " $(echo $((100 * 6/11)))% | ERC721             \r"
 
 ERC721_HASH=$(starknet declare --contract $ERC721_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 7/11)))% | ERC1155 \r"
+echo -ne " $(echo $((100 * 7/11)))% | ERC1155            \r"
 
 ERC1155_HASH=$(starknet declare --contract $ERC1155_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 8/11)))% | ERC20 \r"
+echo -ne " $(echo $((100 * 8/11)))% | ERC20              \r"
 
 ERC20_HASH=$(starknet declare --contract $ERC20_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " $(echo $((100 * 9/11)))% | ERC5114 \r"
+echo -ne " $(echo $((100 * 9/11)))% | ERC5114            \r"
 
 ERC5114_HASH=$(starknet declare --contract $ERC5114_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
 echo -ne " $(echo $((100 * 10/11)))% | UniversalMetadata \r"
 
 METADATA_HASH=$(starknet declare --contract $METADATA_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne " ($(echo $((100 * 11/11)))%) \r"
+echo -ne " ($(echo $((100 * 11/11)))%)                   \r"
 
 echo -ne "\n"
 
@@ -122,5 +122,5 @@ starknet invoke \
         44 \
         $(cairo-run --program build/printZKLangCode.json --print_output --layout=small | tail -n +2 | xargs) \
         $MINT_CONTRACT \
-        267 \
+        299 \
         $(cairo-run --program build/printMintContractCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Bootstrapper_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET

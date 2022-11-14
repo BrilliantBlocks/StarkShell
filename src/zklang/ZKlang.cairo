@@ -20,6 +20,7 @@ from src.zklang.primitives.core import (
     __ZKLANG__NOOP,
     __ZKLANG__CALL_CONTRACT,
     __ZKLANG__FELT_TO_UINT256,
+    __ZKLANG__SUM,
 )
 
 @external

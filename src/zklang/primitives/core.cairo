@@ -102,6 +102,11 @@ func __ZKLANG__FELT_TO_UINT256{range_check_ptr}(_x: felt) -> (res: Uint256) {
     return (res=Uint256(low, high));
 }
 
+@view
+func __ZKLANG__SUM(_x: felt, _y: felt) -> (res: felt) {
+    return (res=_x+_y);
+}
+
 @external
 func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_address: felt, _selector: felt, _calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
     alloc_locals;

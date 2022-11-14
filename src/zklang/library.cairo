@@ -62,8 +62,8 @@ namespace Program {
         _selector: felt, _program_raw_len: felt, _program_raw: felt*
     ) -> (program_len: felt, program: felt*) {
         alloc_locals;
-        validate(_program_raw[0], _program_raw + 1);
-        // validate(_program_raw_len, _program_raw);
+        // validate(_program_raw[0], _program_raw + 1);
+        validate(_program_raw_len, _program_raw);
 
         let (this_diamond) = get_contract_address();
         let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
@@ -88,7 +88,7 @@ namespace Program {
             return ();
         }
         let instruction = cast(_program, Instruction*);
-        with_attr error_message("CORRUPT CODE input1.protected") {
+        with_attr error_message("CORRUPT CODE input1.protected {_program_len}") {
             assert (instruction.input1.protected - 1) * instruction.input1.protected = 0;
         }
         with_attr error_message("CORRUPT CODE input2.protected") {
