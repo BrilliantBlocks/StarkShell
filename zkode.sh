@@ -6,6 +6,8 @@ export BOOTSTRAPPER_SRC=./build/Bootstrapper.json
 export BFR_SRC=./build/BFR.json
 export ERC721_SRC=./build/ERC721.json
 export ERC1155_SRC=./build/ERC1155.json
+export ERC20_SRC=./build/ERC20.json
+export ERC5114_SRC=./build/ERC5114.json
 export FLOB_SRC=./build/FlobDB.json
 export ZKLANG_SRC=./build/ZKLANG.json
 export DIAMOND_SRC=./build/Diamond.json
@@ -55,32 +57,37 @@ starknet deploy_account \
 
 echo "Declare contracts"
 
-echo -ne "         (0%)\r"
+echo -ne "            (0%)\r"
 
 BOOTSTRAPPER_HASH=$(starknet declare --contract $BOOTSTRAPPER_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "#       (12.5%)\r"
+echo -ne " #          (10%)\r"
 
 BFR_HASH=$(starknet declare --contract $BFR_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "##      (25.0%)\r"
+echo -ne " ##         (20%)\r"
 
 FLOB_HASH=$(starknet declare --contract $FLOB_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "###      (37.5%)\r"
+echo -ne " ###        (30%)\r"
 
 ZKLANG_HASH=$(starknet declare --contract $ZKLANG_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "####     (50.0%)\r"
+echo -ne " ####       (40%)\r"
 
 DIAMOND_HASH=$(starknet declare --contract $DIAMOND_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "#####    (62.5%)\r"
+echo -ne " #####      (50%)\r"
 
 DIAMOND_CUT_HASH=$(starknet declare --contract $DIAMOND_CUT_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "#####    (75.0%)\r"
+echo -ne " ######      (60%)\r"
 
 ERC721_HASH=$(starknet declare --contract $ERC721_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "####### (87.5%)\r"
-echo -ne "\n"
+echo -ne " #######    (70%)\r"
 
 ERC1155_HASH=$(starknet declare --contract $ERC1155_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
-echo -ne "######## (100%)\r"
+echo -ne " ########   (80%)\r"
+
+ERC20_HASH=$(starknet declare --contract $ERC20_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
+echo -ne " #########  (90%)\r"
+
+ERC5114_HASH=$(starknet declare --contract $ERC5114_SRC --gateway_url $DEVNET --feeder_gateway_url $DEVNET | grep "class hash" | awk '{print $NF}')
+echo -ne " ########## (100%)\r"
 echo -ne "\n"
 
 
@@ -101,6 +108,8 @@ starknet invoke \
         $DIAMOND_CUT_HASH \
         $ERC721_HASH \
         $ERC1155_HASH \
+        $ERC20_HASH \
+        $ERC5114_HASH \
         $FLOB_HASH \
         $BOOTSTRAPPER_HASH \
         $ZKLANG_HASH \
