@@ -54,6 +54,7 @@ func getClassHashes() -> ClassHash {
     local diamondCut;
     local erc721;
     local erc1155;
+    local erc20;
     local flobDb;
     local rootDiamondFactory;
     local zklang;
@@ -65,6 +66,7 @@ func getClassHashes() -> ClassHash {
             "diamondCut",
             "erc721",
             "erc1155",
+            "erc20",
             "flobDb",
             "rootDiamondFactory",
             "zklang",
@@ -78,6 +80,7 @@ func getClassHashes() -> ClassHash {
         diamondCut,
         erc721,
         erc1155,
+        erc20,
         flobDb,
         rootDiamondFactory,
         zklang,
@@ -128,6 +131,7 @@ func declareContracts() -> () {
         context.diamondCut = declare("./src/ERC2535/DiamondCut.cairo").class_hash
         context.erc721 = declare("./src/ERC721/ERC721.cairo").class_hash
         context.erc1155 = declare("./src/ERC1155/ERC1155.cairo").class_hash
+        context.erc20 = declare("./src/ERC20/ERC20.cairo").class_hash
         context.flobDb = declare("./src/Storage/FlobDB.cairo").class_hash
         context.rootDiamondFactory = declare("./bootstrap/Bootstrapper.cairo").class_hash
         context.zklang = declare("./src/zklang/ZKlang.cairo").class_hash

@@ -30,6 +30,7 @@ struct BFRCalldata {
     zklangClassHash: felt,
     diamondCutClassHash: felt,
     erc1155ClassHash: felt,
+    erc20ClassHash: felt,
 }
 
 struct ERC721Calldata {
@@ -173,6 +174,7 @@ func init{
             _class.zklang,
             _class.diamondCut,
             _class.erc1155,
+            _class.erc20,
             ),
         ERC721Calldata.SIZE,
         ERC721Calldata(
