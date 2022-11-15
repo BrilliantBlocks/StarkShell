@@ -1,46 +1,23 @@
-["protostar.config"]
-protostar_version = "0.6.0"
+[project]
+protostar-version = "0.7.0"
+lib-path = "lib"
 
-["protostar.project"]
-libs_path = "lib"
+[contracts]
+Bootstrapper = ["bootstrap/Bootstrapper.cairo"]
+BFR = ["src/Storage/BFR/BFR.cairo"]
+FlobDB = ["src/Storage/FlobDB.cairo"]
+ZKLANG = ["src/zklang/ZKlang.cairo"]
+Diamond = ["src/ERC2535/Diamond.cairo"]
+DiamondCut = ["src/ERC2535/DiamondCut.cairo"]
+ERC1155 = ["src/ERC1155/ERC1155.cairo"]
+ERC20 = ["src/ERC20/ERC20.cairo"]
+ERC5114 = ["src/ERC5114/ERC5114.cairo"]
+ERC721 = ["src/ERC721/ERC721.cairo"]
+UniversalMetadata = ["src/UniversalMetadata/UniversalMetadata.cairo"]
 
-["protostar.build"]
-cairo_path = ["./lib/cairo_streams/src/"]
+[build]
+cairo-path = ["./lib/cairo_streams/src/"]
 
-["protostar.test"]
-cairo_path = ["./lib/cairo_streams/src/"]
+[test]
+cairo-path = ["./lib/cairo_streams/src/"]
 
-["protostar.contracts"]
-Bootstrapper = [
-    "bootstrap/Bootstrapper.cairo",
-]
-BFR = [
-    "src/Storage/BFR/BFR.cairo",
-]
-FlobDB = [
-    "src/Storage/FlobDB.cairo",
-]
-ZKLANG = [
-    "src/zklang/ZKlang.cairo",
-]
-Diamond = [
-    "src/ERC2535/Diamond.cairo",
-]
-DiamondCut = [
-    "src/ERC2535/DiamondCut.cairo",
-]
-ERC1155 = [
-    "src/ERC1155/ERC1155.cairo",
-]
-ERC20 = [
-    "src/ERC20/ERC20.cairo",
-]
-ERC5114 = [
-    "src/ERC5114/ERC5114.cairo",
-]
-ERC721 = [
-    "src/ERC721/ERC721.cairo",
-]
-UniversalMetadata = [
-    "src/UniversalMetadata/UniversalMetadata.cairo",
-]
