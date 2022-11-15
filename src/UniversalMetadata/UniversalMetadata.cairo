@@ -7,10 +7,20 @@ from starkware.cairo.common.uint256 import Uint256
 
 from starkware.starknet.common.syscalls import get_contract_address
 
-from src.constants import FUNCTION_SELECTORS, IERC20_ID, IERC721_ID, IERC1155_ID, IERC5114_ID, IERC20_METADATA_ID, IERC721_METADATA_ID, IERC1155_METADATA_ID, IERC5114_METADATA_ID, NULL
+from src.constants import (
+    FUNCTION_SELECTORS,
+    IERC20_ID,
+    IERC721_ID,
+    IERC1155_ID,
+    IERC5114_ID,
+    IERC20_METADATA_ID,
+    IERC721_METADATA_ID,
+    IERC1155_METADATA_ID,
+    IERC5114_METADATA_ID,
+    NULL,
+)
 from src.ERC2535.IDiamond import IDiamond
 from src.UniversalMetadata.library import Library, UniversalMetadata
-
 
 @view
 func decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
@@ -31,31 +41,41 @@ func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -
 }
 
 @view
-func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res_len: felt, res: felt*) {
+func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> (res_len: felt, res: felt*) {
     let (tokenURI_len, tokenURI) = UniversalMetadata._get_token_uri_(_tokenId);
     return (tokenURI_len, tokenURI);
 }
 
 @view
-func uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res_len: felt, res: felt*) {
+func uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (
+    res_len: felt, res: felt*
+) {
     let (uri_len, uri) = UniversalMetadata._get_token_uri_(_tokenId);
     return (uri_len, uri);
 }
 
 @view
-func metadataFormat{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
+func metadataFormat{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    res: felt
+) {
     let metadataFormat = UniversalMetadata._get_metadata_format_();
     return (res=metadataFormat);
 }
 
 @view
-func tokenUri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (res_len: felt, res: felt*) {
+func tokenUri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _tokenId: Uint256
+) -> (res_len: felt, res: felt*) {
     let (tokenUri_len, tokenUri) = UniversalMetadata._get_token_uri_(_tokenId);
     return (tokenUri_len, tokenUri);
 }
 
 @view
-func collectionUri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res_len: felt, res: felt*) {
+func collectionUri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    res_len: felt, res: felt*
+) {
     let (collectionUri_len, collectionUri) = UniversalMetadata._get_collection_uri_();
     return (collectionUri_len, collectionUri);
 }
@@ -64,21 +84,34 @@ func collectionUri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 // Mandatory functions
 // ===================
 
-/// @dev Initialize this facet
-/// @revert BOOL ERROR if _has_token_id_infix is not a boolean
+// / @dev Initialize this facet
+// / @revert BOOL ERROR if _has_token_id_infix is not a boolean
 @external
-func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_decimals: felt, _name: felt, _symbol: felt, _prefix_uri_len: felt, _prefix_uri: felt*, _has_token_id_infix: felt, _suffix_uri_len: felt, _suffix_uri: felt*, _collection_uri_len: felt, _collection_uri: felt*) -> () {
+func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _decimals: felt,
+    _name: felt,
+    _symbol: felt,
+    _prefix_uri_len: felt,
+    _prefix_uri: felt*,
+    _has_token_id_infix: felt,
+    _suffix_uri_len: felt,
+    _suffix_uri: felt*,
+    _collection_uri_len: felt,
+    _collection_uri: felt*,
+) -> () {
     Library._assert_is_boolean(_has_token_id_infix);
     UniversalMetadata._set_decimals_(_decimals);
     UniversalMetadata._set_name_(_name);
     UniversalMetadata._set_symbol_(_symbol);
-    UniversalMetadata._set_token_uri_(_prefix_uri_len, _prefix_uri, _has_token_id_infix, _suffix_uri_len, _suffix_uri);
+    UniversalMetadata._set_token_uri_(
+        _prefix_uri_len, _prefix_uri, _has_token_id_infix, _suffix_uri_len, _suffix_uri
+    );
     UniversalMetadata._set_collection_uri_(_collection_uri_len, _collection_uri);
     return ();
 }
 
-/// @dev Remove this facet
-/// @notice Resets all metadata
+// / @dev Remove this facet
+// / @notice Resets all metadata
 @external
 func __destructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
@@ -91,10 +124,12 @@ func __destructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
     return ();
 }
 
-/// @dev Exported view and invokable functions of this facet
+// / @dev Exported view and invokable functions of this facet
 @view
 @raw_output
-func __get_function_selectors__{syscall_ptr: felt*, range_check_ptr}() -> (retdata_size: felt, retdata: felt*) {
+func __get_function_selectors__{syscall_ptr: felt*, range_check_ptr}() -> (
+    retdata_size: felt, retdata: felt*
+) {
     alloc_locals;
     let (local NULLptr: felt*) = alloc();
     let (self) = get_contract_address();
@@ -144,9 +179,11 @@ func __get_function_selectors__{syscall_ptr: felt*, range_check_ptr}() -> (retda
     dw FUNCTION_SELECTORS.ERC5114Metadata.tokenUri;
 }
 
-/// @dev Define all supported interfaces of this facet
+// / @dev Define all supported interfaces of this facet
 @view
-func __supports_interface__{syscall_ptr: felt*, range_check_ptr}(_interface_id: felt) -> (res: felt) {
+func __supports_interface__{syscall_ptr: felt*, range_check_ptr}(_interface_id: felt) -> (
+    res: felt
+) {
     alloc_locals;
     let (self) = get_contract_address();
 

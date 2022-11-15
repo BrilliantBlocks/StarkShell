@@ -10,17 +10,14 @@ from lib.cairo_math_64x61.contracts.cairo_math_64x61.math64x61 import Math64x61
 
 from src.constants import FUNCTION_SELECTORS, FEE_DENOMINATOR, IERC2981_ID
 
-
 struct RoyaltyInfo {
     receiver: felt,
     fee: felt,
 }
 
-
 @storage_var
 func _royalty_info() -> (res: RoyaltyInfo) {
 }
-
 
 @view
 func royaltyInfo{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -46,11 +43,9 @@ func royaltyInfo{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     return (royalty.receiver, royalty_amount);
 }
 
-
 func set_royalty{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     receiver: felt, fee: felt
 ) {
-
     with_attr error_message("Royalty fee must not exceed the fee denominator (10000)") {
         assert_le(fee, FEE_DENOMINATOR);
     }
@@ -58,7 +53,6 @@ func set_royalty{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     _royalty_info.write(RoyaltyInfo(receiver, fee));
     return ();
 }
-
 
 func convertFeltToUint256{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     input: felt
@@ -69,12 +63,10 @@ func convertFeltToUint256{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
     return (output,);
 }
 
-
 @external
 func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     receiver: felt, fee: felt
 ) -> () {
-    
     with_attr error_message("Receiver address must not be zero") {
         assert_not_zero(receiver);
     }
@@ -84,7 +76,6 @@ func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
     return ();
 }
 
-
 @view
 func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
@@ -93,7 +84,6 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     selectors_start:
     dw FUNCTION_SELECTORS.ERC2981.royaltyInfo;
 }
-
 
 // @dev Support ERC-165
 // @param interface_id

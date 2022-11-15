@@ -26,7 +26,9 @@ func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*) {
 
 @view
 @raw_input
-func __ZKLANG__RETURN(selector: felt, calldata_size: felt, calldata: felt*) -> (x_len: felt, x: felt*) {
+func __ZKLANG__RETURN(selector: felt, calldata_size: felt, calldata: felt*) -> (
+    x_len: felt, x: felt*
+) {
     return (x_len=calldata_size, x=calldata);
 }
 
@@ -52,7 +54,6 @@ func __ZKLANG__BRANCH{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
 @external
 func __ZKLANG__EVENT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    // TODO How about specifiying args?
     _key: felt, _val_len: felt, _val: felt*
 ) {
     __ZKLANG__EMIT.emit(_key, _val_len, _val);
@@ -86,7 +87,6 @@ func __ZKLANG__COMPUTE_HASH{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
 
 @external
 func __ZKLANG__ASSERT_ONLY_OWNER{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    // TODO necessary to have calldata here?
     _calldata_len: felt, _calldata: felt*
 ) -> () {
     assert _calldata_len = 0;  // This could be redundant?
@@ -104,11 +104,13 @@ func __ZKLANG__FELT_TO_UINT256{range_check_ptr}(_x: felt) -> (res: Uint256) {
 
 @view
 func __ZKLANG__SUM(_x: felt, _y: felt) -> (res: felt) {
-    return (res=_x+_y);
+    return (res=_x + _y);
 }
 
 @external
-func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_address: felt, _selector: felt, _calldata_len: felt, _calldata: felt*) -> (res_len: felt, res: felt*) {
+func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(
+    _address: felt, _selector: felt, _calldata_len: felt, _calldata: felt*
+) -> (res_len: felt, res: felt*) {
     alloc_locals;
     // local x0 = _address;
     // local x1 = _selector;
@@ -134,7 +136,9 @@ func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(_address: felt, _selector: felt
 }
 
 @external
-func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_class_hash: felt, _salt: felt, _constructor_calldata_len: felt, _constructor_calldata: felt*) -> (res: felt) {
+func __ZKLANG__DEPLOY{syscall_ptr: felt*}(
+    _class_hash: felt, _salt: felt, _constructor_calldata_len: felt, _constructor_calldata: felt*
+) -> (res: felt) {
     alloc_locals;
     local x0 = _class_hash;
     local x1 = _salt;
@@ -155,6 +159,8 @@ func __ZKLANG__DEPLOY{syscall_ptr: felt*}(_class_hash: felt, _salt: felt, _const
 
 @view
 @raw_input
-func __ZKLANG__NOOP(selector: felt, calldata_size: felt, calldata: felt*) -> (x_len: felt, x: felt*) {
+func __ZKLANG__NOOP(selector: felt, calldata_size: felt, calldata: felt*) -> (
+    x_len: felt, x: felt*
+) {
     return (x_len=calldata_size, x=calldata);
 }

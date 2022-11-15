@@ -7,7 +7,6 @@ from starkware.cairo.common.registers import get_label_location
 from src.ERC20.library import ERC20
 from src.constants import FUNCTION_SELECTORS, IERC20_ID
 
-
 @view
 func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     total_supply: Uint256
@@ -66,25 +65,26 @@ func decreaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
     return ERC20.decrease_allowance(spender, subtracted_amount);
 }
 
-
 // ===================
 // Mandatory functions
 // ===================
 
-/// @dev Initialize this facet
+// / @dev Initialize this facet
 @external
-func __constructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(recipient: felt, initial_supply: Uint256) -> () {
+func __constructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    recipient: felt, initial_supply: Uint256
+) -> () {
     ERC20._mint(recipient, initial_supply);
     return ();
 }
 
-/// @dev Remove this facet
+// / @dev Remove this facet
 @external
 func __destructor__() -> () {
     return ();
 }
 
-/// @dev Exported view and invokable functions of this facet
+// / @dev Exported view and invokable functions of this facet
 @view
 @raw_output
 func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
@@ -102,7 +102,7 @@ func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
     dw FUNCTION_SELECTORS.ERC20.decreaseAllowance;
 }
 
-/// @dev Define all supported interfaces of this facet
+// / @dev Define all supported interfaces of this facet
 @view
 func __supports_interface__(_interface_id: felt) -> (res: felt) {
     if (_interface_id == IERC20_ID) {

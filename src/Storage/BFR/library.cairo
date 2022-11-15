@@ -41,7 +41,12 @@ namespace BFR {
         return ();
     }
 
-    func _register_elements{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr}(_elements_len: felt, _elements: felt*) -> () {
+    func _register_elements{
+        syscall_ptr: felt*,
+        pedersen_ptr: HashBuiltin*,
+        bitwise_ptr: BitwiseBuiltin*,
+        range_check_ptr,
+    }(_elements_len: felt, _elements: felt*) -> () {
         if (_elements_len == 0) {
             return ();
         }

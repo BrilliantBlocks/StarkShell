@@ -10,47 +10,38 @@ from starkware.cairo.common.registers import get_label_location
 
 from src.constants import FUNCTION_SELECTORS, IERC5007_ID
 
-
-
 @storage_var
 func _time_period(token_id: Uint256) -> (res: (start_time: felt, end_time: felt)) {
 }
-
-
 
 @view
 func startTime{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256
 ) -> (start_time: felt) {
-    
     let (time_period) = _time_period.read(token_id);
-	let start_time = time_period[0];
+    let start_time = time_period[0];
 
     return (start_time,);
 }
-
 
 @view
 func endTime{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256
 ) -> (end_time: felt) {
-    
-	let (time_period) = _time_period.read(token_id);
-	let end_time = time_period[1];
+    let (time_period) = _time_period.read(token_id);
+    let end_time = time_period[1];
 
     return (end_time,);
 }
-
 
 @external
 func setTimePeriod{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256, start_time: felt, end_time: felt
 ) -> () {
-    
-	with_attr error_message("Token is not a valid Uint256") {
+    with_attr error_message("Token is not a valid Uint256") {
         uint256_check(token_id);
     }
-    
+
     with_attr error_message("Start time must not be zero") {
         assert_not_zero(start_time);
     }
@@ -68,13 +59,11 @@ func setTimePeriod{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     return ();
 }
 
-
 @view
 func checkTimePeriod{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256
 ) -> (bool: felt) {
-    
-	with_attr error_message("Token is not a valid Uint256") {
+    with_attr error_message("Token is not a valid Uint256") {
         uint256_check(token_id);
     }
 
@@ -96,12 +85,10 @@ func checkTimePeriod{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
     return (FALSE,);
 }
 
-
 func assertTimePeriod{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256
 ) -> () {
-    
-	with_attr error_message("Token is not a valid Uint256") {
+    with_attr error_message("Token is not a valid Uint256") {
         uint256_check(token_id);
     }
 
@@ -120,13 +107,11 @@ func assertTimePeriod{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return ();
 }
 
-
 func _exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256
 ) -> (bool: felt) {
-    
     let (exists) = _time_period.read(token_id);
-    
+
     if (exists[0] == FALSE) {
         return (FALSE,);
     }
@@ -134,13 +119,10 @@ func _exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     return (TRUE,);
 }
 
-
 @external
 func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
-
     return ();
 }
-
 
 @view
 func __get_function_selectors__() -> (res_len: felt, res: felt*) {
@@ -153,7 +135,6 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     dw FUNCTION_SELECTORS.ERC5007.setTimePeriod;
     dw FUNCTION_SELECTORS.ERC5007.checkTimePeriod;
 }
-
 
 // @dev Support ERC-165
 // @param interface_id

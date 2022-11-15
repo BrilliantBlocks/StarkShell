@@ -5,17 +5,12 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.math import assert_not_equal, assert_not_zero
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.uint256 import (
-    Uint256, 
-    uint256_check, 
-    uint256_le
-)
+from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_le
 from starkware.cairo.common.memcpy import memcpy
 
 from lib.cairo_contracts.src.openzeppelin.security.safemath.library import SafeUint256
 
 from src.ERC1155.IERC1155 import TransferSingle, TransferBatch, ApprovalForAll, TokenBatch
-
 
 @storage_var
 func _balances(owner: felt, token_id: Uint256) -> (balance: Uint256) {
@@ -25,9 +20,7 @@ func _balances(owner: felt, token_id: Uint256) -> (balance: Uint256) {
 func _operator_approvals(owner: felt, operator: felt) -> (res: felt) {
 }
 
-
 namespace ERC1155 {
-
     func balance_of{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         owner: felt, token_id: Uint256
     ) -> (balance: Uint256) {
@@ -40,7 +33,6 @@ namespace ERC1155 {
         let balance = _balances.read(owner, token_id);
         return balance;
     }
-
 
     func balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         owners_len: felt, owners: felt*, tokens_id_len: felt, tokens_id: Uint256*
@@ -61,9 +53,12 @@ namespace ERC1155 {
         return (balance_array_len, balance_array);
     }
 
-
     func populate_balance_of_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        owners: felt*, tokens_id: Uint256*, balance_array: Uint256*, balance_array_len: felt, current_id: felt
+        owners: felt*,
+        tokens_id: Uint256*,
+        balance_array: Uint256*,
+        balance_array_len: felt,
+        current_id: felt,
     ) {
         alloc_locals;
         if (current_id == balance_array_len) {
@@ -71,10 +66,15 @@ namespace ERC1155 {
         }
         let (balance) = balance_of(owners[0], tokens_id[0]);
         assert balance_array[0] = balance;
-        populate_balance_of_batch(owners + 1, tokens_id + Uint256.SIZE, balance_array + Uint256.SIZE, balance_array_len, current_id + 1);
+        populate_balance_of_batch(
+            owners + 1,
+            tokens_id + Uint256.SIZE,
+            balance_array + Uint256.SIZE,
+            balance_array_len,
+            current_id + 1,
+        );
         return ();
     }
-
 
     func is_approved_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         owner: felt, operator: felt
@@ -82,7 +82,6 @@ namespace ERC1155 {
         let (approved) = _operator_approvals.read(owner, operator);
         return (approved,);
     }
-
 
     func set_approval_for_all{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         operator: felt, approved: felt
@@ -103,7 +102,6 @@ namespace ERC1155 {
         return ();
     }
 
-
     func safe_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, to: felt, token_id: Uint256, amount: Uint256
     ) {
@@ -115,15 +113,19 @@ namespace ERC1155 {
         }
         assert_is_owner_or_approved(from_);
         _transfer_from(from_, to, token_id, amount);
-        
+
         let (caller) = get_caller_address();
         TransferSingle.emit(caller, from_, to, token_id, amount);
         return ();
     }
 
-
     func safe_batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        from_: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
+        from_: felt,
+        to: felt,
+        tokens_id_len: felt,
+        tokens_id: Uint256*,
+        amounts_len: felt,
+        amounts: Uint256*,
     ) {
         alloc_locals;
         with_attr error_message("Sender address must not be zero") {
@@ -134,12 +136,11 @@ namespace ERC1155 {
         }
         assert_is_owner_or_approved(from_);
         _batch_transfer_from(from_, to, tokens_id_len, tokens_id, amounts_len, amounts);
-        
+
         let (caller) = get_caller_address();
         TransferBatch.emit(caller, from_, to, tokens_id_len, tokens_id, amounts_len, amounts);
         return ();
     }
-
 
     func _transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         sender: felt, recipient: felt, token_id: Uint256, amount: Uint256
@@ -165,9 +166,13 @@ namespace ERC1155 {
         return ();
     }
 
-
     func _batch_transfer_from{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        from_: felt, to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
+        from_: felt,
+        to: felt,
+        tokens_id_len: felt,
+        tokens_id: Uint256*,
+        amounts_len: felt,
+        amounts: Uint256*,
     ) {
         with_attr error_message("Token id and amount array lenghts don't match") {
             assert tokens_id_len = amounts_len;
@@ -178,13 +183,19 @@ namespace ERC1155 {
         }
         _transfer_from(from_, to, tokens_id[0], amounts[0]);
 
-        return _batch_transfer_from(from_, to, tokens_id_len - 1, tokens_id + Uint256.SIZE, amounts_len - 1, amounts + Uint256.SIZE);
+        return _batch_transfer_from(
+            from_,
+            to,
+            tokens_id_len - 1,
+            tokens_id + Uint256.SIZE,
+            amounts_len - 1,
+            amounts + Uint256.SIZE,
+        );
     }
 
-
-    func assert_is_owner_or_approved{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        address: felt
-    ) {
+    func assert_is_owner_or_approved{
+        pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
+    }(address: felt) {
         let (caller) = get_caller_address();
 
         if (caller == address) {
@@ -197,7 +208,6 @@ namespace ERC1155 {
         }
         return ();
     }
-
 
     func _mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         to: felt, token_id: Uint256, amount: Uint256
@@ -218,10 +228,8 @@ namespace ERC1155 {
         return ();
     }
 
-
     func _mint_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-        _to: felt, _token_batch_len: felt, _token_batch: TokenBatch*,
-        // to: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
+        _to: felt, _token_batch_len: felt, _token_batch: TokenBatch*
     ) -> () {
         if (_token_batch_len == 0) {
             return ();
@@ -229,7 +237,6 @@ namespace ERC1155 {
         _mint(_to, _token_batch[0].id, _token_batch[0].amount);
         return _mint_batch(_to, _token_batch_len - 1, _token_batch + TokenBatch.SIZE);
     }
-
 
     func _burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, token_id: Uint256, amount: Uint256
@@ -255,7 +262,6 @@ namespace ERC1155 {
         return ();
     }
 
-
     func _burn_batch{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         from_: felt, tokens_id_len: felt, tokens_id: Uint256*, amounts_len: felt, amounts: Uint256*
     ) {
@@ -267,6 +273,12 @@ namespace ERC1155 {
         }
         _burn(from_, tokens_id[0], amounts[0]);
 
-        return _burn_batch(from_, tokens_id_len - 1, tokens_id + Uint256.SIZE, amounts_len - 1, amounts + Uint256.SIZE);
+        return _burn_batch(
+            from_,
+            tokens_id_len - 1,
+            tokens_id + Uint256.SIZE,
+            amounts_len - 1,
+            amounts + Uint256.SIZE,
+        );
     }
 }

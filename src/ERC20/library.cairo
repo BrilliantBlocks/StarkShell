@@ -9,7 +9,6 @@ from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_eq, u
 from lib.cairo_contracts.src.openzeppelin.security.safemath.library import SafeUint256
 from lib.cairo_contracts.src.openzeppelin.utils.constants.library import UINT8_MAX
 
-
 @event
 func Transfer(from_: felt, to: felt, amount: Uint256) {
 }
@@ -17,7 +16,6 @@ func Transfer(from_: felt, to: felt, amount: Uint256) {
 @event
 func Approval(owner: felt, spender: felt, amount: Uint256) {
 }
-
 
 @storage_var
 func _name() -> (res: felt) {
@@ -43,9 +41,7 @@ func _balances(owner: felt) -> (balance: Uint256) {
 func _allowances(owner: felt, spender: felt) -> (amount: Uint256) {
 }
 
-
 namespace ERC20 {
-
     func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         name: felt, symbol: felt, decimals: felt
     ) {
@@ -58,14 +54,10 @@ namespace ERC20 {
         return ();
     }
 
-
-    func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-        name: felt
-    ) {
+    func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (name: felt) {
         let (name) = _name.read();
         return (name,);
     }
-
 
     func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         symbol: felt
@@ -74,14 +66,12 @@ namespace ERC20 {
         return (symbol,);
     }
 
-
     func total_supply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         total_supply: Uint256
     ) {
         let (total_supply) = _total_supply.read();
         return (total_supply,);
     }
-
 
     func decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         decimals: felt
@@ -90,7 +80,6 @@ namespace ERC20 {
         return (decimals,);
     }
 
-
     func balance_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt
     ) -> (balance: Uint256) {
@@ -98,14 +87,12 @@ namespace ERC20 {
         return (balance,);
     }
 
-
     func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, spender: felt
     ) -> (amount: Uint256) {
         let (allowance) = _allowances.read(owner, spender);
         return (allowance,);
     }
-
 
     func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         recipient: felt, amount: Uint256
@@ -115,7 +102,6 @@ namespace ERC20 {
         return (TRUE,);
     }
 
-
     func transfer_from{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         sender: felt, recipient: felt, amount: Uint256
     ) -> (success: felt) {
@@ -124,7 +110,6 @@ namespace ERC20 {
         _transfer(sender, recipient, amount);
         return (TRUE,);
     }
-
 
     func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         spender: felt, amount: Uint256
@@ -137,7 +122,6 @@ namespace ERC20 {
         _approve(caller, spender, amount);
         return (TRUE,);
     }
-
 
     func increase_allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         spender: felt, added_amount: Uint256
@@ -156,7 +140,6 @@ namespace ERC20 {
         _approve(caller, spender, new_allowance);
         return (TRUE,);
     }
-
 
     func decrease_allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         spender: felt, subtracted_amount: Uint256
@@ -206,7 +189,6 @@ namespace ERC20 {
         return ();
     }
 
-
     func _burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, amount: Uint256
     ) -> () {
@@ -232,12 +214,11 @@ namespace ERC20 {
         return ();
     }
 
-
     func _transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         sender: felt, recipient: felt, amount: Uint256
     ) -> () {
         with_attr error_message("Amount is not a valid Uint256") {
-            uint256_check(amount);  
+            uint256_check(amount);
         }
 
         with_attr error_message("Sender address must not be zero") {
@@ -261,7 +242,6 @@ namespace ERC20 {
         return ();
     }
 
-
     func _approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, spender: felt, amount: Uint256
     ) -> () {
@@ -282,13 +262,12 @@ namespace ERC20 {
         return ();
     }
 
-
     func _spend_allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, spender: felt, amount: Uint256
     ) -> () {
         alloc_locals;
         with_attr error_message("Amount is not a valid Uint256") {
-            uint256_check(amount); 
+            uint256_check(amount);
         }
 
         let (current_allowance) = _allowances.read(owner, spender);

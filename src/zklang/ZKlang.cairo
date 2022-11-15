@@ -59,7 +59,8 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 ) -> (res_len: felt, res: felt*, state_len: felt, state: felt*) {
     alloc_locals;
 
-    with_attr error_message("ZKL-EXEC _pc={_pc} _program_len={_program_len} _memory_len={_memory_len}") {
+    with_attr error_message(
+            "ZKL-EXEC _pc={_pc} _program_len={_program_len} _memory_len={_memory_len}") {
         let instruction = Program.get_instruction(_pc, _program_len, _program);
 
         // let (y_len, y) = Memory.load_variable(1735920706216604943978043612916965331422467783673060814787662446889856103197, _memory_len, _memory);
@@ -76,8 +77,11 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         //         assert 1 = 0;
         //     }
         // }
-        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and instruction.input1.selector == 0){
-            let (var_len, var) = Memory.load_variable(instruction.input2.selector, _memory_len, _memory);
+        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
+            instruction.input1.selector == 0) {
+            let (var_len, var) = Memory.load_variable(
+                instruction.input2.selector, _memory_len, _memory
+            );
             let prefix_size = Variable.SIZE - 1;
             with_attr error_message("POP UPDATE ERROR") {
                 let (var_len, var) = Memory.pop(var_len - prefix_size, var + prefix_size);
@@ -95,8 +99,11 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             );
         }
 
-        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and instruction.input2.selector == 0){
-            let (var_len, var) = Memory.load_variable(instruction.input1.selector, _memory_len, _memory);
+        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
+            instruction.input2.selector == 0) {
+            let (var_len, var) = Memory.load_variable(
+                instruction.input1.selector, _memory_len, _memory
+            );
             let prefix_size = Variable.SIZE - 1;
             with_attr error_message("PUSH UPDATE ERROR") {
                 let (var_len, var) = Memory.push(var_len - prefix_size, var + prefix_size);
@@ -172,7 +179,6 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @external
 func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    //_program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
     _calldata_len: felt, _calldata: felt*
 ) -> (res_len: felt, res: felt*) {
     alloc_locals;
@@ -184,11 +190,7 @@ func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 
     // TODO return state
     let (res_len, res, _, _) = exec_loop(
-        _pc=0,
-        _program_len=program_len,
-        _program=program,
-        _memory_len=memory_len,
-        _memory=memory,
+        _pc=0, _program_len=program_len, _program=program, _memory_len=memory_len, _memory=memory
     );
 
     return (res_len, res);

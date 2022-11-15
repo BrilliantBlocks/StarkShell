@@ -13,7 +13,6 @@ from src.interfaces.IERC165 import IERC165
 from src.ERC721.IERC721 import Approval, ApprovalForAll, Transfer
 from src.ERC721.IERC721Receiver import IERC721Receiver
 
-
 @storage_var
 func owners_(_tokenId: Uint256) -> (res: felt) {
 }
@@ -31,7 +30,9 @@ func operator_approvals_(_owner: felt, _operator: felt) -> (res: felt) {
 }
 
 namespace ERC721 {
-    func _balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_owner: felt) -> Uint256 {
+    func _balanceOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        _owner: felt
+    ) -> Uint256 {
         ERC721Library._assert_address_not_zero(_owner);
         let (res) = balances_.read(_owner);
         return res;
@@ -46,12 +47,14 @@ namespace ERC721 {
         return owner;
     }
 
-     func _getApproved{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_tokenId: Uint256) -> felt {
+    func _getApproved{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        _tokenId: Uint256
+    ) -> felt {
         ERC721Library._assert_valid(_tokenId);
         ERC721Library._assert_minted(_tokenId);
         let (approved) = token_approvals_.read(_tokenId);
         return approved;
-     }
+    }
 
     func _isApprovedForAll{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
         _owner: felt, _operator: felt
@@ -111,7 +114,7 @@ namespace ERC721 {
         ERC721Library._assert_valid(_tokenId);
         ERC721Library._assert_address_not_zero(_to);
         ERC721Library._assert_not_minted(_tokenId);
-        ERC721Library._mint(_to, _tokenId); 
+        ERC721Library._mint(_to, _tokenId);
         return ();
     }
 
@@ -125,30 +128,33 @@ namespace ERC721 {
         return ();
     }
 
-    /// @dev Used for token based access control
-    func _assertOnlyOwner{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_tokenId: Uint256) {
+    // / @dev Used for token based access control
+    func _assertOnlyOwner{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        _tokenId: Uint256
+    ) {
         ERC721Library._assert_only_owner(_tokenId);
         return ();
     }
 }
 
-
 namespace ERC721Library {
-    /// @dev A tokenId is valid if it conforms to Uint256 and is not 0
+    // / @dev A tokenId is valid if it conforms to Uint256 and is not 0
     func _assert_valid{range_check_ptr}(_tokenId: Uint256) {
-         with_attr error_message("INVALID TOKEN ID") {
-             uint256_check(_tokenId);
-             assert_not_zero(_tokenId.low + _tokenId.high);
-         }
-         return();
+        with_attr error_message("INVALID TOKEN ID") {
+            uint256_check(_tokenId);
+            assert_not_zero(_tokenId.low + _tokenId.high);
+        }
+        return ();
     }
 
-    func _assert_valid_from_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_from: felt, _tokenId: Uint256) {
+    func _assert_valid_from_address{
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+    }(_from: felt, _tokenId: Uint256) {
         let (owner) = owners_.read(_tokenId);
         with_attr error_message("INVALID FROM") {
             assert owner = _from;
         }
-         return();
+        return ();
     }
 
     func _assert_is_boolean(x: felt) {
@@ -162,26 +168,32 @@ namespace ERC721Library {
         with_attr error_message("ZERO ADDRESS") {
             assert_not_zero(_address);
         }
-         return();
+        return ();
     }
 
-    func _assert_minted{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) {
-         let exists = _exists(_tokenId);
-         with_attr error_message("UNKNOWN TOKEN ID") {
-             assert exists = TRUE;
-         }
-         return();
+    func _assert_minted{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _tokenId: Uint256
+    ) {
+        let exists = _exists(_tokenId);
+        with_attr error_message("UNKNOWN TOKEN ID") {
+            assert exists = TRUE;
+        }
+        return ();
     }
 
-    func _assert_not_minted{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) {
-         let exists = _exists(_tokenId);
-         with_attr error_message("EXISTING TOKEN ID") {
-             assert exists = FALSE;
-         }
-         return();
+    func _assert_not_minted{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _tokenId: Uint256
+    ) {
+        let exists = _exists(_tokenId);
+        with_attr error_message("EXISTING TOKEN ID") {
+            assert exists = FALSE;
+        }
+        return ();
     }
 
-    func _assert_is_owner_or_operator{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_tokenId: Uint256) {
+    func _assert_is_owner_or_operator{
+        pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
+    }(_tokenId: Uint256) {
         alloc_locals;
         let (local caller: felt) = get_caller_address();
         let (local owner: felt) = owners_.read(_tokenId);
@@ -199,10 +211,12 @@ namespace ERC721Library {
         with_attr error_message("UNAUTHORIZED: caller = {caller} | owner = {owner}") {
             assert 0 = 1;
         }
-        return();
+        return ();
     }
 
-    func _assert_only_owner{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_tokenId: Uint256) {
+    func _assert_only_owner{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        _tokenId: Uint256
+    ) {
         let (owner) = owners_.read(_tokenId);
         let (caller) = get_caller_address();
         with_attr error_message("UNAUTHORIZED") {
@@ -211,7 +225,9 @@ namespace ERC721Library {
         return ();
     }
 
-    func _assert_owner_is_not_receiver{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_to: felt, _tokenId: Uint256) {
+    func _assert_owner_is_not_receiver{
+        pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
+    }(_to: felt, _tokenId: Uint256) {
         let (owner) = owners_.read(_tokenId);
         with_attr error_message("DISABLED FOR OWNER") {
             assert_not_equal(owner, _to);
@@ -219,7 +235,9 @@ namespace ERC721Library {
         return ();
     }
 
-    func _assert_caller_is_not_operator{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_operator) {
+    func _assert_caller_is_not_operator{
+        pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr
+    }(_operator) {
         let (caller) = get_caller_address();
         with_attr error_message("DISABLED FOR OPERATOR") {
             assert_not_equal(caller, _operator);
@@ -234,7 +252,9 @@ namespace ERC721Library {
         return ();
     }
 
-    func _assert_token_received{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*) {
+    func _assert_token_received{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+        _from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*
+    ) {
         let success = _check_onERC721Received(_from, _to, _tokenId, data_len, data);
         with_attr error_message("NOT RECEIVED") {
             assert success = TRUE;
@@ -242,7 +262,9 @@ namespace ERC721Library {
         return ();
     }
 
-    func _exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> felt {
+    func _exists{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _tokenId: Uint256
+    ) -> felt {
         let (res) = owners_.read(_tokenId);
         if (res == 0) {
             return FALSE;
@@ -278,23 +300,23 @@ namespace ERC721Library {
     ) -> () {
         // Clear approvals
         _approve(0, _tokenId);
-    
+
         // Decrease owner balance
         let (owner_balance) = balances_.read(_from);
         let (new_balance: Uint256) = SafeUint256.sub_le(owner_balance, Uint256(1, 0));
         balances_.write(_from, new_balance);
-    
+
         // Increase receiver balance
         let (receiver_balance) = balances_.read(_to);
         let (new_balance: Uint256) = SafeUint256.add(receiver_balance, Uint256(1, 0));
         balances_.write(_to, new_balance);
-    
+
         // Update token_id owner
         owners_.write(_tokenId, _to);
         Transfer.emit(_from, _to, _tokenId);
         return ();
     }
-    
+
     func _check_onERC721Received{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         _from: felt, _to: felt, _tokenId: Uint256, data_len: felt, data: felt*
     ) -> felt {
@@ -309,7 +331,7 @@ namespace ERC721Library {
             }
             return TRUE;
         }
-    
+
         let (is_account) = IERC165.supportsInterface(_to, IACCOUNT_ID);
         return is_account;
     }

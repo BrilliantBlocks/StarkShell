@@ -10,43 +10,36 @@ from starkware.starknet.common.syscalls import get_block_timestamp
 
 from src.constants import FUNCTION_SELECTORS, IERC4907_ID
 
-
 struct UserInfo {
     address: felt,
     expires: felt,
 }
 
-
 @event
 func UpdateUser(token_id: Uint256, user: UserInfo) {
 }
-
 
 @storage_var
 func _users(token_id: Uint256) -> (user: UserInfo) {
 }
 
-
 @external
 func setUser{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     token_id: Uint256, user: UserInfo
 ) -> () {
-
     with_attr error_message("Token is not a valid Uint256") {
         uint256_check(token_id);
     }
-    
+
     _users.write(token_id, user);
     UpdateUser.emit(token_id, user);
     return ();
 }
 
-
 @view
-func userOf{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-    token_id: Uint256
-) -> (user_address: felt) {
-
+func userOf{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token_id: Uint256) -> (
+    user_address: felt
+) {
     with_attr error_message("Token is not a valid Uint256") {
         uint256_check(token_id);
     }
@@ -61,12 +54,10 @@ func userOf{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     return (0,);
 }
 
-
 @view
-func userExpires{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+func userExpires{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     token_id: Uint256
 ) -> (expires: felt) {
-
     with_attr error_message("Token is not a valid Uint256") {
         uint256_check(token_id);
     }
@@ -75,11 +66,9 @@ func userExpires{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_p
     return (user.expires,);
 }
 
-
-func beforeTokenTransfer{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+func beforeTokenTransfer{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     from_: felt, to: felt, token_id: Uint256
 ) -> () {
-
     let (user) = _users.read(token_id);
     if (from_ != to) {
         if (user.address != 0) {
@@ -88,17 +77,14 @@ func beforeTokenTransfer{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range
             return ();
         }
     }
-    
+
     return ();
 }
-
 
 @external
 func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> () {
-    
     return ();
 }
-
 
 @view
 func __get_function_selectors__() -> (res_len: felt, res: felt*) {
@@ -111,7 +97,6 @@ func __get_function_selectors__() -> (res_len: felt, res: felt*) {
     dw FUNCTION_SELECTORS.ERC4907.userExpires;
 }
 
-
 // @dev Support ERC-165
 // @param interface_id
 // @return success (0 or 1)
@@ -123,6 +108,3 @@ func __supports_interface__(_interface_id: felt) -> (success: felt) {
 
     return (FALSE,);
 }
-
-
-

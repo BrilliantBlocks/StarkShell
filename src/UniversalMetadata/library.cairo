@@ -3,9 +3,13 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
-from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_eq, uint256_unsigned_div_rem
+from starkware.cairo.common.uint256 import (
+    Uint256,
+    uint256_check,
+    uint256_eq,
+    uint256_unsigned_div_rem,
+)
 from starkware.cairo.common.pow import pow
-
 
 @storage_var
 func decimals_() -> (res: felt) {
@@ -19,43 +23,46 @@ func name_() -> (res: felt) {
 func symbol_() -> (res: felt) {
 }
 
-/// @dev This storage variable contains an array structure
-/// @dev Sequence of nonzero elements starting from zero
-/// @dev token_uri_prefix_(i) = 0 marks the end of the array
+// / @dev This storage variable contains an array structure
+// / @dev Sequence of nonzero elements starting from zero
+// / @dev token_uri_prefix_(i) = 0 marks the end of the array
 @storage_var
 func token_uri_prefix_(i: felt) -> (res: felt) {
 }
 
-/// @dev Optinally include the token id as infix
+// / @dev Optinally include the token id as infix
 @storage_var
-func token_uri_id_infix_() -> (bool: felt){
+func token_uri_id_infix_() -> (bool: felt) {
 }
 
-/// @dev This storage variable contains an array structure
-/// @dev Sequence of nonzero elements starting from zero
-/// @dev token_uri_suffix_(i) = 0 marks the end of the array
+// / @dev This storage variable contains an array structure
+// / @dev Sequence of nonzero elements starting from zero
+// / @dev token_uri_suffix_(i) = 0 marks the end of the array
 @storage_var
 func token_uri_suffix_(i: felt) -> (res: felt) {
 }
 
 @storage_var
-func metadata_format_() -> (res: felt){
+func metadata_format_() -> (res: felt) {
 }
 
-/// @dev This storage variable contains an array structure
-/// @dev Sequence of nonzero elements starting from zero
-/// @dev collection_uri_(i) = 0 marks the end of the array
+// / @dev This storage variable contains an array structure
+// / @dev Sequence of nonzero elements starting from zero
+// / @dev collection_uri_(i) = 0 marks the end of the array
 @storage_var
 func collection_uri_(i: felt) -> (res: felt) {
 }
 
 namespace UniversalMetadata {
-    func _get_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (collection_uri_len: felt, collection_uri: felt*) {
+    func _get_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        ) -> (collection_uri_len: felt, collection_uri: felt*) {
         let (collection_uri_len, collection_uri) = Library._get_collection_uri_();
         return (collection_uri_len, collection_uri);
     }
 
-    func _set_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_collection_uri_len: felt, _collection_uri: felt*){
+    func _set_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _collection_uri_len: felt, _collection_uri: felt*
+    ) {
         Library._set_collection_uri_(_collection_uri_len, _collection_uri);
         return ();
     }
@@ -65,7 +72,9 @@ namespace UniversalMetadata {
         return decimals;
     }
 
-    func _set_decimals_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_decimals: felt) {
+    func _set_decimals_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _decimals: felt
+    ) {
         decimals_.write(_decimals);
         return ();
     }
@@ -85,23 +94,30 @@ namespace UniversalMetadata {
         return symbol;
     }
 
-    func _set_symbol_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_symbol: felt) {
+    func _set_symbol_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _symbol: felt
+    ) {
         symbol_.write(_symbol);
         return ();
     }
 
-    func _get_metadata_format_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> felt {
+    func _get_metadata_format_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        ) -> felt {
         let (metadata_format) = metadata_format_.read();
         return metadata_format;
     }
 
-    func _set_metadata_format_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_metadata_format: felt) {
+    func _set_metadata_format_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _metadata_format: felt
+    ) {
         metadata_format_.write(_metadata_format);
         return ();
     }
 
-    /// @return Concatenation of prefix, infix and suffix
-    func _get_token_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_tokenId: Uint256) -> (token_uri_len: felt, token_uri: felt*) {
+    // / @return Concatenation of prefix, infix and suffix
+    func _get_token_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _tokenId: Uint256
+    ) -> (token_uri_len: felt, token_uri: felt*) {
         alloc_locals;
         let (prefix_uri_len, prefix_uri) = Library._get_prefix_uri_();
         let (infix_uri_len, infix_uri) = Library._get_infix_uri_(_tokenId);
@@ -113,7 +129,12 @@ namespace UniversalMetadata {
     }
 
     func _set_token_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _uri_prefix_len: felt, _uri_prefix: felt*, _has_token_id_infix: felt, _uri_suffix_len: felt, _uri_suffix: felt*){
+        _uri_prefix_len: felt,
+        _uri_prefix: felt*,
+        _has_token_id_infix: felt,
+        _uri_suffix_len: felt,
+        _uri_suffix: felt*,
+    ) {
         Library._set_token_uri_prefix_(_uri_prefix_len, _uri_prefix);
         Library._set_token_uri_id_infix_(_has_token_id_infix);
         Library._set_suffix_uri_(_uri_suffix_len, _uri_suffix);
@@ -121,11 +142,10 @@ namespace UniversalMetadata {
     }
 }
 
-
 namespace Library {
-    func _concatenate_token_uri{range_check_ptr}(_p_len: felt, _p: felt*, _i_len: felt, _i: felt*, _s_len: felt, _s: felt*) -> (
-        res_len: felt, res: felt*
-    ) {
+    func _concatenate_token_uri{range_check_ptr}(
+        _p_len: felt, _p: felt*, _i_len: felt, _i: felt*, _s_len: felt, _s: felt*
+    ) -> (res_len: felt, res: felt*) {
         alloc_locals;
         let (res) = alloc();
         memcpy(res, _p, _p_len);
@@ -148,7 +168,9 @@ namespace Library {
         return ();
     }
 
-    func _set_token_uri_id_infix_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_id_infix: felt) -> () {
+    func _set_token_uri_id_infix_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _id_infix: felt
+    ) -> () {
         _assert_is_boolean(_id_infix);
         token_uri_id_infix_.write(_id_infix);
         return ();
@@ -168,13 +190,17 @@ namespace Library {
         return ();
     }
 
-    func _get_prefix_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (prefix_uri_len: felt, prefix_uri: felt*) {
+    func _get_prefix_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+        prefix_uri_len: felt, prefix_uri: felt*
+    ) {
         alloc_locals;
         let (prefix_uri) = alloc();
         return _get_prefix_uri_recursion(0, prefix_uri);
     }
 
-    func _get_infix_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_token_id: Uint256) -> (uri_infix_len: felt, uri_infix: felt*) {
+    func _get_infix_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _token_id: Uint256
+    ) -> (uri_infix_len: felt, uri_infix: felt*) {
         alloc_locals;
         let (has_id_infix) = token_uri_id_infix_.read();
         if (has_id_infix == FALSE) {
@@ -185,13 +211,17 @@ namespace Library {
         return (uri_infix_len, uri_infix);
     }
 
-    func _get_suffix_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (suffix_uri_len: felt, suffix_uri: felt*) {
+    func _get_suffix_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+        suffix_uri_len: felt, suffix_uri: felt*
+    ) {
         alloc_locals;
         let (suffix_uri) = alloc();
         return _get_suffix_uri_recursion(0, suffix_uri);
     }
 
-    func _get_prefix_uri_recursion{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_prefix_uri_len: felt, _prefix_uri: felt*) -> (prefix_uri_len: felt, prefix_uri: felt*) {
+    func _get_prefix_uri_recursion{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _prefix_uri_len: felt, _prefix_uri: felt*
+    ) -> (prefix_uri_len: felt, prefix_uri: felt*) {
         let (sub_word) = token_uri_prefix_.read(i=_prefix_uri_len);
         if (sub_word == 0) {
             return (_prefix_uri_len, _prefix_uri);
@@ -200,7 +230,9 @@ namespace Library {
         return _get_prefix_uri_recursion(_prefix_uri_len + 1, _prefix_uri);
     }
 
-    func _get_suffix_uri_recursion{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_suffix_uri_len: felt, _suffix_uri: felt*) -> (suffix_uri_len: felt, suffix_uri: felt*) {
+    func _get_suffix_uri_recursion{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _suffix_uri_len: felt, _suffix_uri: felt*
+    ) -> (suffix_uri_len: felt, suffix_uri: felt*) {
         let (sub_word) = token_uri_suffix_.read(i=_suffix_uri_len);
         if (sub_word == 0) {
             return (_suffix_uri_len, _suffix_uri);
@@ -209,13 +241,18 @@ namespace Library {
         return _get_suffix_uri_recursion(_suffix_uri_len + 1, _suffix_uri);
     }
 
-    func _get_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (collection_uri_len: felt, collection_uri: felt*) {
+    func _get_collection_uri_{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        ) -> (collection_uri_len: felt, collection_uri: felt*) {
         alloc_locals;
         let (collection_uri) = alloc();
         return _get_collection_uri_recursion(0, collection_uri);
     }
 
-    func _get_collection_uri_recursion{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_collection_uri_len: felt, _collection_uri: felt*) -> (collection_uri_len: felt, collection_uri: felt*) {
+    func _get_collection_uri_recursion{
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+    }(_collection_uri_len: felt, _collection_uri: felt*) -> (
+        collection_uri_len: felt, collection_uri: felt*
+    ) {
         let (sub_word) = collection_uri_.read(i=_collection_uri_len);
         if (sub_word == 0) {
             return (_collection_uri_len, _collection_uri);
@@ -259,7 +296,6 @@ namespace ShortString {
         let (res_len) = _uint256_to_ss(input, res);
         return (res_len=res_len, res=res);
     }
-    
 
     func _uint256_to_ss{range_check_ptr}(val: Uint256, res: felt*) -> (res_len: felt) {
         alloc_locals;
@@ -285,7 +321,7 @@ namespace ShortString {
         let (running_total, remainder) = _uint256_to_ss_partial(input, 0);
         return (running_total=running_total, remainder=remainder);
     }
-    
+
     func _uint256_to_ss_partial{range_check_ptr}(val: Uint256, depth: felt) -> (
         running_total: felt, remainder: Uint256
     ) {
