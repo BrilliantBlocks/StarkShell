@@ -1,4 +1,6 @@
+// SPDX-License-Identifier: MIT
 %lang starknet
+
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
@@ -6,7 +8,7 @@ from starkware.cairo.common.registers import get_label_location
 
 from src.constants import FUNCTION_SELECTORS, IDIAMONDCUT_ID
 from src.ERC2535.library import Diamond
-from src.ERC2535.IDiamondCut import FacetCut
+from src.ERC2535.structs import FacetCut
 
 // @emit DiamondCut
 // @param _facetCut Array of added facets

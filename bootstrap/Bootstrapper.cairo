@@ -17,7 +17,7 @@ from starkware.starknet.common.syscalls import (
 from starkware.cairo.common.uint256 import Uint256
 
 from src.constants import FUNCTION_SELECTORS
-from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction
+from src.ERC2535.structs import FacetCut, FacetCutAction
 from src.ERC2535.library import Diamond
 from src.Storage.BFR.IBFR import IBFR
 from src.zklang.library import Function

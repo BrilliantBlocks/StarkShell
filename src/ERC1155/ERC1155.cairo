@@ -73,11 +73,11 @@ func safeBatchTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range
     return ();
 }
 
-// ===============
-// ZKode Functions
-// ===============
+// =====================
+// ZKode Facet Functions
+// =====================
 
-// @dev Initialize this facet
+// @dev Called on facet add
 @external
 func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _to: felt, _token_batch_len: felt, _token_batch: TokenBatch*
@@ -87,7 +87,7 @@ func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
     return ();
 }
 
-// @dev Remove this facet
+// @dev Called on facet remove
 @external
 func __destructor__() -> () {
     return ();
@@ -96,17 +96,30 @@ func __destructor__() -> () {
 // @dev This facects public functions
 @view
 @raw_output
-func __PUBLIC__() -> (retdata_size: felt, retdata: felt*) {
+func __public__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
+
     return (retdata_size=6, retdata=cast(func_selectors, felt*));
 
     selectors_start:
     dw FUNCTION_SELECTORS.ERC1155.balanceOf;
     dw FUNCTION_SELECTORS.ERC1155.balanceOfBatch;
     dw FUNCTION_SELECTORS.ERC1155.isApprovedForAll;
-    dw FUNCTION_SELECTORS.ERC1155.setApprovalForAll;
-    dw FUNCTION_SELECTORS.ERC1155.safeTransferFrom;
     dw FUNCTION_SELECTORS.ERC1155.safeBatchTransferFrom;
+    dw FUNCTION_SELECTORS.ERC1155.safeTransferFrom;
+    dw FUNCTION_SELECTORS.ERC1155.setApprovalForAll;
+}
+
+// @dev This facects StarkShell primitives
+@view
+@raw_output
+func __api__() -> (retdata_size: felt, retdata: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+
+    return (retdata_size=0, retdata=cast(func_selectors, felt*));
+
+    selectors_start:
+    // TODO
 }
 
 // @dev This facets supported interfaces

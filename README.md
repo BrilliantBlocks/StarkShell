@@ -38,7 +38,8 @@ Facets require three functions:
 - [ ] CI
 - [ ] CONTRIBUTE.md
 - [ ] Test suite
-- [ ] Remove redundant facets
+- [x] Remove redundant facets
 - [ ] Add zklang interfaces
 - [ ] Purify and test code
 - [ ] Collect interfaces and constants at a single entrypoint
+- [ ] Remove BFR and TCF components

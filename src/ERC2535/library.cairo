@@ -1,4 +1,6 @@
+// SPDX-License-Identifier: MIT
 %lang starknet
+
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
@@ -21,18 +23,18 @@ from src.constants import (
     FUNCTION_SELECTORS,
     NULL,
 )
-from src.ERC2535.IDiamondCut import Fee, FacetCut, FacetCutAction
+from src.ERC2535.structs import FacetCut, FacetCutAction
 from src.ERC721.IERC721 import IERC721
 from src.Storage.BFR.IBFR import IBFR
 
-// / @dev Store the address of the factory contract
-// / @return Address of its parent smart contract
+// @dev Store the address of the factory contract
+// @return Address of its parent smart contract
 @storage_var
 func root_() -> (res: felt) {
 }
 
-// / @dev Use bitmap of facet configuration in facet flyweight
-// / @return Bitmap
+// @dev Use bitmap of facet configuration in facet flyweight
+// @return Bitmap
 @storage_var
 func facet_key_() -> (res: felt) {
 }
@@ -297,16 +299,16 @@ namespace Diamond {
         pedersen_ptr: HashBuiltin*,
         bitwise_ptr: BitwiseBuiltin*,
         range_check_ptr,
-    }(interface_id: felt, facets_len: felt, facets: felt*) -> (res: felt) {
+    }(_interface_id: felt, facets_len: felt, facets: felt*) -> (res: felt) {
         alloc_locals;
         if (facets_len == 0) {
             return (res=FALSE);
         }
-        let facet_supports_interface = _facet_supports_interface(facets[0], interface_id);
+        let facet_supports_interface = _facet_supports_interface(facets[0], _interface_id);
         if (facet_supports_interface == TRUE) {
             return (res=TRUE);
         }
-        return _supportsInterface(interface_id, facets_len - 1, facets + 1);
+        return _supportsInterface(_interface_id, facets_len - 1, facets + 1);
     }
 
     func _find_token_facet{

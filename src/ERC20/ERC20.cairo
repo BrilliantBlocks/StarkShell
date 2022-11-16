@@ -1,112 +1,142 @@
+// SPDX-License-Identifier: MIT
 %lang starknet
-from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.bool import FALSE, TRUE
-from starkware.cairo.common.uint256 import Uint256
-from starkware.cairo.common.registers import get_label_location
 
-from src.ERC20.library import ERC20
+from starkware.cairo.common.bool import FALSE, TRUE
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.registers import get_label_location
+from starkware.cairo.common.uint256 import Uint256
+
 from src.constants import FUNCTION_SELECTORS, IERC20_ID
+from src.ERC20.library import ERC20
 
 @view
 func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     total_supply: Uint256
 ) {
-    let (total_supply) = ERC20.total_supply();
-    return (total_supply=total_supply);
+    let total_supply = ERC20.total_supply();
+
+    return (total_supply);
 }
 
 @view
-func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(owner: felt) -> (
+func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_owner: felt) -> (
     balance: Uint256
 ) {
-    return ERC20.balance_of(owner);
+    let balance = ERC20.balance_of(_owner);
+
+    return (balance);
 }
 
 @view
 func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    owner: felt, spender: felt
+    _owner: felt, _spender: felt
 ) -> (amount: Uint256) {
-    let (allowance) = ERC20.allowance(owner, spender);
-    return (amount=allowance);
+    let allowance = ERC20.allowance(_owner, _spender);
+
+    return (allowance);
 }
 
 @external
 func transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    recipient: felt, amount: Uint256
+    _recipient: felt, _amount: Uint256
 ) -> (success: felt) {
-    return ERC20.transfer(recipient, amount);
+    let success = ERC20.transfer(_recipient, _amount);
+
+    return (success);
 }
 
 @external
 func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    sender: felt, recipient: felt, amount: Uint256
+    _sender: felt, _recipient: felt, _amount: Uint256
 ) -> (success: felt) {
-    return ERC20.transfer_from(sender, recipient, amount);
+    let success = ERC20.transfer_from(_sender, _recipient, _amount);
+
+    return (success);
 }
 
 @external
 func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    spender: felt, amount: Uint256
+    _spender: felt, _amount: Uint256
 ) -> (success: felt) {
-    return ERC20.approve(spender, amount);
+    let success = ERC20.approve(_spender, _amount);
+
+    return (success);
 }
 
 @external
 func increaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    spender: felt, added_amount: Uint256
+    _spender: felt, _amount: Uint256
 ) -> (success: felt) {
-    return ERC20.increase_allowance(spender, added_amount);
+    let success = ERC20.increase_allowance(_spender, _amount);
+
+    return (success);
 }
 
 @external
 func decreaseAllowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    spender: felt, subtracted_amount: Uint256
+    _spender: felt, _amount: Uint256
 ) -> (success: felt) {
-    return ERC20.decrease_allowance(spender, subtracted_amount);
+    let success = ERC20.decrease_allowance(_spender, _amount);
+
+    return (success);
 }
 
-// ===================
-// Mandatory functions
-// ===================
+// =====================
+// ZKode Facet Functions
+// =====================
 
-// / @dev Initialize this facet
+// @dev Called on facet add
 @external
 func __constructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    recipient: felt, initial_supply: Uint256
+    _recipient: felt, _supply: Uint256
 ) -> () {
-    ERC20._mint(recipient, initial_supply);
+    ERC20._mint(_recipient, _supply);
+
     return ();
 }
 
-// / @dev Remove this facet
+// @dev Called on facet remove
 @external
 func __destructor__() -> () {
     return ();
 }
 
-// / @dev Exported view and invokable functions of this facet
+// @dev Exported view and invokable functions of this facet
 @view
 @raw_output
-func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
+func __public__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
+
     return (retdata_size=8, retdata=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.ERC20.totalSupply;
-    dw FUNCTION_SELECTORS.ERC20.balanceOf;
     dw FUNCTION_SELECTORS.ERC20.allowance;
+    dw FUNCTION_SELECTORS.ERC20.approve;
+    dw FUNCTION_SELECTORS.ERC20.balanceOf;
+    dw FUNCTION_SELECTORS.ERC20.decreaseAllowance;
+    dw FUNCTION_SELECTORS.ERC20.increaseAllowance;
+    dw FUNCTION_SELECTORS.ERC20.totalSupply;
     dw FUNCTION_SELECTORS.ERC20.transfer;
     dw FUNCTION_SELECTORS.ERC20.transferFrom;
-    dw FUNCTION_SELECTORS.ERC20.approve;
-    dw FUNCTION_SELECTORS.ERC20.increaseAllowance;
-    dw FUNCTION_SELECTORS.ERC20.decreaseAllowance;
 }
 
-// / @dev Define all supported interfaces of this facet
+// @dev This facects StarkShell primitives
+@view
+@raw_output
+func __api__() -> (retdata_size: felt, retdata: felt*) {
+    let (func_selectors) = get_label_location(selectors_start);
+    return (retdata_size=0, retdata=cast(func_selectors, felt*));
+
+    selectors_start:
+    // TODO
+}
+
+// @dev Define all supported interfaces of this facet
 @view
 func __supports_interface__(_interface_id: felt) -> (res: felt) {
     if (_interface_id == IERC20_ID) {
         return (res=TRUE);
     }
+
     return (res=FALSE);
 }
