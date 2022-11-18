@@ -3,9 +3,11 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from src.ERC1155.IERC1155 import TokenBatch
+from src.ERC1155.structs import TokenBatch
+from src.ERC2535.structs import FacetCut, FacetCutAction
+
 from src.ERC2535.IDiamond import IDiamond
-from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
+from src.ERC2535.IDiamondCut import IDiamondCut
 from src.ERC1155.IERC1155 import IERC1155
 from bootstrap.Bootstrapper import IBootstrapper, ClassHash
 from src.ERC721.IERC721 import IERC721
@@ -143,8 +145,6 @@ func declareContracts() -> () {
         context.rootDiamondFactory = declare("./bootstrap/Bootstrapper.cairo").class_hash
         context.zklang = declare("./src/zklang/ZKlang.cairo").class_hash
         context.metadata = declare("./src/UniversalMetadata/UniversalMetadata.cairo").class_hash
-        print(context.diamond)
-        print(context.erc721)
     %}
 
     return ();

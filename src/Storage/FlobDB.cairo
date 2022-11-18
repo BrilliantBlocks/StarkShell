@@ -126,8 +126,9 @@ func __destructor__() -> () {
 // / @dev Exported view and invokable functions of this facet
 @view
 @raw_output
-func __get_function_selectors__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    ) -> (retdata_size: felt, retdata: felt*) {
+func __pub_func__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    retdata_size: felt, retdata: felt*
+) {
     let (func_selectors) = get_label_location(selectors_start);
     return (retdata_size=4, retdata=cast(func_selectors, felt*));
 

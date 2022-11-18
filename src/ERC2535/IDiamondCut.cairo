@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 %lang starknet
 
+from src.ERC2535.structs import FacetCut
+
 // @selector 0x3c27a8b448fe684611cd3c9b512daa99c6543934865e0e59b40602bd8db4ea8
 @event
 func DiamondCut(_facet_cut: FacetCut, _calldata_len: felt, _calldata: felt*) {

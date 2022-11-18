@@ -93,8 +93,9 @@ func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() 
 
 @view
 @raw_output
-func __get_function_selectors__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    ) -> (retdata_size: felt, retdata: felt*) {
+func __pub_func__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    retdata_size: felt, retdata: felt*
+) {
     alloc_locals;
 
     let (func_selectors) = get_label_location(selectors_start);

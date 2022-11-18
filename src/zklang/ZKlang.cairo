@@ -35,9 +35,13 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 
     let (self) = get_contract_address();
 
-    let normalized_repo_address = Library._if_x_is_zero_then_y_else_x(self, fun.repo_address);
+    let normalized_repo_address = Library._if_x_is_zero_then_y_else_x(fun.repo_address, self);
 
-    let (program_raw_len, program_raw) = IFlobDB.load(normalized_repo_address, fun.program_hash);
+    with_attr error_message("LOAD FROM ROOT DIAMOND FAILED") {
+        let (program_raw_len, program_raw) = IFlobDB.load(
+            normalized_repo_address, fun.program_hash
+        );
+    }
 
     local program_len: felt = program_raw[0];
     local program: felt* = program_raw + 1;
@@ -239,8 +243,9 @@ func __API__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() 
 // @return Array of registered zklang functions
 @view
 @raw_output
-func __get_function_selectors__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    ) -> (retdata_size: felt, retdata: felt*) {
+func __pub_func__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    retdata_size: felt, retdata: felt*
+) {
     alloc_locals;
     let (local sel: felt*) = alloc();
     let sel_len = State.load_selectors(sel, 0);

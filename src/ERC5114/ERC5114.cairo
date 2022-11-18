@@ -42,7 +42,7 @@ func __destructor__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
 // @dev This facects public functions
 @view
 @raw_output
-func __public__() -> (retdata_size: felt, retdata: felt*) {
+func __pub_func__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
 
     return (retdata_size=1, retdata=cast(func_selectors, felt*));

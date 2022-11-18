@@ -77,7 +77,7 @@ func __init_facet__{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_
 }
 
 @view
-func __get_function_selectors__() -> (res_len: felt, res: felt*) {
+func __pub_func__() -> (res_len: felt, res: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
     return (res_len=1, res=cast(func_selectors, felt*));
 

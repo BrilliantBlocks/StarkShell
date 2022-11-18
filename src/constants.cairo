@@ -126,7 +126,7 @@ namespace FUNCTION_SELECTORS {
     namespace FACET {
         const __constructor__ = 0x3b9a86822e238443322f8092dd01ed69fb0d96d2fad90e9ad9ba03f8e92097b;
         const __destructor__ = 0x2127299f0c39ad6a0f5a7ccb0857ab472c30192b18dd40a88a5af64edd63a74;
-        const __get_function_selectors__ = 0x35802e5c93fa05f42af0eb6d6ed857d69b8010fe9d917bfd51f60ffcd2300d6;
+        const __pub_func__ = 0x2d75e96b04d57d3c04af66c6b24042eee64c95f792ad16cc2404154690a2c04;
         const __supports_interface__ = 0x20f621f78ecca5435389efa53ca29525b75fe9745044ce3b56b4b1e6056d791;
         const __royalty_info = 0xef10f72befea4b2767793ab9151f232f087d5a39ad0d959a7406a84aaaf55a;
     }

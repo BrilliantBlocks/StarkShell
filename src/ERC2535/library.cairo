@@ -78,7 +78,10 @@ namespace Diamond {
         alloc_locals;
         let (f_len: felt, f: felt*) = _facetAddresses();
         let (class_hash: felt) = _facet_address(f_len, f, _functionSelector);
-        Assert.selector_exists(class_hash);
+        let (local self) = get_contract_address();
+        with_attr error_message("Function: {_functionSelector} Contract: {self}") {
+            Assert.selector_exists(class_hash);
+        }
         return (res=class_hash);
     }
 
@@ -116,7 +119,7 @@ namespace Diamond {
         let (local NULLptr: felt*) = alloc();
         let (r_len, r) = library_call(
             class_hash=_facet,
-            function_selector=FUNCTION_SELECTORS.FACET.__get_function_selectors__,
+            function_selector=FUNCTION_SELECTORS.FACET.__pub_func__,
             calldata_size=NULL,
             calldata=NULLptr,
         );

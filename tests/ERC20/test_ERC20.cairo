@@ -3,8 +3,10 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
+from src.ERC2535.structs import FacetCut, FacetCutAction
+
 from src.ERC2535.IDiamond import IDiamond
-from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
+from src.ERC2535.IDiamondCut import IDiamondCut
 from src.ERC20.IERC20 import IERC20
 from src.interfaces.IBFR import IBFR
 from src.interfaces.ITCF import ITCF

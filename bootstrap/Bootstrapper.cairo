@@ -242,7 +242,7 @@ func calculateKey(_el_len: felt, _el: felt*) -> (res: felt) {
 
 @view
 @raw_output
-func __get_function_selectors__() -> (retdata_size: felt, retdata: felt*) {
+func __pub_func__() -> (retdata_size: felt, retdata: felt*) {
     let (func_selectors) = get_label_location(selectors_start);
     return (retdata_size=2, retdata=cast(func_selectors, felt*));
 

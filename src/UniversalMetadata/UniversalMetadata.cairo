@@ -127,9 +127,7 @@ func __destructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 // / @dev Exported view and invokable functions of this facet
 @view
 @raw_output
-func __get_function_selectors__{syscall_ptr: felt*, range_check_ptr}() -> (
-    retdata_size: felt, retdata: felt*
-) {
+func __pub_func__{syscall_ptr: felt*, range_check_ptr}() -> (retdata_size: felt, retdata: felt*) {
     alloc_locals;
     let (local NULLptr: felt*) = alloc();
     let (self) = get_contract_address();

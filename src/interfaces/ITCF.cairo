@@ -1,7 +1,7 @@
 %lang starknet
 from starkware.cairo.common.uint256 import Uint256
 
-from src.ERC2535.IDiamondCut import FacetCut
+from src.ERC2535.structs import FacetCut
 
 @contract_interface
 namespace ITCF {

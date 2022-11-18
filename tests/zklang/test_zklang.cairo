@@ -1,19 +1,31 @@
 %lang starknet
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
+from starkware.cairo.common.hash_chain import hash_chain
+
+from src.ERC2535.structs import FacetCut, FacetCutAction
+from src.zklang.structs import Function, Instruction, Primitive, Variable
 
 from src.ERC2535.IDiamond import IDiamond
-from src.ERC2535.IDiamondCut import FacetCut, FacetCutAction, IDiamondCut
-from src.main.BFR.IBFR import IBFR
-from src.main.TCF.ITCF import ITCF
+from src.ERC2535.IDiamondCut import IDiamondCut
+from src.interfaces.IBFR import IBFR
+from src.interfaces.ITCF import ITCF
 from src.Storage.IFlobDB import IFlobDB
-from src.zklang.structs import Function, Instruction, Primitive, Variable
 
 from tests.zklang.fun.invertBoolean import invertBoolean
 from tests.zklang.fun.returnCalldata import returnCalldata
 from tests.zklang.fun.setZKLangFun import setZKLangFun
 from tests.zklang.fun.interpreteInstruction import interpreteInstruction
+
+from tests.setup import (
+    ClassHash,
+    getClassHashes,
+    computeSelectors,
+    declareContracts,
+    deployRootDiamondFactory,
+    deployRootDiamond,
+)
 
 from protostar.asserts import assert_eq
 
@@ -21,126 +33,37 @@ const BrilliantBlocks = 123;
 const User1 = 456;
 const User2 = 789;
 
-struct Setup {
-    diamond_address: felt,
-    repo_address: felt,
-    erc1155_class_hash: felt,
-    program_hash: felt,
-    zklang_class_hash: felt,
-    fun_selector_returnCalldata: felt,
-    fun_selector_foo: felt,
-    setZKLangFun_hash: felt,
-}
-
-func getSetup{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> Setup {
-    alloc_locals;
-    local diamond_address;
-    %{ ids.diamond_address = context.diamond_address %}
-    local repo_address;
-    %{ ids.repo_address = context.repo_address %}
-    local erc1155_class_hash;
-    %{ ids.erc1155_class_hash = context.erc1155_class_hash %}
-    local program_hash;
-    %{ ids.program_hash = context.program_hash %}
-    local zklang_class_hash;
-    %{ ids.zklang_class_hash = context.zklang_class_hash %}
-    local fun_selector_returnCalldata;
-    %{ ids.fun_selector_returnCalldata = context.fun_selector_returnCalldata %}
-    local fun_selector_foo;
-    %{ ids.fun_selector_foo = context.fun_selector_foo %}
-    local setZKLangFun_hash;
-    %{ ids.setZKLangFun_hash = context.setZKLangFun_hash %}
-
-    local setup: Setup = Setup(
-        diamond_address,
-        repo_address,
-        erc1155_class_hash,
-        program_hash,
-        zklang_class_hash,
-        fun_selector_returnCalldata,
-        fun_selector_foo,
-        setZKLangFun_hash,
-        );
-    return setup;
-}
-
 @external
-func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+func __setup__{
+    syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
     alloc_locals;
-    local diamondCut_class_hash;
-    local universalMetadata_class_hash;
-    local erc1155_class_hash;
-    local zklang_class_hash;
-    local flob_db_class_hash;
-    %{
-        # Declare diamond and facets
-        context.diamond_class_hash = declare("./src/ERC2535/Diamond.cairo").class_hash
-        context.erc1155_class_hash = declare("./src/ERC1155/ERC1155.cairo").class_hash
-        ids.erc1155_class_hash = context.erc1155_class_hash;
-        context.diamondCut_class_hash = declare("./src/ERC2535/DiamondCut.cairo").class_hash
-        ids.diamondCut_class_hash = context.diamondCut_class_hash
-        context.zklang_class_hash = declare("./src/zklang/ZKlang.cairo").class_hash
-        ids.zklang_class_hash = context.zklang_class_hash
-        context.flob_db_class_hash = declare("./src/Storage/FlobDB.cairo").class_hash
-        ids.flob_db_class_hash = context.flob_db_class_hash
-    %}
 
-    local TCF_address;
-    %{
-        # Deploy BFR and TCF
-        context.BFR_address = deploy_contract(
-                "./src/main/BFR/BFR.cairo",
-                [
-                    ids.BrilliantBlocks, # Owner
-                ],
-        ).contract_address
-        context.TCF_address = deploy_contract(
-                "./src/main/TCF/TCF.cairo",
-                [
-                    context.diamond_class_hash,
-                    context.BFR_address,
-                    0, # DO_NOT_CARE name
-                    0, # DO_NOT_CARE symbol
-                    0, # DO_NOT_CARE tokenURI
-                ],
-        ).contract_address
-        ids.TCF_address = context.TCF_address
-    %}
+    computeSelectors();
+    declareContracts();
+    deployRootDiamondFactory();
+    deployRootDiamond();
 
-    // BrilliantBlocks populates facet registry
-    tempvar elements: felt* = new (diamondCut_class_hash, erc1155_class_hash, zklang_class_hash, flob_db_class_hash);
-    let elements_len = 4;
-    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.BFR_address) %}
+    local rootDiamond;
+    %{ ids.rootDiamond = context.rootDiamond %}
 
-    IBFR.registerElements(TCF_address, elements_len, elements);
-    %{ stop_prank() %}
+    let ch: ClassHash = getClassHashes();
 
-    // BrilliantBlocks mints a repo diamond
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(flob_db_class_hash, FacetCutAction.Add),), FacetCut*);
-    let facetCut_len = 1;
-    tempvar calldata: felt* = new (0);
-    let calldata_len = 1;
-    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.TCF_address) %}
-    let (repo_address) = ITCF.mintContract(
-        TCF_address, facetCut_len, facetCut, calldata_len, calldata
-    );
-    %{ stop_prank() %}
-    %{ context.repo_address = ids.repo_address %}
-
+    // BrilliantBlocks store functions in root diamond
     let (felt_code_len, felt_code) = returnCalldata();
-    let (program_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
+    let (program_hash) = IFlobDB.store(rootDiamond, felt_code_len, felt_code);
     %{ context.program_hash = ids.program_hash %}
 
-    let (felt_code_len, felt_code) = setZKLangFun();
-    let (setZKLangFun_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
-    %{ context.setZKLangFun_hash = ids.setZKLangFun_hash %}
+    // setZKLangFun already included in repo
+    let (_, felt_code) = setZKLangFun();
+    let (setZKLangFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(felt_code);
 
     let (felt_code_len, felt_code) = invertBoolean();
-    let (invertBoolean_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
+    let (invertBoolean_hash) = IFlobDB.store(rootDiamond, felt_code_len, felt_code);
     %{ context.invertBoolean_hash = ids.invertBoolean_hash %}
 
     let (felt_code_len, felt_code) = interpreteInstruction();
-    let (interpreteInstruction_hash) = IFlobDB.store(repo_address, felt_code_len, felt_code);
+    let (interpreteInstruction_hash) = IFlobDB.store(rootDiamond, felt_code_len, felt_code);
     %{ context.interpreteInstruction_hash = ids.interpreteInstruction_hash %}
 
     local fun_selector_returnCalldata;
@@ -159,13 +82,13 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     %}
 
     // User1 mints a diamond and adds ERC-1155 and ZKlang
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(erc1155_class_hash, FacetCutAction.Add), FacetCut(zklang_class_hash, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 2;
+    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.erc1155, FacetCutAction.Add), FacetCut(ch.zklang, FacetCutAction.Add),), FacetCut*);
 
-    tempvar fun_returnCalldata = Function(fun_selector_returnCalldata, program_hash, repo_address);
-    tempvar fun_setZKLangFun = Function(fun_selector_setZKLangFun, setZKLangFun_hash, repo_address);
-    tempvar fun_invertBoolean = Function(fun_selector_invertBoolean, invertBoolean_hash, repo_address);
-    tempvar fun_interpreteInstruction = Function(fun_selector_interpreteInstruction, interpreteInstruction_hash, repo_address);
+    tempvar fun_returnCalldata = Function(fun_selector_returnCalldata, program_hash, rootDiamond);
+    tempvar fun_setZKLangFun = Function(fun_selector_setZKLangFun, setZKLangFun_hash, rootDiamond);
+    tempvar fun_invertBoolean = Function(fun_selector_invertBoolean, invertBoolean_hash, rootDiamond);
+    tempvar fun_interpreteInstruction = Function(fun_selector_interpreteInstruction, interpreteInstruction_hash, rootDiamond);
     local fun_len = 4;
     local fun_calldata_size = fun_len * Function.SIZE + 1;
 
@@ -180,12 +103,14 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         );
     let calldata_len = 7 + fun_calldata_size + 1;
 
-    %{ stop_prank = start_prank(ids.User1, context.TCF_address) %}
+    %{ stop_prank = start_prank(ids.User1, context.rootDiamond) %}
     let (diamond_address) = ITCF.mintContract(
-        TCF_address, facetCut_len, facetCut, calldata_len, calldata
+        rootDiamond, facetCut_len, facetCut, calldata_len, calldata
     );
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
+    %{ print(context.rootDiamond) %}
+    %{ print(context.diamond_address) %}
 
     return ();
 }
@@ -206,13 +131,19 @@ namespace ITestZKLarray {
 func test_returnCalldata_tuple{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     ) -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    local fun_selector_returnCalldata;
+    %{ ids.fun_selector_returnCalldata = context.fun_selector_returnCalldata %}
+    local rootDiamond;
+    %{ ids.rootDiamond = context.rootDiamond %}
+    let ch: ClassHash = getClassHashes();
 
     // returnCalldata is recognized as public function
-    let (x) = IDiamond.facetAddress(setup.diamond_address, setup.fun_selector_returnCalldata);
-    assert_eq(x, setup.zklang_class_hash);
+    let (x) = IDiamond.facetAddress(diamond_address, fun_selector_returnCalldata);
+    assert_eq(x, ch.zklang);
 
-    let (x_res, y_res) = ITestZKLtuple.returnCalldata(setup.diamond_address, 1, 2);
+    let (x_res, y_res) = ITestZKLtuple.returnCalldata(diamond_address, 1, 2);
     assert_eq(x_res, 1);
     assert_eq(y_res, 2);
 
@@ -223,14 +154,13 @@ func test_returnCalldata_tuple{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, r
 func test_returnCalldata_array{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     ) -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
 
     tempvar x: felt* = new (1, 2);
     let x_len = 2;
 
-    let (actual_res_len, actual_res) = ITestZKLarray.returnCalldata(
-        setup.diamond_address, x_len, x
-    );
+    let (actual_res_len, actual_res) = ITestZKLarray.returnCalldata(diamond_address, x_len, x);
     assert_eq(actual_res_len, 2);
     assert_eq(actual_res[0], 1);
     assert_eq(actual_res[1], 2);
@@ -258,19 +188,27 @@ namespace ITestZKLangFun {
 @external
 func test_setZKLangFun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    local fun_selector_foo;
+    %{ ids.fun_selector_foo = context.fun_selector_foo %}
+    let ch: ClassHash = getClassHashes();
+    local program_hash;
+    %{ ids.program_hash = context.program_hash %}
+    local rootDiamond;
+    %{ ids.rootDiamond = context.rootDiamond %}
 
-    tempvar x: Function = Function(setup.fun_selector_foo, setup.program_hash, setup.repo_address);
+    tempvar x: Function = Function(fun_selector_foo, program_hash, rootDiamond);
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
-    ITestZKLangFun.setZKLangFun(setup.diamond_address, x);
+    ITestZKLangFun.setZKLangFun(diamond_address, x);
     %{ stop_prank() %}
 
     // New zkl function is recognized as public function
-    let (facet_hash) = IDiamond.facetAddress(setup.diamond_address, setup.fun_selector_foo);
-    assert_eq(facet_hash, setup.zklang_class_hash);
+    let (facet_hash) = IDiamond.facetAddress(diamond_address, fun_selector_foo);
+    assert_eq(facet_hash, ch.zklang);
 
-    let (x_res, y_res) = ITestZKLangFun.foo(setup.diamond_address, 3, 4);
+    let (x_res, y_res) = ITestZKLangFun.foo(diamond_address, 3, 4);
     assert_eq(x_res, 3);
     assert_eq(y_res, 4);
 
@@ -282,13 +220,20 @@ func test_setZKLangFun_reverts_if_caller_not_owner{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    local fun_selector_foo;
+    %{ ids.fun_selector_foo = context.fun_selector_foo %}
+    local program_hash;
+    %{ ids.program_hash = context.program_hash %}
+    local rootDiamond;
+    %{ ids.rootDiamond = context.rootDiamond %}
 
-    tempvar x: Function = Function(setup.fun_selector_foo, setup.program_hash, setup.repo_address);
+    tempvar x: Function = Function(fun_selector_foo, program_hash, rootDiamond);
 
     %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
-    ITestZKLangFun.setZKLangFun(setup.diamond_address, x);
+    ITestZKLangFun.setZKLangFun(diamond_address, x);
     %{ stop_prank() %}
 
     return ();
@@ -299,9 +244,10 @@ func test_invertBoolean_returns_true_on_false{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
 
-    let (actual_res) = ITestZKLangFun.invertBoolean(setup.diamond_address, FALSE);
+    let (actual_res) = ITestZKLangFun.invertBoolean(diamond_address, FALSE);
     let expected_res = TRUE;
     assert_eq(actual_res, expected_res);
 
@@ -313,9 +259,10 @@ func test_invertBoolean_returns_false_on_true{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
 
-    let (actual_res) = ITestZKLangFun.invertBoolean(setup.diamond_address, TRUE);
+    let (actual_res) = ITestZKLangFun.invertBoolean(diamond_address, TRUE);
     let expected_res = FALSE;
     assert_eq(actual_res, expected_res);
 
@@ -327,7 +274,8 @@ func test_interpreteInstruction_reverts_if_caller_not_owner{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
 
     tempvar program = new ();
     tempvar memory = new ();
@@ -337,9 +285,7 @@ func test_interpreteInstruction_reverts_if_caller_not_owner{
 
     %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
-    ITestZKLangFun.interpreteInstruction(
-        setup.diamond_address, program_len, program, memory_len, memory
-    );
+    ITestZKLangFun.interpreteInstruction(diamond_address, program_len, program, memory_len, memory);
     %{ stop_prank() %}
 
     return ();
@@ -350,7 +296,9 @@ func test_interpreteInstruction_returnCalldata{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
-    let setup = getSetup();
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
 
     local return_keyword;
     local calldata_id;
@@ -365,7 +313,7 @@ func test_interpreteInstruction_returnCalldata{
     tempvar Calldata = Variable(calldata_id, 0, 0, 0);
 
     tempvar instruction0 = Instruction(
-        primitive=Primitive(setup.zklang_class_hash, return_keyword),
+        primitive=Primitive(ch.zklang, return_keyword),
         input1=Calldata,
         input2=NULLvar,
         output=NULLvar,
@@ -380,7 +328,7 @@ func test_interpreteInstruction_returnCalldata{
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestZKLangFun.interpreteInstruction(
-        setup.diamond_address, program_len, program, memory_len, memory
+        diamond_address, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}
     assert_eq(res_len, 2);
