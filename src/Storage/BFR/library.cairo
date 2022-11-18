@@ -12,7 +12,7 @@ const MAX_BITMAP_LENGTH = 251;
 func Register(_bitId: felt, _element: felt) {
 }
 
-// / @dev Map bit to element
+// @dev Map bit to element
 @storage_var
 func bitmap_(_bitId: felt) -> (_element: felt) {
 }
@@ -100,7 +100,7 @@ namespace Library {
         return _find_first_occurence_recursion(target, _id + 1);
     }
 
-    // / @dev Return TRUE iff (_el == 0) OR (_el == _target)
+    // @dev Return TRUE iff (_el == 0) OR (_el == _target)
     func _reached_end_or_target_found(_el, _target) -> felt {
         if (_el * (_target - _el) == 0) {
             return TRUE;
