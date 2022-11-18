@@ -110,7 +110,6 @@ func __public__() -> (retdata_size: felt, retdata: felt*) {
     dw FUNCTION_SELECTORS.ERC1155.setApprovalForAll;
 }
 
-// @dev This facects StarkShell primitives
 @view
 @raw_output
 func __api__() -> (retdata_size: felt, retdata: felt*) {

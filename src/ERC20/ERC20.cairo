@@ -120,7 +120,6 @@ func __public__() -> (retdata_size: felt, retdata: felt*) {
     dw FUNCTION_SELECTORS.ERC20.transferFrom;
 }
 
-// @dev This facects StarkShell primitives
 @view
 @raw_output
 func __api__() -> (retdata_size: felt, retdata: felt*) {
