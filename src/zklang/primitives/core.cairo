@@ -9,9 +9,7 @@ from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import call_contract, deploy
 from src.ERC2535.library import Diamond
 
-from src.constants import API, FUNCTION_SELECTORS
-from src.Storage.IFlobDB import IFlobDB
-from src.zklang.library import Program, Memory, State
+from src.zklang.library import State
 from src.zklang.structs import Function, Variable
 
 @event
@@ -19,23 +17,12 @@ func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*) {
     // TODO syscall
 }
 
-// @external
-// func __ZKLANG__RETURN(_res_len: felt, _res: felt*) -> (res_len: felt, res: felt*) {
-//     return (_res_len, _res);
-// }
-
 @view
 @raw_input
 func __ZKLANG__RETURN(selector: felt, calldata_size: felt, calldata: felt*) -> (
     x_len: felt, x: felt*
 ) {
     return (x_len=calldata_size, x=calldata);
-}
-
-struct Branch {
-    x: felt,
-    pc_if_true: felt,
-    pc_if_false: felt,
 }
 
 @external
@@ -106,27 +93,13 @@ func __ZKLANG__SUM(_x: felt, _y: felt) -> (res: felt) {
 func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(
     _address: felt, _selector: felt, _calldata_len: felt, _calldata: felt*
 ) -> (res_len: felt, res: felt*) {
-    alloc_locals;
-    // local x0 = _address;
-    // local x1 = _selector;
-    // local x2 = _calldata_len;
-    // with_attr error_message("BREAKPOINT {x0} {x1} {x2}") {
-    // with_attr error_message("BREAKPOINT") {
-    //     assert 1 = 0;
-    // }
-
     let (res_len, res) = call_contract(
         contract_address=_address,
         function_selector=_selector,
         calldata_size=_calldata_len,
         calldata=_calldata,
     );
-    // let (res_len, res) = call_contract(
-    //     contract_address=calldata[3],
-    //     function_selector=calldata[4],
-    //     calldata_size=calldata_size - 4,
-    //     calldata=calldata + 4,
-    // );
+
     return (res_len, res);
 }
 
@@ -134,20 +107,13 @@ func __ZKLANG__CALL_CONTRACT{syscall_ptr: felt*}(
 func __ZKLANG__DEPLOY{syscall_ptr: felt*}(
     _class_hash: felt, _salt: felt, _constructor_calldata_len: felt, _constructor_calldata: felt*
 ) -> (res: felt) {
-    alloc_locals;
-    local x0 = _class_hash;
-    local x1 = _salt;
-    local x2 = _constructor_calldata_len;
-
-    with_attr error_message("BREAKPOINT INSIDE DEPLOY PRIMITIVE {x0} {x1} {x2}") {
-        let (contract_address) = deploy(
-            class_hash=_class_hash,
-            contract_address_salt=_salt,
-            constructor_calldata_size=_constructor_calldata_len,
-            constructor_calldata=_constructor_calldata,
-            deploy_from_zero=FALSE,
-        );
-    }
+    let (contract_address) = deploy(
+        class_hash=_class_hash,
+        contract_address_salt=_salt,
+        constructor_calldata_size=_constructor_calldata_len,
+        constructor_calldata=_constructor_calldata,
+        deploy_from_zero=FALSE,
+    );
 
     return (res=contract_address);
 }
