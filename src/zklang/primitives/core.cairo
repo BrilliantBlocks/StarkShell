@@ -69,11 +69,9 @@ func __ZKLANG__REVERT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
 @external
 func __ZKLANG__SET_FUNCTION{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
+    _function: Function
 ) -> () {
-    assert _calldata_len = Function.SIZE;
-    let fun = cast(_calldata, Function*);
-    State.set_fun(fun[0]);
+    State.set_fun(_function);
     return ();
 }
 
@@ -86,9 +84,7 @@ func __ZKLANG__COMPUTE_HASH{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
 
 @external
 func __ZKLANG__ASSERT_ONLY_OWNER{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
-) -> () {
-    assert _calldata_len = 0;  // This could be redundant?
+    ) -> () {
     Diamond.Assert.only_owner();
 
     return ();
