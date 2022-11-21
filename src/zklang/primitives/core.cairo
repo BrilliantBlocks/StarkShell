@@ -40,15 +40,14 @@ struct Branch {
 
 @external
 func __ZKLANG__BRANCH{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _calldata_len: felt, _calldata: felt*
+    x: felt, pc_if_true: felt, pc_if_false: felt
 ) -> (res_len: felt, res: felt*) {
-    assert _calldata_len = Branch.SIZE;
-    let branch = cast(_calldata, Branch*);
-    if (branch.x == TRUE) {
-        tempvar res = new (branch.pc_if_true,);
+    if (x == TRUE) {
+        tempvar res = new (pc_if_true,);
         return (res_len=1, res=res);
     }
-    tempvar res = new (branch.pc_if_false,);
+
+    tempvar res = new (pc_if_false,);
     return (res_len=1, res=res);
 }
 

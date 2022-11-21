@@ -109,8 +109,6 @@ func __setup__{
     );
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
-    %{ print(context.rootDiamond) %}
-    %{ print(context.diamond_address) %}
 
     return ();
 }

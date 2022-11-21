@@ -31,6 +31,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
     %{
         from starkware.starknet.public.abi import get_selector_from_name
 
+        # core primitives
         ids.deploy_primitive = get_selector_from_name("__ZKLANG__DEPLOY")
         ids.felt_to_uint256_primitive = get_selector_from_name("__ZKLANG__FELT_TO_UINT256")
         ids.return_primitive = get_selector_from_name("__ZKLANG__RETURN")

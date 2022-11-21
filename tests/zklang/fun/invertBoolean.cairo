@@ -6,7 +6,6 @@ from src.zklang.structs import Instruction, Primitive, Variable
 
 func invertBoolean() -> (res_len: felt, res: felt*) {
     alloc_locals;
-
     local assert_only_owner_keyword;
     local branch_keyword;
     local set_function_keyword;
@@ -19,13 +18,21 @@ func invertBoolean() -> (res_len: felt, res: felt*) {
 
     %{
         from starkware.starknet.public.abi import get_selector_from_name
+
+        # core primitives
         ids.branch_keyword = get_selector_from_name("__ZKLANG__BRANCH")
+        ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
+
+        # special vars
+        ids.var0_identifier = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
+
+        # helper vars
+        ids.sentinel_selector = get_selector_from_name("sentinel")
         ids.res_identifier = get_selector_from_name("res")
+
+        # consts
         ids.const_false_selector = get_selector_from_name("const_false")
         ids.const_true_selector = get_selector_from_name("const_true")
-        ids.sentinel_selector = get_selector_from_name("sentinel")
-        ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
-        ids.var0_identifier = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
     %}
 
     tempvar NULLvar = Variable(0, 0, 0, 0);
