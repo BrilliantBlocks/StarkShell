@@ -30,29 +30,35 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     selector: felt, calldata_size: felt, calldata: felt*
 ) -> (retdata_size: felt, retdata: felt*) {
     alloc_locals;
+    let fun: Function = State.get_fun(selector);
 
-    let fun = State.get_fun(selector);
-
+    // if repo is 0 assume that this contract holds the code
     let (self) = get_contract_address();
-
     let normalized_repo_address = Library._if_x_is_zero_then_y_else_x(fun.repo_address, self);
 
-    with_attr error_message("LOAD FROM ROOT DIAMOND FAILED") {
+    with_attr error_message("LOADING CODE FAILED") {
         let (program_raw_len, program_raw) = IFlobDB.load(
             normalized_repo_address, fun.program_hash
         );
     }
 
+    // split flob into program and memory
     local program_len: felt = program_raw[0];
     local program: felt* = program_raw + 1;
     local memory_len: felt = program_raw_len - 1 - program_len;
     local memory: felt* = program_raw + 1 + program_len;
 
-    let (program_len, program) = Program.prepare(selector, program_len, program);
-    let (memory_len, memory) = Memory.init(memory_len, memory, calldata_size, calldata);
+    // init
+    let (prep_program_len, prep_program) = Program.prepare(selector, program_len, program);
+    let (prep_memory_len, prep_memory) = Memory.init(memory_len, memory, calldata_size, calldata);
 
+    // exec
     let (retdata_size, retdata, _, _) = exec_loop(
-        _pc=0, _program_len=program_len, _program=program, _memory_len=memory_len, _memory=memory
+        _pc=0,
+        _program_len=prep_program_len,
+        _program=prep_program,
+        _memory_len=prep_memory_len,
+        _memory=prep_memory,
     );
 
     return (retdata_size, retdata);
