@@ -66,37 +66,37 @@ starknet deploy_account \
 
 echo "Declare contracts"
 echo -ne " $(echo $((100 * 0/11)))% | Bootstrapper       \r"
-BOOTSTRAPPER_HASH=$(declare_class $BOOTSTRAPPER_SRC)
+export BOOTSTRAPPER_HASH=$(declare_class $BOOTSTRAPPER_SRC)
 
 echo -ne " $(echo $((100 * 1/11)))% | BFR                \r"
-BFR_HASH=$(declare_class $BFR_SRC)
+export BFR_HASH=$(declare_class $BFR_SRC)
 
 echo -ne " $(echo $((100 * 2/11)))% | FlobDB             \r"
-FLOB_HASH=$(declare_class $FLOB_SRC)
+export FLOB_HASH=$(declare_class $FLOB_SRC)
 
 echo -ne " $(echo $((100 * 3/11)))% | StarkShell         \r"
-STARKSHELL_HASH=$(declare_class $STARKSHELL_SRC)
+export STARKSHELL_HASH=$(declare_class $STARKSHELL_SRC)
 
 echo -ne " $(echo $((100 * 4/11)))% | Diamond            \r"
-DIAMOND_HASH=$(declare_class $DIAMOND_SRC)
+export DIAMOND_HASH=$(declare_class $DIAMOND_SRC)
 
 echo -ne " $(echo $((100 * 5/11)))% | DiamondCut         \r"
-DIAMOND_CUT_HASH=$(declare_class $DIAMOND_CUT_SRC)
+export DIAMOND_CUT_HASH=$(declare_class $DIAMOND_CUT_SRC)
 
 echo -ne " $(echo $((100 * 6/11)))% | ERC721             \r"
-ERC721_HASH=$(declare_class $ERC721_SRC)
+export ERC721_HASH=$(declare_class $ERC721_SRC)
 
 echo -ne " $(echo $((100 * 7/11)))% | ERC1155            \r"
-ERC1155_HASH=$(declare_class $ERC1155_SRC)
+export ERC1155_HASH=$(declare_class $ERC1155_SRC)
 
 echo -ne " $(echo $((100 * 8/11)))% | ERC20              \r"
-ERC20_HASH=$(declare_class $ERC20_SRC)
+export ERC20_HASH=$(declare_class $ERC20_SRC)
 
 echo -ne " $(echo $((100 * 9/11)))% | ERC5114            \r"
-ERC5114_HASH=$(declare_class $ERC5114_SRC)
+export ERC5114_HASH=$(declare_class $ERC5114_SRC)
 
 echo -ne " $(echo $((100 * 10/11)))% | UniversalMetadata \r"
-METADATA_HASH=$(declare_class $METADATA_SRC)
+export METADATA_HASH=$(declare_class $METADATA_SRC)
 
 echo -ne " ($(echo $((100 * 11/11)))%)                   \r"
 echo -ne "\n"
