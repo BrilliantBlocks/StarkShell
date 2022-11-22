@@ -4,19 +4,19 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
 
-from src.ERC2535.structs import FacetCut, FacetCutAction
-from src.starkshell.structs import Function, Instruction, Primitive, Variable
+from src.zkode.ERC2535.structs import FacetCut, FacetCutAction
+from src.zkode.starkshell.structs import Function, Instruction, Primitive, Variable
 
-from src.ERC2535.IDiamond import IDiamond
-from src.ERC2535.IDiamondCut import IDiamondCut
-from src.interfaces.IBFR import IBFR
-from src.interfaces.ITCF import ITCF
-from src.Storage.IFlobDB import IFlobDB
+from src.zkode.ERC2535.IDiamond import IDiamond
+from src.zkode.ERC2535.IDiamondCut import IDiamondCut
+from src.zkode.interfaces.IBFR import IBFR
+from src.zkode.interfaces.ITCF import ITCF
+from src.zkode.Storage.IFlobDB import IFlobDB
 
-from tests.starkshell.fun.invertBoolean import invertBoolean
-from tests.starkshell.fun.returnCalldata import returnCalldata
-from tests.starkshell.fun.setShellFun import setShellFun
-from tests.starkshell.fun.interpreteInstruction import interpreteInstruction
+from src.starkshell.invertBoolean import invertBoolean
+from src.starkshell.returnCalldata import returnCalldata
+from src.starkshell.setShellFun import setShellFun
+from src.starkshell.interpreteInstruction import interpreteInstruction
 
 from tests.setup import (
     ClassHash,

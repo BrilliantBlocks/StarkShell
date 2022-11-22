@@ -3,7 +3,7 @@ from starkware.cairo.common.bool import FALSE, TRUE
 
 from protostar.asserts import assert_eq
 
-from src.ERC2535.library import Library
+from src.zkode.ERC2535.library import Library
 
 @external
 func test_if_x_eq_true_return_y_else_z_x_is_true() -> () {

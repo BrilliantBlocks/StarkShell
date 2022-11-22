@@ -30,8 +30,8 @@ protostar build
 
 
 echo "Compile StarkShell functions"
-cairo-compile tests/starkshell/fun/printSetShellFunCode.cairo --output build/printSetShellFunCode.json
-cairo-compile tests/starkshell/fun/printMintContractCode.cairo --output build/printMintContractCode.json
+cairo-compile src/starkshell/printSetShellFunCode.cairo --output build/printSetShellFunCode.json
+cairo-compile src/starkshell/printMintContractCode.cairo --output build/printMintContractCode.json
 
 
 echo "Create account"

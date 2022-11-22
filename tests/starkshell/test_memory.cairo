@@ -4,9 +4,9 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
 
-from src.constants import API
-from src.starkshell.library import Memory
-from src.starkshell.structs import DataTypes, Variable
+from src.zkode.constants import API
+from src.zkode.starkshell.library import Memory
+from src.zkode.starkshell.structs import DataTypes, Variable
 
 from protostar.asserts import assert_eq, assert_not_eq
 
