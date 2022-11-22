@@ -52,14 +52,15 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let (prep_program_len, prep_program) = Program.prepare(selector, program_len, program);
     let (prep_memory_len, prep_memory) = Memory.init(memory_len, memory, calldata_size, calldata);
 
-    // exec
-    let (retdata_size, retdata, _, _) = exec_loop(
-        _pc=0,
-        _program_len=prep_program_len,
-        _program=prep_program,
-        _memory_len=prep_memory_len,
-        _memory=prep_memory,
-    );
+    with_attr error_message("EXEC INSTRUCTION 0") {
+        let (retdata_size, retdata, _, _) = exec_loop(
+            _pc=0,
+            _program_len=prep_program_len,
+            _program=prep_program,
+            _memory_len=prep_memory_len,
+            _memory=prep_memory,
+        );
+    }
 
     return (retdata_size, retdata);
 }
@@ -68,87 +69,82 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _pc: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
 ) -> (res_len: felt, res: felt*, state_len: felt, state: felt*) {
     alloc_locals;
+    // filter current instruction from program table
+    let instruction = Program.get_instruction(_pc, _program_len, _program);
 
-    with_attr error_message(
-            "ZKL-EXEC _pc={_pc} _program_len={_program_len} _memory_len={_memory_len}") {
-        let instruction = Program.get_instruction(_pc, _program_len, _program);
-
-        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
-            instruction.input1.selector == 0) {
-            let (var_len, var) = Memory.load_variable(
-                instruction.input2.selector, _memory_len, _memory
-            );
-            let prefix_size = Variable.SIZE - 1;
-            with_attr error_message("POP UPDATE ERROR") {
-                let (var_len, var) = Memory.pop(var_len - prefix_size, var + prefix_size);
-            }
-            let (new_memory_len, new_memory) = Memory.update_variable(
-                instruction.output.selector, _memory_len, _memory, var[0], var + 1
-            );
-
-            return exec_loop(
-                _pc=_pc + 1,
-                _program_len=_program_len,
-                _program=_program,
-                _memory_len=new_memory_len,
-                _memory=new_memory,
-            );
+    // TODO refactor pop
+    if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
+        instruction.input1.selector == 0) {
+        let (var_len, var) = Memory.load_variable(
+            instruction.input2.selector, _memory_len, _memory
+        );
+        let prefix_size = Variable.SIZE - 1;
+        with_attr error_message("POP UPDATE ERROR") {
+            let (var_len, var) = Memory.pop(var_len - prefix_size, var + prefix_size);
         }
-
-        if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
-            instruction.input2.selector == 0) {
-            let (var_len, var) = Memory.load_variable(
-                instruction.input1.selector, _memory_len, _memory
-            );
-            let prefix_size = Variable.SIZE - 1;
-            with_attr error_message("PUSH UPDATE ERROR") {
-                let (var_len, var) = Memory.push(var_len - prefix_size, var + prefix_size);
-            }
-            let (new_memory_len, new_memory) = Memory.update_variable(
-                instruction.output.selector, _memory_len, _memory, var[0], var + 1
-            );
-
-            return exec_loop(
-                _pc=_pc + 1,
-                _program_len=_program_len,
-                _program=_program,
-                _memory_len=new_memory_len,
-                _memory=new_memory,
-            );
-        }
-
-        let (calldata_len, calldata) = Memory.load_variable_payload(
-            instruction.input1.selector, instruction.input2.selector, _memory_len, _memory
+        let (new_memory_len, new_memory) = Memory.update_variable(
+            instruction.output.selector, _memory_len, _memory, var[0], var + 1
         );
 
-        // Temporary fix
-        let calldata_len = calldata[0];
-        let calldata = calldata + 1;
+        with_attr error_message("EXEC INSTRUCTION {_pc + 1}") {
+            return exec_loop(
+                _pc=_pc + 1,
+                _program_len=_program_len,
+                _program=_program,
+                _memory_len=new_memory_len,
+                _memory=new_memory,
+            );
+        }
+    }
 
-        // local x_len = calldata_len;
-        // if (_pc ==  8) {
-        //     local x0 = calldata[0];
-        //     local x1 = calldata[1];
-        //     local x2 = calldata[2];
-        //     // local x3 = calldata[3];
-        //     // local x4 = calldata[4];
-        //     // local x5 = calldata[5];
-        //     // local x6 = calldata[6];
-        //     with_attr error_message("BREAKPOINT PRMTV {x_len} {x0} {x1} {x2}") {
-        //         assert 1 = 0;
-        //     }
-        // }
+    // TODO refactor push
+    if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
+        instruction.input2.selector == 0) {
+        let (var_len, var) = Memory.load_variable(
+            instruction.input1.selector, _memory_len, _memory
+        );
+        let prefix_size = Variable.SIZE - 1;
+        with_attr error_message("PUSH UPDATE ERROR") {
+            let (var_len, var) = Memory.push(var_len - prefix_size, var + prefix_size);
+        }
+        let (new_memory_len, new_memory) = Memory.update_variable(
+            instruction.output.selector, _memory_len, _memory, var[0], var + 1
+        );
 
+        with_attr error_message("EXEC INSTRUCTION {_pc + 1}") {
+            return exec_loop(
+                _pc=_pc + 1,
+                _program_len=_program_len,
+                _program=_program,
+                _memory_len=new_memory_len,
+                _memory=new_memory,
+            );
+        }
+    }
+
+    let (calldata_len, calldata) = Memory.load_variable_payload(
+        instruction.input1.selector, instruction.input2.selector, _memory_len, _memory
+    );
+
+    // TODO remove temporary fix
+    let calldata_len = calldata[0];
+    let calldata = calldata + 1;
+
+    with_attr error_message("PRIMITIVE EXEC ERROR") {
         let (res_len, res) = Program.execute_primitive(
             instruction.primitive, calldata_len, calldata
         );
+    }
 
-        if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
-            return (res[0], res + 1, _memory_len, _memory);
-        }
+    // terminate exec_loop on return
+    if (instruction.primitive.selector == API.CORE.__ZKLANG__RETURN) {
+        return (res[0], res + 1, _memory_len, _memory);
+    }
 
-        if (instruction.primitive.selector == API.CORE.__ZKLANG__BRANCH) {
-            local chosen_pc = res[1];
+    // do not take next instruction on branch
+    if (instruction.primitive.selector == API.CORE.__ZKLANG__BRANCH) {
+        local chosen_pc = res[1];
+        with_attr error_message("EXEC INSTRUCTION {chosen_pc}") {
             return exec_loop(
                 _pc=chosen_pc,
                 _program_len=_program_len,
@@ -157,12 +153,15 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
                 _memory=_memory,
             );
         }
+    }
 
-        // TODO improve error message if var not present
+    with_attr error_message("MEMORY UPDATE ERROR") {
         let (new_memory_len, new_memory) = Memory.update_variable(
             instruction.output.selector, _memory_len, _memory, res_len, res
         );
+    }
 
+    with_attr error_message("EXEC INSTRUCTION {_pc + 1}") {
         return exec_loop(
             _pc=_pc + 1,
             _program_len=_program_len,
