@@ -67,20 +67,6 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             "ZKL-EXEC _pc={_pc} _program_len={_program_len} _memory_len={_memory_len}") {
         let instruction = Program.get_instruction(_pc, _program_len, _program);
 
-        // let (y_len, y) = Memory.load_variable(1735920706216604943978043612916965331422467783673060814787662446889856103197, _memory_len, _memory);
-        // if (_pc ==  2) {
-        //     local y_len = y_len;
-        //     local y0 = y[0];
-        //     local y1 = y[1];
-        //     local y2 = y[2];
-        //     local y3 = y[3];
-        //     local y4 = y[4];
-        //     local y5 = y[5];
-        //     local y6 = y[6];
-        //     with_attr error_message("len={y_len} | {y0} {y1} {y2} {y3} {y4} {y5} {y6}") {
-        //         assert 1 = 0;
-        //     }
-        // }
         if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
             instruction.input1.selector == 0) {
             let (var_len, var) = Memory.load_variable(
