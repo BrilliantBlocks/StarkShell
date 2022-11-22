@@ -1,7 +1,7 @@
 %lang starknet
 from starkware.cairo.common.uint256 import Uint256
 
-from src.bootstrap.Structs import ClassHash
+from src.bootstrap.structs import ClassHash
 
 @contract_interface
 namespace IBootstrapper {
