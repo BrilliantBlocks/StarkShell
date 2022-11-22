@@ -11,7 +11,7 @@ from onlydust.stream.default_implementation import stream
 from src.zkode.constants import FUNCTION_SELECTORS
 
 @event
-func Store(hash: felt, data_len: felt, data: felt*) {
+func Store(hash: felt) {
 }
 
 @storage_var
@@ -34,7 +34,7 @@ func store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     storage_internal_temp_var.write(hash);
     stream.foreach(_storeCell, _data_len, _data);
     storage_internal_temp_var.write(0);
-    Store.emit(hash, _data_len, _data);
+    Store.emit(hash);
 
     return (res=hash);
 }
