@@ -40,6 +40,8 @@ namespace API {
         const __ZKLANG__NOOP = 0x1f0ddfce203a54a45080b91f88d9af5e165c95f44efaa5edc1506a2dad901dd;
         const __ZKLANG__FELT_TO_UINT256 = 0x3726882ac05e3fc9b328e583644a4818c6fca2ca42d90d300f0d451eba6fdcc;
         const __ZKLANG__DEPLOY = 0x198a90daab7e1dfab015a5564a3305ffcaaf28717870a466d15194efdcca578;
+        const __ZKLANG__FALSE_VAR = 0x29fa8f7f93e496ecbc2d5a3dd8462c9a743f89dd5196e4be6a32ec3d1cf11a4;
+        const __ZKLANG__TRUE_VAR = 0x5b053620a9db99726fb9138818c2d9e12e212722320e03b1da43e0dc46da0d;
     }
 }
 

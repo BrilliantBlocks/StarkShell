@@ -157,6 +157,7 @@ namespace Memory {
         let mem_len = append_calldata_var(mem_len, mem, _calldata_len, _calldata);
         let mem_len = append_caller_address_var(mem_len, mem);
         let mem_len = append_contract_address_var(mem_len, mem);
+        let mem_len = append_booleans_var(mem_len, mem);
 
         // get_block_number()
         // get_timestampe()
@@ -167,6 +168,32 @@ namespace Memory {
         let mem_len = mem_len + _memory_len;
 
         return (mem_len, mem);
+    }
+
+    func append_booleans_var{syscall_ptr: felt*}(_ptr_len: felt, _ptr: felt*) -> felt {
+        alloc_locals;
+
+        tempvar false_var = new Variable(
+            selector=API.CORE.__ZKLANG__FALSE_VAR,
+            protected=TRUE,
+            type=DataTypes.BOOL,
+            data_len=1,
+            );
+
+        tempvar true_var = new Variable(
+            selector=API.CORE.__ZKLANG__TRUE_VAR,
+            protected=TRUE,
+            type=DataTypes.BOOL,
+            data_len=1,
+            );
+
+        memcpy(_ptr + _ptr_len, false_var, Variable.SIZE);
+        assert _ptr[_ptr_len + Variable.SIZE] = FALSE;
+
+        memcpy(_ptr + _ptr_len + Variable.SIZE + false_var.data_len, true_var, Variable.SIZE);
+        assert _ptr[_ptr_len + Variable.SIZE + false_var.data_len + Variable.SIZE] = TRUE;
+
+        return _ptr_len + Variable.SIZE + false_var.data_len + Variable.SIZE + true_var.data_len;
     }
 
     func append_contract_address_var{syscall_ptr: felt*}(_ptr_len: felt, _ptr: felt*) -> felt {

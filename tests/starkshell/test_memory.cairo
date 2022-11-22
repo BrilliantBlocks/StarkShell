@@ -37,6 +37,16 @@ func test_init_memory_on_empty_calldata_and_empty_memory{
     memcpy(expected_memory + expected_memory_len, contract_address_var, contract_address_var_len);
     tempvar expected_memory_len = expected_memory_len + contract_address_var_len;
 
+    tempvar false_var = new Variable(API.CORE.__ZKLANG__FALSE_VAR, TRUE, DataTypes.BOOL, 1);
+    tempvar false_var_len = Variable.SIZE + contract_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, false_var, false_var_len);
+    tempvar expected_memory_len = expected_memory_len + false_var_len;
+
+    tempvar true_var = new Variable(API.CORE.__ZKLANG__TRUE_VAR, TRUE, DataTypes.BOOL, 1);
+    tempvar true_var_len = Variable.SIZE + contract_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, true_var, true_var_len);
+    tempvar expected_memory_len = expected_memory_len + true_var_len;
+
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata
     );
@@ -106,6 +116,20 @@ func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     );
     tempvar expected_memory_len = expected_memory_len + contract_address_var_len;
 
+    tempvar false_var = new Variable(API.CORE.__ZKLANG__FALSE_VAR, TRUE, DataTypes.BOOL, 1);
+    tempvar false_data = new (FALSE);
+    tempvar false_var_len = Variable.SIZE + false_var.data_len;
+    memcpy(expected_memory + expected_memory_len, false_var, Variable.SIZE);
+    memcpy(expected_memory + expected_memory_len + Variable.SIZE, false_data, false_var.data_len);
+    tempvar expected_memory_len = expected_memory_len + false_var_len;
+
+    tempvar true_var = new Variable(API.CORE.__ZKLANG__TRUE_VAR, TRUE, DataTypes.BOOL, 1);
+    tempvar true_data = new (FALSE);
+    tempvar true_var_len = Variable.SIZE + true_var.data_len;
+    memcpy(expected_memory + expected_memory_len, true_var, Variable.SIZE);
+    memcpy(expected_memory + expected_memory_len + Variable.SIZE, true_data, true_var.data_len);
+    tempvar expected_memory_len = expected_memory_len + true_var_len;
+
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata
     );
@@ -159,6 +183,20 @@ func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
         contract_address_var.data_len,
     );
     tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
+
+    tempvar false_var = new Variable(API.CORE.__ZKLANG__FALSE_VAR, TRUE, DataTypes.BOOL, 1);
+    tempvar false_data = new (FALSE);
+    tempvar false_var_len = Variable.SIZE + false_var.data_len;
+    memcpy(expected_memory + expected_memory_len, false_var, Variable.SIZE);
+    memcpy(expected_memory + expected_memory_len + Variable.SIZE, false_data, false_var.data_len);
+    tempvar expected_memory_len = expected_memory_len + false_var_len;
+
+    tempvar true_var = new Variable(API.CORE.__ZKLANG__TRUE_VAR, TRUE, DataTypes.BOOL, 1);
+    tempvar true_data = new (FALSE);
+    tempvar true_var_len = Variable.SIZE + true_var.data_len;
+    memcpy(expected_memory + expected_memory_len, true_var, Variable.SIZE);
+    memcpy(expected_memory + expected_memory_len + Variable.SIZE, true_data, true_var.data_len);
+    tempvar expected_memory_len = expected_memory_len + true_var_len;
 
     let (actual_memory_len, actual_memory) = Memory.init(
         _memory_len, _memory, _calldata_len, _calldata

@@ -12,8 +12,8 @@ func invertBoolean() -> (res_len: felt, res: felt*) {
     local res_identifier;
     local return_keyword;
     local var0_identifier;
-    local const_false_selector;
-    local const_true_selector;
+    local false_identifier;
+    local true_identifier;
     local sentinel_selector;
 
     %{
@@ -25,14 +25,12 @@ func invertBoolean() -> (res_len: felt, res: felt*) {
 
         # special vars
         ids.var0_identifier = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
+        ids.false_identifier = get_selector_from_name("__ZKLANG__FALSE_VAR")
+        ids.true_identifier = get_selector_from_name("__ZKLANG__TRUE_VAR")
 
         # helper vars
         ids.sentinel_selector = get_selector_from_name("sentinel")
         ids.res_identifier = get_selector_from_name("res")
-
-        # consts
-        ids.const_false_selector = get_selector_from_name("const_false")
-        ids.const_true_selector = get_selector_from_name("const_true")
     %}
 
     tempvar NULLvar = Variable(0, 0, 0, 0);
@@ -46,30 +44,16 @@ func invertBoolean() -> (res_len: felt, res: felt*) {
 
     tempvar instruction1 = Instruction(
         Primitive(0, return_keyword),
-        Variable(const_false_selector, 0, 0, 0),
+        Variable(false_identifier, 0, 0, 0),
         NULLvar,
         NULLvar,
         );
 
     tempvar instruction2 = Instruction(
         Primitive(0, return_keyword),
-        Variable(const_true_selector, 0, 0, 0),
+        Variable(true_identifier, 0, 0, 0),
         NULLvar,
         NULLvar,
-        );
-
-    tempvar const_false = Variable(
-        selector=const_false_selector,
-        protected=TRUE,
-        type=0,
-        data_len=1,
-        );
-
-    tempvar const_true = Variable(
-        selector=const_true_selector,
-        protected=TRUE,
-        type=0,
-        data_len=1,
         );
 
     tempvar sentinel_var = Variable(
@@ -80,13 +64,11 @@ func invertBoolean() -> (res_len: felt, res: felt*) {
         );
 
     tempvar memory_layout = (
-        const_false, FALSE,
-        const_true, TRUE,
         sentinel_var, 1, 2,
         );
 
     let instruction_len = 3 * Instruction.SIZE;
-    let memory_layout_len = 3 * Variable.SIZE + const_false.data_len + const_true.data_len + sentinel_var.data_len;
+    let memory_layout_len = 1 * Variable.SIZE + sentinel_var.data_len;
     let total_len = instruction_len + memory_layout_len + 1;
     let felt_code_len = total_len + 1;
 
