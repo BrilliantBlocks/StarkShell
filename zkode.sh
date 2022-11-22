@@ -9,11 +9,11 @@ export ERC1155_SRC=./build/ERC1155.json
 export ERC20_SRC=./build/ERC20.json
 export ERC5114_SRC=./build/ERC5114.json
 export FLOB_SRC=./build/FlobDB.json
-export ZKLANG_SRC=./build/ZKLANG.json
+export STARKSHELL_SRC=./build/StarkShell.json
 export DIAMOND_SRC=./build/Diamond.json
 export DIAMOND_CUT_SRC=./build/DiamondCut.json
 export METADATA_SRC=./build/UniversalMetadata.json
-export SETZKLANGFUN=$(python3.9 -c "from starkware.starknet.public.abi import get_selector_from_name; print(get_selector_from_name('setZKLangFun'))")
+export SETSHELLFUN=$(python3.9 -c "from starkware.starknet.public.abi import get_selector_from_name; print(get_selector_from_name('setShellFun'))")
 export MINT_CONTRACT=$(python3.9 -c "from starkware.starknet.public.abi import get_selector_from_name; print(get_selector_from_name('mintContract'))")
 
 
@@ -29,9 +29,9 @@ echo "Compile contracts"
 protostar build
 
 
-echo "Compile ZKLang functions"
-cairo-compile tests/zklang/fun/printZKLangCode.cairo --output build/printZKLangCode.json
-cairo-compile tests/zklang/fun/printMintContractCode.cairo --output build/printMintContractCode.json
+echo "Compile StarkShell functions"
+cairo-compile tests/starkshell/fun/printSetShellFunCode.cairo --output build/printSetShellFunCode.json
+cairo-compile tests/starkshell/fun/printMintContractCode.cairo --output build/printMintContractCode.json
 
 
 echo "Create account"
@@ -74,8 +74,8 @@ BFR_HASH=$(declare_class $BFR_SRC)
 echo -ne " $(echo $((100 * 2/11)))% | FlobDB             \r"
 FLOB_HASH=$(declare_class $FLOB_SRC)
 
-echo -ne " $(echo $((100 * 3/11)))% | ZKLang             \r"
-ZKLANG_HASH=$(declare_class $ZKLANG_SRC)
+echo -ne " $(echo $((100 * 3/11)))% | StarkShell         \r"
+STARKSHELL_HASH=$(declare_class $STARKSHELL_SRC)
 
 echo -ne " $(echo $((100 * 4/11)))% | Diamond            \r"
 DIAMOND_HASH=$(declare_class $DIAMOND_SRC)
@@ -122,11 +122,11 @@ starknet invoke \
         $ERC5114_HASH \
         $FLOB_HASH \
         $BOOTSTRAPPER_HASH \
-        $ZKLANG_HASH \
+        $STARKSHELL_HASH \
         $METADATA_HASH \
-        $SETZKLANGFUN \
+        $SETSHELLFUN \
         44 \
-        $(cairo-run --program build/printZKLangCode.json --print_output --layout=small | tail -n +2 | xargs) \
+        $(cairo-run --program build/printSetShellFunCode.json --print_output --layout=small | tail -n +2 | xargs) \
         $MINT_CONTRACT \
         299 \
         $(cairo-run --program build/printMintContractCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Bootstrapper_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET

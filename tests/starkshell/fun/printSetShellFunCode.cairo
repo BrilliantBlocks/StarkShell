@@ -1,11 +1,11 @@
 %builtins output
 from starkware.cairo.common.serialize import serialize_word
 
-from tests.zklang.fun.setZKLangFun import setZKLangFun
+from tests.starkshell.fun.setShellFun import setShellFun
 
 func main{output_ptr: felt*}() {
     // Replace with required function
-    let (felt_code_len, felt_code) = setZKLangFun();
+    let (felt_code_len, felt_code) = setShellFun();
     print(felt_code_len, felt_code);
 
     return ();

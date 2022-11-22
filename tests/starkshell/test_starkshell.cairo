@@ -5,7 +5,7 @@ from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
 
 from src.ERC2535.structs import FacetCut, FacetCutAction
-from src.zklang.structs import Function, Instruction, Primitive, Variable
+from src.starkshell.structs import Function, Instruction, Primitive, Variable
 
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import IDiamondCut
@@ -13,10 +13,10 @@ from src.interfaces.IBFR import IBFR
 from src.interfaces.ITCF import ITCF
 from src.Storage.IFlobDB import IFlobDB
 
-from tests.zklang.fun.invertBoolean import invertBoolean
-from tests.zklang.fun.returnCalldata import returnCalldata
-from tests.zklang.fun.setZKLangFun import setZKLangFun
-from tests.zklang.fun.interpreteInstruction import interpreteInstruction
+from tests.starkshell.fun.invertBoolean import invertBoolean
+from tests.starkshell.fun.returnCalldata import returnCalldata
+from tests.starkshell.fun.setShellFun import setShellFun
+from tests.starkshell.fun.interpreteInstruction import interpreteInstruction
 
 from tests.setup import (
     ClassHash,
@@ -54,9 +54,9 @@ func __setup__{
     let (program_hash) = IFlobDB.store(rootDiamond, felt_code_len, felt_code);
     %{ context.program_hash = ids.program_hash %}
 
-    // setZKLangFun already included in repo
-    let (_, felt_code) = setZKLangFun();
-    let (setZKLangFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(felt_code);
+    // setShellFun already included in repo
+    let (_, felt_code) = setShellFun();
+    let (setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(felt_code);
 
     let (felt_code_len, felt_code) = invertBoolean();
     let (invertBoolean_hash) = IFlobDB.store(rootDiamond, felt_code_len, felt_code);
@@ -67,26 +67,26 @@ func __setup__{
     %{ context.interpreteInstruction_hash = ids.interpreteInstruction_hash %}
 
     local fun_selector_returnCalldata;
-    local fun_selector_setZKLangFun;
+    local fun_selector_setShellFun;
     local fun_selector_invertBoolean;
     local fun_selector_interpreteInstruction;
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         context.fun_selector_returnCalldata = get_selector_from_name("returnCalldata")
         ids.fun_selector_returnCalldata = context.fun_selector_returnCalldata
-        context.fun_selector_setZKLangFun = get_selector_from_name("setZKLangFun")
-        ids.fun_selector_setZKLangFun = context.fun_selector_setZKLangFun
+        context.fun_selector_setShellFun = get_selector_from_name("setShellFun")
+        ids.fun_selector_setShellFun = context.fun_selector_setShellFun
         context.fun_selector_foo = get_selector_from_name("foo")
         ids.fun_selector_invertBoolean = get_selector_from_name("invertBoolean")
         ids.fun_selector_interpreteInstruction = get_selector_from_name("interpreteInstruction")
     %}
 
-    // User1 mints a diamond and adds ERC-1155 and ZKlang
+    // User1 mints a diamond and adds ERC-1155 and StarkShell
     let facetCut_len = 2;
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.erc1155, FacetCutAction.Add), FacetCut(ch.zklang, FacetCutAction.Add),), FacetCut*);
+    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.erc1155, FacetCutAction.Add), FacetCut(ch.starkshell, FacetCutAction.Add),), FacetCut*);
 
     tempvar fun_returnCalldata = Function(fun_selector_returnCalldata, program_hash, rootDiamond);
-    tempvar fun_setZKLangFun = Function(fun_selector_setZKLangFun, setZKLangFun_hash, rootDiamond);
+    tempvar fun_setShellFun = Function(fun_selector_setShellFun, setShellFun_hash, rootDiamond);
     tempvar fun_invertBoolean = Function(fun_selector_invertBoolean, invertBoolean_hash, rootDiamond);
     tempvar fun_interpreteInstruction = Function(fun_selector_interpreteInstruction, interpreteInstruction_hash, rootDiamond);
     local fun_len = 4;
@@ -97,7 +97,7 @@ func __setup__{
         fun_calldata_size,
         fun_len,
         fun_returnCalldata,
-        fun_setZKLangFun,
+        fun_setShellFun,
         fun_invertBoolean,
         fun_interpreteInstruction,
         );
@@ -139,7 +139,7 @@ func test_returnCalldata_tuple{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, r
 
     // returnCalldata is recognized as public function
     let (x) = IDiamond.facetAddress(diamond_address, fun_selector_returnCalldata);
-    assert_eq(x, ch.zklang);
+    assert_eq(x, ch.starkshell);
 
     let (x_res, y_res) = ITestZKLtuple.returnCalldata(diamond_address, 1, 2);
     assert_eq(x_res, 1);
@@ -167,8 +167,8 @@ func test_returnCalldata_array{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, r
 }
 
 @contract_interface
-namespace ITestZKLangFun {
-    func setZKLangFun(_fun: Function) -> () {
+namespace ITestShellFun {
+    func setShellFun(_fun: Function) -> () {
     }
 
     func foo(x: felt, y: felt) -> (x_res: felt, y_res: felt) {
@@ -199,14 +199,14 @@ func test_setZKLangFun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
     tempvar x: Function = Function(fun_selector_foo, program_hash, rootDiamond);
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
-    ITestZKLangFun.setZKLangFun(diamond_address, x);
+    ITestShellFun.setShellFun(diamond_address, x);
     %{ stop_prank() %}
 
-    // New zkl function is recognized as public function
+    // New starkshell function is recognized as public function
     let (facet_hash) = IDiamond.facetAddress(diamond_address, fun_selector_foo);
-    assert_eq(facet_hash, ch.zklang);
+    assert_eq(facet_hash, ch.starkshell);
 
-    let (x_res, y_res) = ITestZKLangFun.foo(diamond_address, 3, 4);
+    let (x_res, y_res) = ITestShellFun.foo(diamond_address, 3, 4);
     assert_eq(x_res, 3);
     assert_eq(y_res, 4);
 
@@ -231,7 +231,7 @@ func test_setZKLangFun_reverts_if_caller_not_owner{
 
     %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
-    ITestZKLangFun.setZKLangFun(diamond_address, x);
+    ITestShellFun.setShellFun(diamond_address, x);
     %{ stop_prank() %}
 
     return ();
@@ -245,7 +245,7 @@ func test_invertBoolean_returns_true_on_false{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    let (actual_res) = ITestZKLangFun.invertBoolean(diamond_address, FALSE);
+    let (actual_res) = ITestShellFun.invertBoolean(diamond_address, FALSE);
     let expected_res = TRUE;
     assert_eq(actual_res, expected_res);
 
@@ -260,7 +260,7 @@ func test_invertBoolean_returns_false_on_true{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    let (actual_res) = ITestZKLangFun.invertBoolean(diamond_address, TRUE);
+    let (actual_res) = ITestShellFun.invertBoolean(diamond_address, TRUE);
     let expected_res = FALSE;
     assert_eq(actual_res, expected_res);
 
@@ -283,7 +283,7 @@ func test_interpreteInstruction_reverts_if_caller_not_owner{
 
     %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
-    ITestZKLangFun.interpreteInstruction(diamond_address, program_len, program, memory_len, memory);
+    ITestShellFun.interpreteInstruction(diamond_address, program_len, program, memory_len, memory);
     %{ stop_prank() %}
 
     return ();
@@ -311,7 +311,7 @@ func test_interpreteInstruction_returnCalldata{
     tempvar Calldata = Variable(calldata_id, 0, 0, 0);
 
     tempvar instruction0 = Instruction(
-        primitive=Primitive(ch.zklang, return_keyword),
+        primitive=Primitive(ch.starkshell, return_keyword),
         input1=Calldata,
         input2=NULLvar,
         output=NULLvar,
@@ -325,7 +325,7 @@ func test_interpreteInstruction_returnCalldata{
     local memory_len = 1 * Variable.SIZE + Calldata.data_len;
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
-    let (res_len, res) = ITestZKLangFun.interpreteInstruction(
+    let (res_len, res) = ITestShellFun.interpreteInstruction(
         diamond_address, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}

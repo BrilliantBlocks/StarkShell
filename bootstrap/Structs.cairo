@@ -8,6 +8,6 @@ struct ClassHash {
     erc5114: felt,
     flobDb: felt,
     rootDiamondFactory: felt,
-    zklang: felt,
+    starkshell: felt,
     metadata: felt,
 }

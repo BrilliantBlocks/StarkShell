@@ -5,8 +5,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.memcpy import memcpy
 
 from src.constants import API
-from src.zklang.primitives.core import __ZKLANG__NOOP
-from src.zklang.structs import DataTypes, Variable
+from src.starkshell.primitives.core import __ZKLANG__NOOP
+from src.starkshell.structs import DataTypes, Variable
 
 from protostar.asserts import assert_eq, assert_not_eq
 

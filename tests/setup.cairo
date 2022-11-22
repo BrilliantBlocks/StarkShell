@@ -6,16 +6,15 @@ from starkware.cairo.common.uint256 import Uint256
 from src.ERC1155.structs import TokenBatch
 from src.ERC2535.structs import FacetCut, FacetCutAction
 
+from bootstrap.Bootstrapper import IBootstrapper, ClassHash
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.IDiamondCut import IDiamondCut
 from src.ERC1155.IERC1155 import IERC1155
-from bootstrap.Bootstrapper import IBootstrapper, ClassHash
 from src.ERC721.IERC721 import IERC721
 from src.interfaces.IBFR import IBFR
 from src.interfaces.ITCF import ITCF
-from src.zklang.IZKlang import IZKlang
-from tests.zklang.fun.setZKLangFun import setZKLangFun
-from tests.zklang.fun.mintContract import mintContract
+from tests.starkshell.fun.setShellFun import setShellFun
+from tests.starkshell.fun.mintContract import mintContract
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -25,25 +24,25 @@ const Adversary = 789;
 
 struct Selector {
     mintContract: felt,
-    setZKLangFun: felt,
+    setShellFun: felt,
 }
 
 func getSelectors() -> Selector {
     alloc_locals;
     local mintContract;
-    local setZKLangFun;
+    local setShellFun;
 
     %{
         variables = [
             "mintContract",
-            "setZKLangFun",
+            "setShellFun",
             ]
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
 
     local selectors: Selector = Selector(
         mintContract,
-        setZKLangFun,
+        setShellFun,
         );
 
     return selectors;
@@ -60,7 +59,7 @@ func getClassHashes() -> ClassHash {
     local erc5114;
     local flobDb;
     local rootDiamondFactory;
-    local zklang;
+    local starkshell;
     local metadata;
 
     %{
@@ -74,7 +73,7 @@ func getClassHashes() -> ClassHash {
             "erc20",
             "flobDb",
             "rootDiamondFactory",
-            "zklang",
+            "starkshell",
             "metadata",
             ]
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
@@ -90,7 +89,7 @@ func getClassHashes() -> ClassHash {
         erc5114,
         flobDb,
         rootDiamondFactory,
-        zklang,
+        starkshell,
         metadata,
         );
 
@@ -126,7 +125,7 @@ func computeSelectors() -> () {
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         context.mintContract = get_selector_from_name("mintContract")
-        context.setZKLangFun = get_selector_from_name("setZKLangFun")
+        context.setShellFun = get_selector_from_name("setShellFun")
     %}
 
     return ();
@@ -143,7 +142,7 @@ func declareContracts() -> () {
         context.erc5114 = declare("./src/ERC5114/ERC5114.cairo").class_hash
         context.flobDb = declare("./src/Storage/FlobDB.cairo").class_hash
         context.rootDiamondFactory = declare("./bootstrap/Bootstrapper.cairo").class_hash
-        context.zklang = declare("./src/zklang/ZKlang.cairo").class_hash
+        context.starkshell = declare("./src/starkshell/StarkShell.cairo").class_hash
         context.metadata = declare("./src/UniversalMetadata/UniversalMetadata.cairo").class_hash
     %}
 
@@ -165,14 +164,14 @@ func deployRootDiamond{
     let ch: ClassHash = getClassHashes();
     let sel: Selector = getSelectors();
 
-    let (code_len, code) = setZKLangFun();
+    let (code_len, code) = setShellFun();
     let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
 
     // TODO prank cheatcode?
     let (rootDiamond) = IBootstrapper.deployRootDiamond(
         addr.rootFactory,
         ch,
-        sel.setZKLangFun,
+        sel.setShellFun,
         code_len,
         code,
         sel.mintContract,

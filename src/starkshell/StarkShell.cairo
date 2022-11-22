@@ -8,9 +8,9 @@ from starkware.starknet.common.syscalls import get_contract_address
 from src.constants import API
 from src.ERC2535.library import Library
 from src.Storage.IFlobDB import IFlobDB
-from src.zklang.library import Program, Memory, State
-from src.zklang.structs import Function, Variable
-from src.zklang.primitives.core import (
+from src.starkshell.library import Program, Memory, State
+from src.starkshell.structs import Function, Variable
+from src.starkshell.primitives.core import (
     __ZKLANG__EVENT,
     __ZKLANG__RETURN,
     __ZKLANG__BRANCH,

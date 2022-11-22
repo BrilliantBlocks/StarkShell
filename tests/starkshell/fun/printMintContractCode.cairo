@@ -1,7 +1,7 @@
 %builtins output
 from starkware.cairo.common.serialize import serialize_word
 
-from tests.zklang.fun.mintContract import mintContract
+from tests.starkshell.fun.mintContract import mintContract
 
 func main{output_ptr: felt*}() {
     let (felt_code_len, felt_code) = mintContract(

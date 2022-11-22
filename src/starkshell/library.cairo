@@ -13,7 +13,7 @@ from starkware.starknet.common.syscalls import (
 from src.constants import API
 from src.ERC2535.IDiamond import IDiamond
 from src.ERC2535.library import Library
-from src.zklang.structs import DataTypes, Instruction, Function, Primitive, Variable
+from src.starkshell.structs import DataTypes, Instruction, Function, Primitive, Variable
 
 @storage_var
 func fun_selector_index_(i: felt) -> (fun_selector: felt) {

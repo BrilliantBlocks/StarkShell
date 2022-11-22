@@ -20,14 +20,14 @@ from src.constants import FUNCTION_SELECTORS
 from src.ERC2535.structs import FacetCut, FacetCutAction
 from src.ERC2535.library import Diamond
 from src.Storage.BFR.IBFR import IBFR
-from src.zklang.library import Function
+from src.starkshell.library import Function
 from bootstrap.IBootstrapper import IBootstrapper, ClassHash
 
 struct BFRCalldata {
     erc721ClassHash: felt,
     bfrClassHash: felt,
     flobDbClassHash: felt,
-    zklangClassHash: felt,
+    starkshellClassHash: felt,
     diamondCutClassHash: felt,
     metadata: felt,
     erc1155ClassHash: felt,
@@ -48,7 +48,7 @@ struct FlobDbCalldata {
     tokenId0: Uint256,
 }
 
-struct ZKLangCalldata {
+struct StarkShellCalldata {
     function0: Function,
     function1: Function,
 }
@@ -78,9 +78,9 @@ func deployRootDiamond{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }(
     _class: ClassHash,
-    _setZKLfun_selector: felt,
-    _setZKLfun_compiled_len: felt,
-    _setZKLfun_compiled: felt*,
+    _setShellFun_selector: felt,
+    _setShellFun_compiled_len: felt,
+    _setShellFun_compiled: felt*,
     _mintContract_selector: felt,
     _mintContract_compiled_len: felt,
     _mintContract_compiled: felt*,
@@ -89,7 +89,7 @@ func deployRootDiamond{
 
     let (caller) = get_caller_address();
     let (self) = get_contract_address();
-    let (setZKLangFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(_setZKLfun_compiled);
+    let (setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(_setShellFun_compiled);
     let (mintContract_hash) = hash_chain{hash_ptr=pedersen_ptr}(_mintContract_compiled);
     let (block_number) = get_block_number();
     let salt = block_number * caller;
@@ -119,10 +119,10 @@ func deployRootDiamond{
         caller,
         selfTokenId,
         _class,
-        _setZKLfun_selector,
-        setZKLangFun_hash,
-        _setZKLfun_compiled_len,
-        _setZKLfun_compiled,
+        _setShellFun_selector,
+        setShellFun_hash,
+        _setShellFun_compiled_len,
+        _setShellFun_compiled,
         _mintContract_selector,
         mintContract_hash,
         _mintContract_compiled_len,
@@ -142,10 +142,10 @@ func init{
     _owner: felt,
     _tokenId: Uint256,
     _class: ClassHash,
-    _setZKLfun_selector: felt,
+    _setShellFun_selector: felt,
     _setZKLfun_hash: felt,
-    _setZKLfun_compiled_len: felt,
-    _setZKLfun_compiled: felt*,
+    _setShellFun_compiled_len: felt,
+    _setShellFun_compiled: felt*,
     _mintContract_selector: felt,
     _mintContract_hash: felt,
     _mintContract_compiled_len: felt,
@@ -160,13 +160,13 @@ func init{
     tempvar facetCut: FacetCut* = cast(new (
         FacetCut(_class.bfr, FacetCutAction.Add),
         FacetCut(_class.erc721, FacetCutAction.Add),
-        FacetCut(_class.zklang, FacetCutAction.Add),
+        FacetCut(_class.starkshell, FacetCutAction.Add),
         FacetCut(_class.diamondCut, FacetCutAction.Add),
         FacetCut(_class.metadata, FacetCutAction.Add),
         FacetCut(_class.flobDb, FacetCutAction.Add),
         ), FacetCut*);
 
-    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (ZKLangCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1) + 10;
+    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (StarkShellCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1) + 10;
     tempvar tmp = cast(new (
         BFRCalldata.SIZE + 1,
         BFRCalldata.SIZE,
@@ -174,7 +174,7 @@ func init{
             _class.bfr,
             _class.erc721,
             _class.flobDb,
-            _class.zklang,
+            _class.starkshell,
             _class.diamondCut,
             _class.metadata,
             _class.erc1155,
@@ -188,9 +188,9 @@ func init{
             tokenId_low=low,
             tokenId_high=high,
             ),
-        ZKLangCalldata.SIZE + 1,
+        StarkShellCalldata.SIZE + 1,
         2,
-        ZKLangCalldata(Function(_setZKLfun_selector, _setZKLfun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0)),
+        StarkShellCalldata(Function(_setShellFun_selector, _setZKLfun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0)),
         // DiamondCutCalldata.SIZE,
         // DiamondCutCalldata(0),
         1, 0,
@@ -203,19 +203,19 @@ func init{
     memcpy(calldata, tmp, tmp_len);
     let new_len = tmp_len;
 
-    assert calldata[new_len] = 1 + _setZKLfun_compiled_len + _mintContract_compiled_len + 1;
+    assert calldata[new_len] = 1 + _setShellFun_compiled_len + _mintContract_compiled_len + 1;
     let new_len = new_len + 1;
 
     assert calldata[new_len] = 2;
     let new_len = new_len + 1;
 
     // total array len
-    assert calldata[new_len] = _setZKLfun_compiled_len + _mintContract_compiled_len;
+    assert calldata[new_len] = _setShellFun_compiled_len + _mintContract_compiled_len;
     let new_len = new_len + 1;
 
     // memcpy first_array
-    memcpy(calldata + new_len, _setZKLfun_compiled, _setZKLfun_compiled_len);
-    let new_len = new_len + _setZKLfun_compiled_len;
+    memcpy(calldata + new_len, _setShellFun_compiled, _setShellFun_compiled_len);
+    let new_len = new_len + _setShellFun_compiled_len;
 
     // memcpy second array
     memcpy(calldata + new_len, _mintContract_compiled, _mintContract_compiled_len);

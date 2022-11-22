@@ -2,7 +2,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 
-from src.zklang.structs import Instruction, Primitive, Variable
+from src.starkshell.structs import Instruction, Primitive, Variable
 
 func invertBoolean() -> (res_len: felt, res: felt*) {
     alloc_locals;

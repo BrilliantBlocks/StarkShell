@@ -9,8 +9,8 @@ from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import call_contract, deploy
 from src.ERC2535.library import Diamond
 
-from src.zklang.library import State
-from src.zklang.structs import Function, Variable
+from src.starkshell.library import State
+from src.starkshell.structs import Function, Variable
 
 @event
 func __ZKLANG__EMIT(_key: felt, _val_len: felt, _val: felt*) {
