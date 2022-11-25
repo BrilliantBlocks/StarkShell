@@ -128,5 +128,5 @@ starknet invoke \
         44 \
         $(cairo-run --program build/printSetShellFunCode.json --print_output --layout=small | tail -n +2 | xargs) \
         $MINT_CONTRACT \
-        299 \
+        313 \
         $(cairo-run --program build/printMintContractCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Bootstrapper_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET
