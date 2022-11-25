@@ -229,6 +229,8 @@ func init{
     // Activate configuration
     Diamond._set_root_(self);
     Diamond._set_facet_key_(facet_key);
+
+    // undo write to storage
     Diamond._set_init_root_(0);
 
     return ();
