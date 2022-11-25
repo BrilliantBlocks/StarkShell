@@ -60,7 +60,8 @@ namespace FUNCTION_SELECTORS {
         const registerElements = 0x3a0ee961d57284081ae38806062751e01756e9e9e17a6d14e80baa5095b602;
     }
 
-    namespace Init {
+    namespace IBootstrapper {
+        const deployRootDiamond = 0x3d4c13cf2f41871327019138f3b2db9c0d38914e60782206253101a54f06352;
         const init = 0x3b6771b04b068edcfb8c265b21ed5c6a5748d427138f776f3f164cc45f75b31;
     }
 

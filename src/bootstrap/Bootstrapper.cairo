@@ -236,9 +236,10 @@ func init{
     return ();
 }
 
+// @dev Required interface subset of BFR
 @view
 func calculateKey(_el_len: felt, _el: felt*) -> (res: felt) {
-    return (res=_el_len);  // TODO does this work? return simply NULL?
+    return (res=0);
 }
 
 @view
@@ -248,12 +249,6 @@ func __pub_func__() -> (retdata_size: felt, retdata: felt*) {
     return (retdata_size=2, retdata=cast(func_selectors, felt*));
 
     selectors_start:
-    dw FUNCTION_SELECTORS.Init.init;
+    dw FUNCTION_SELECTORS.IBootstrapper.init;
     dw FUNCTION_SELECTORS.IBFR.calculateKey;
-}
-
-// is this redundant?
-@view
-func __supports_interface__(_interface_id: felt) -> (res: felt) {
-    return (res=FALSE);
 }
