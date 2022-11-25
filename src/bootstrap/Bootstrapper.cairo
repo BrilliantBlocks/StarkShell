@@ -191,9 +191,8 @@ func init{
         StarkShellCalldata.SIZE + 1,
         2,
         StarkShellCalldata(Function(_setShellFun_selector, _setShellFun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0)),
-        // DiamondCutCalldata.SIZE,
-        // DiamondCutCalldata(0),
-        1, 0,
+        DiamondCutCalldata.SIZE,
+        DiamondCutCalldata(0),
         // TODO metadata
         9, 0, 0, 0, 2, 184555836509371486645839001305511529563953210002131601274755952162965647151, 525788472421, FALSE, 0, 0,  // https://www.brilliantblocks.io/zkode
         ), felt*);
