@@ -104,7 +104,7 @@ func loadCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 // Mandatory functions
 // ===================
 
-// / @dev Initialize this facet
+// @dev Initialize this facet
 @external
 func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _n: felt, _data_len: felt, _data: felt*
@@ -112,18 +112,19 @@ func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
     if (_n == 0) {
         return ();
     }
-    store(_data_len, _data);
+
+    store(_data[0], _data);
 
     return __constructor__(_n - 1, _data_len - _data[0] - 1, _data + _data[0] + 1);
 }
 
-// / @dev Remove this facet
+// @dev Remove this facet
 @external
 func __destructor__() -> () {
     return ();
 }
 
-// / @dev Exported view and invokable functions of this facet
+// @dev Exported view and invokable functions of this facet
 @view
 @raw_output
 func __pub_func__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
@@ -139,7 +140,7 @@ func __pub_func__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     dw FUNCTION_SELECTORS.STORAGE.loadRange;
 }
 
-// / @dev Define all supported interfaces of this facet
+// @dev Define all supported interfaces of this facet
 @view
 func __supports_interface__(_interface_id: felt) -> (res: felt) {
     return (res=FALSE);
