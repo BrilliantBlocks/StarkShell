@@ -1,5 +1,5 @@
 struct ClassHash {
-    bfr: felt,
+    feltmap: felt,
     diamond: felt,
     diamondCut: felt,
     erc721: felt,

@@ -17,10 +17,10 @@ from starkware.starknet.common.syscalls import (
 from starkware.cairo.common.uint256 import Uint256
 
 from src.zkode.constants import FUNCTION_SELECTORS
-from src.zkode.ERC2535.structs import FacetCut, FacetCutAction
-from src.zkode.ERC2535.library import Diamond
-from src.zkode.Storage.BFR.IBFR import IBFR
-from src.zkode.starkshell.library import Function
+from src.zkode.diamond.structs import FacetCut, FacetCutAction
+from src.zkode.diamond.library import Diamond
+from src.zkode.facets.storage.feltmap.IFeltMap import IFeltMap
+from src.zkode.facets.starkshell.library import Function
 from src.bootstrap.IBootstrapper import IBootstrapper, ClassHash
 
 struct BFRCalldata {
@@ -109,7 +109,7 @@ func deployRootDiamond{
             class_hash=_class.diamond,
             contract_address_salt=salt,
             constructor_calldata_size=DiamondCalldata.SIZE,
-            constructor_calldata=new (DiamondCalldata(0, 0, _class.rootDiamondFactory, _class.bfr)),
+            constructor_calldata=new (DiamondCalldata(0, 0, _class.rootDiamondFactory, _class.feltmap)),
             deploy_from_zero=FALSE,
         );
     }
@@ -158,7 +158,7 @@ func init{
 
     let facetCut_len = 6;
     tempvar facetCut: FacetCut* = cast(new (
-        FacetCut(_class.bfr, FacetCutAction.Add),
+        FacetCut(_class.feltmap, FacetCutAction.Add),
         FacetCut(_class.erc721, FacetCutAction.Add),
         FacetCut(_class.starkshell, FacetCutAction.Add),
         FacetCut(_class.diamondCut, FacetCutAction.Add),
@@ -171,7 +171,7 @@ func init{
         BFRCalldata.SIZE + 1,
         BFRCalldata.SIZE,
         BFRCalldata(
-            _class.bfr,
+            _class.feltmap,
             _class.erc721,
             _class.flobDb,
             _class.starkshell,
@@ -250,5 +250,5 @@ func __pub_func__() -> (retdata_size: felt, retdata: felt*) {
 
     selectors_start:
     dw FUNCTION_SELECTORS.IBootstrapper.init;
-    dw FUNCTION_SELECTORS.IBFR.calculateKey;
+    dw FUNCTION_SELECTORS.IFeltMap.calculateKey;
 }

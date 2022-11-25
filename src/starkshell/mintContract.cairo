@@ -1,7 +1,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 
-from src.zkode.starkshell.structs import Primitive, Variable, Instruction
+from src.zkode.facets.starkshell.structs import Primitive, Variable, Instruction
 
 func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, res: felt*) {
     alloc_locals;

@@ -53,7 +53,7 @@ namespace FUNCTION_SELECTORS {
         const loadRange = 0x1aeca00e94515d2f6b26e6d60776bba9e2786fa0e615fe600d22a096f711521;
     }
 
-    namespace IBFR {
+    namespace IFeltMap {
         const calculateKey = 0x2a5b44d6ee0a59c8c56c2e1fff32c18d3b87c4ec460920be3297c2355cec67f;
         const resolveKey = 0x34ea21e3feb6a55c5631f40cdf6d951f873a548a2eb398ea8f2ad9be519c25;
         const registerElement = 0x1f89a3afca1cd2076a205fe4fc46370aaed0c49f69700691b395a723e96acaf;

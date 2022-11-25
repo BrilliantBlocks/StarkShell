@@ -3,12 +3,12 @@ export DEVNET=http://127.0.0.1:5050
 export STARKNET_WALLET=starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount
 export STARKNET_NETWORK=alpha-goerli
 export BOOTSTRAPPER_SRC=./build/Bootstrapper.json
-export BFR_SRC=./build/BFR.json
+export FELTMAP_SRC=./build/FeltMap.json
 export ERC721_SRC=./build/ERC721.json
 export ERC1155_SRC=./build/ERC1155.json
 export ERC20_SRC=./build/ERC20.json
 export ERC5114_SRC=./build/ERC5114.json
-export FLOB_SRC=./build/FlobDB.json
+export FLOBDB_SRC=./build/FlobDB.json
 export STARKSHELL_SRC=./build/StarkShell.json
 export DIAMOND_SRC=./build/Diamond.json
 export DIAMOND_CUT_SRC=./build/DiamondCut.json
@@ -69,10 +69,10 @@ echo -ne " $(echo $((100 * 0/11)))% | Bootstrapper       \r"
 export BOOTSTRAPPER_HASH=$(declare_class $BOOTSTRAPPER_SRC)
 
 echo -ne " $(echo $((100 * 1/11)))% | BFR                \r"
-export BFR_HASH=$(declare_class $BFR_SRC)
+export FELTMAP_HASH=$(declare_class $FELTMAP_SRC)
 
 echo -ne " $(echo $((100 * 2/11)))% | FlobDB             \r"
-export FLOB_HASH=$(declare_class $FLOB_SRC)
+export FLOBDB_HASH=$(declare_class $FLOBDB_SRC)
 
 echo -ne " $(echo $((100 * 3/11)))% | StarkShell         \r"
 export STARKSHELL_HASH=$(declare_class $STARKSHELL_SRC)
@@ -113,14 +113,14 @@ starknet invoke \
     --address $BOOTSTRAPPER_ADDR \
     --function deployRootDiamond \
     --inputs \
-        $BFR_HASH \
+        $FELTMAP_HASH \
         $DIAMOND_HASH \
         $DIAMOND_CUT_HASH \
         $ERC721_HASH \
         $ERC1155_HASH \
         $ERC20_HASH \
         $ERC5114_HASH \
-        $FLOB_HASH \
+        $FLOBDB_HASH \
         $BOOTSTRAPPER_HASH \
         $STARKSHELL_HASH \
         $METADATA_HASH \

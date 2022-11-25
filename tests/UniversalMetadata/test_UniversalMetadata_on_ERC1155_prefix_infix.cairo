@@ -4,12 +4,11 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from src.zkode.ERC2535.structs import FacetCut, FacetCutAction
+from src.zkode.diamond.structs import FacetCut, FacetCutAction
 
-from src.zkode.ERC2535.IDiamond import IDiamond
-from src.zkode.ERC2535.IDiamondCut import IDiamondCut
-from src.zkode.UniversalMetadata.IUniversalMetadata import IERC1155Metadata
-from src.zkode.interfaces.IBFR import IBFR
+from src.zkode.diamond.IDiamond import IDiamond
+from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
+from src.zkode.facets.metadata.metadata.IUniversalMetadata import IERC1155Metadata
 from src.zkode.interfaces.ITCF import ITCF
 
 from tests.setup import (
