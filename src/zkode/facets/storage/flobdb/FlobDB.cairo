@@ -18,12 +18,12 @@ func Store(hash: felt) {
 func storage_(i: felt) -> (data: felt) {
 }
 
-// / @dev Always reset to zero
+// @dev Always reset to zero
 @storage_var
 func storage_internal_temp_var() -> (res: felt) {
 }
 
-// / @notice _felt_code[0] = _felt_code_len
+// @notice _felt_code[0] = _felt_code_len
 @external
 func store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _data_len: felt, _data: felt*
