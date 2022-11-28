@@ -166,7 +166,7 @@ func init{
         FacetCut(_class.flobDb, FacetCutAction.Add),
         ), FacetCut*);
 
-    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (StarkShellCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1) + 10;
+    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (StarkShellCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1) + 12;
     tempvar tmp = cast(new (
         BFRCalldata.SIZE + 1,
         BFRCalldata.SIZE,
@@ -193,8 +193,7 @@ func init{
         StarkShellCalldata(Function(_setShellFun_selector, _setShellFun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0)),
         DiamondCutCalldata.SIZE,
         DiamondCutCalldata(0),
-        // TODO metadata
-        9, 0, 0, 0, 2, 184555836509371486645839001305511529563953210002131601274755952162965647151, 525788472421, FALSE, 0, 0,  // https://www.brilliantblocks.io/zkode
+        11, 0, 0, 0, 4, 184555836509371486644856095017587421344261193474617388276263770152936827443, 203998027954878725543997547266317984232748597657159516903365148909254028897, 202244606418614541364902086132942206699045874315590809968639424267107263609, 10754949894223100254076072945295018243026244912222009195, FALSE, 0, 0,  // https://m4chgvnjpozvm7p7jeo7vj3susfrkuencv6j5bf3u6mokcshjmeq.arweave.net/ZwRzVal7s1Z9_0kd-qdypIsVUI0VfJ6Eu6eY5QpHSwk
         ), felt*);
 
     let (local calldata: felt*) = alloc();
