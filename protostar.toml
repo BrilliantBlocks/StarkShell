@@ -1,0 +1,23 @@
+[project]
+protostar-version = "0.8"
+lib-path = "lib"
+
+[contracts]
+Bootstrapper = ["src/bootstrap/Bootstrapper.cairo"]
+FeltMap = ["src/zkode/facets/storage/feltmap/FeltMap.cairo"]
+FlobDB = ["src/zkode/facets/storage/flobdb/FlobDB.cairo"]
+StarkShell = ["src/zkode/facets/starkshell/StarkShell.cairo"]
+Diamond = ["src/zkode/diamond/Diamond.cairo"]
+DiamondCut = ["src/zkode/facets/upgradability/DiamondCut.cairo"]
+ERC1155 = ["src/zkode/facets/token/erc1155/ERC1155.cairo"]
+ERC20 = ["src/zkode/facets/token/erc20/ERC20.cairo"]
+ERC5114 = ["src/zkode/facets/token/erc5114/ERC5114.cairo"]
+ERC721 = ["src/zkode/facets/token/erc721/ERC721.cairo"]
+UniversalMetadata = ["src/zkode/facets/metadata/metadata/UniversalMetadata.cairo"]
+
+[build]
+cairo-path = ["./lib/cairo_streams/src/"]
+
+[test]
+cairo-path = ["./lib/cairo_streams/src/"]
+

@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: create venv
+      run: |
+        python3.9 -m venv $HOME/cairo_venv && source $HOME/cairo_venv/bin/activate
+    - name: install cairo-lang
+      run: |
+        pip3 install cairo-lang
+    - name: install protostar
+      run: |
+        curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
+    - name: install project dependencies
+      run: |
+        $HOME/.protostar/dist/protostar/protostar install
+    - name: check src format
+      run: |
+        $HOME/.protostar/dist/protostar/protostar format --check src
+    - name: check tests format
+      run: |
+        $HOME/.protostar/dist/protostar/protostar format --check tests
+    - name: run tests
+      run: |
+        $HOME/.protostar/dist/protostar/protostar test
