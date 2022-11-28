@@ -1,7 +1,7 @@
 {
-    "image": "",
-    "name": "zkode DApp NFT",
-    "description": "Ownership of smart contract with address equalling token id - powered by BrilliantBlocks https://brilliantblocks.io",
+    "image": "https://lihhjs4zhbnoesqtey6fhb4jo23alowlama57scmorqwzdiqbkqq.arweave.net/Wg50y5k4WuJKEyY8U4eJdrYFussDAd_ITHRhbI0QCqE",
+    "name": "ZKode DApp NFT",
+    "description": "Ownership of diamond smart contract - https://zkode.brilliantblocks.io",
     "properties": [
         { "dapp_info": "url", "value": "" },
         { "dapp_info": "name", "value": "" },
@@ -11,10 +11,18 @@
     "updatable": {
         "engine": "jsonata@v1.8.*",
         "recipes": {
-            "updateURL": "$ ~> | properties[dapp_info='url'] | 'value': $...",
-            "updateName": "$ ~> | properties[dapp_info='name'] | 'value': $...",
-            "updateDescription": "$ ~> | properties[dapp_info='description'] | 'value': $...",
-            "updateLogo": "$ ~> | properties[dapp_info='logo'] | 'value': $..."
+            "updateUrl": {
+                "eval": "$ ~> | properties[dapp_info='url'] | {'value': $newUrl} |"
+            },
+            "updateName": {
+                "eval": "$ ~> | properties[dapp_info='name'] | {'value': $newName} |"
+            },
+            "updateDescription": {
+                "eval": "$ ~> | properties[dapp_info='description'] | {'value': $newDescription} |"
+            },
+            "updateLogo": {
+                "eval": "$ ~> | properties[dapp_info='logo'] | {'value': $newLogo} |"
+            }
         }
     }
 }
