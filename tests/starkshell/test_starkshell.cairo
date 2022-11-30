@@ -177,7 +177,7 @@ namespace ITestShellFun {
     }
 
     func interpreteInstruction(
-        _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+        _debug: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
     ) -> (res_len: felt, res: felt*) {
     }
 }
@@ -282,7 +282,9 @@ func test_interpreteInstruction_reverts_if_caller_not_owner{
 
     %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
-    ITestShellFun.interpreteInstruction(diamond_address, program_len, program, memory_len, memory);
+    ITestShellFun.interpreteInstruction(
+        diamond_address, FALSE, program_len, program, memory_len, memory
+    );
     %{ stop_prank() %}
 
     return ();
@@ -325,7 +327,7 @@ func test_interpreteInstruction_returnCalldata{
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, program_len, program, memory_len, memory
+        diamond_address, FALSE, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}
     assert_eq(res_len, 2);
@@ -384,7 +386,7 @@ func test_interpreteInstruction_add{
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, program_len, program, memory_len, memory
+        diamond_address, FALSE, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
@@ -442,7 +444,7 @@ func test_interpreteInstruction_sub{
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, program_len, program, memory_len, memory
+        diamond_address, FALSE, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
@@ -500,7 +502,7 @@ func test_interpreteInstruction_mul{
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, program_len, program, memory_len, memory
+        diamond_address, FALSE, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
@@ -558,11 +560,68 @@ func test_interpreteInstruction_div{
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, program_len, program, memory_len, memory
+        diamond_address, FALSE, program_len, program, memory_len, memory
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
     assert_eq(res[0], 4);
+
+    return ();
+}
+
+@external
+func test_interpreteInstruction_emit_events_on_div{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() -> () {
+    alloc_locals;
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    let ch: ClassHash = getClassHashes();
+
+    local return_keyword;
+    local div_keyword;
+    local calldata_id;
+    local divvar_id;
+
+    %{
+        from starkware.starknet.public.abi import get_selector_from_name
+        ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
+        ids.div_keyword = get_selector_from_name("__ZKLANG__DIV")
+        ids.calldata_id = get_selector_from_name("__ZKLANG__CALLDATA_VAR")
+        ids.divvar_id = get_selector_from_name("my_res_variable")
+    %}
+
+    tempvar NULLvar = Variable(0, 0, 0, 0);
+    tempvar Calldata = Variable(calldata_id, 0, 0, 0);
+    tempvar divvar = Variable(divvar_id, 0, 0, 0);
+
+    tempvar instruction0 = Instruction(
+        primitive=Primitive(ch.starkshell, div_keyword),
+        input1=Calldata,
+        input2=NULLvar,
+        output=divvar,
+        );
+
+    tempvar instruction1 = Instruction(
+        primitive=Primitive(ch.starkshell, return_keyword),
+        input1=divvar,
+        input2=NULLvar,
+        output=NULLvar,
+        );
+
+    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
+    tempvar program = new (instruction0, instruction1);
+    tempvar memory = new (Calldata, 8, 2, divvar);
+
+    local program_len = 2 * Instruction.SIZE;
+    local memory_len = 2 * Variable.SIZE + Calldata.data_len;
+
+    %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
+    %{ expect_events({"name": "InterpreterMemory", "data": [11, ids.calldata_id, 0, 0, 2, 8, 2, ids.divvar_id, 0, 0, 1, 4]}, {"name": "InterpreterResult", "data": [1, 4]}) %}
+    ITestShellFun.interpreteInstruction(
+        diamond_address, TRUE, program_len, program, memory_len, memory
+    );
+    %{ stop_prank() %}
 
     return ();
 }

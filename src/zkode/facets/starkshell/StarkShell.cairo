@@ -26,6 +26,14 @@ from src.zkode.facets.starkshell.primitives.core import (
     __ZKLANG__DIV,
 )
 
+@event
+func InterpreterMemory(mem_len: felt, mem: felt*) {
+}
+
+@event
+func InterpreterResult(res_len: felt, res: felt*) {
+}
+
 @external
 @raw_input
 @raw_output
@@ -175,18 +183,31 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     }
 }
 
+// @param _debug: bool flag for emit memory
 @external
 func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+    _debug: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
 ) -> (res_len: felt, res: felt*) {
-    // TODO return state
-    let (res_len, res, _, _) = exec_loop(
+    alloc_locals;
+
+    let (res_len, res, memory_len, memory) = exec_loop(
         _pc=0,
         _program_len=_program_len,
         _program=_program,
         _memory_len=_memory_len,
         _memory=_memory,
     );
+
+    if (_debug == TRUE) {
+        InterpreterMemory.emit(memory_len, memory);
+        tempvar syscall_ptr = syscall_ptr;
+        tempvar range_check_ptr = range_check_ptr;
+    } else {
+        tempvar syscall_ptr = syscall_ptr;
+        tempvar range_check_ptr = range_check_ptr;
+    }
+
+    InterpreterResult.emit(res_len, res);
 
     return (res_len, res);
 }
