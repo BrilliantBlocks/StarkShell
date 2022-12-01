@@ -165,7 +165,7 @@ func deployRootDiamond{
     let (code_len, code) = setShellFun();
     let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
 
-    // TODO prank cheatcode?
+    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.rootFactory) %}
     let (rootDiamond) = IBootstrapper.deployRootDiamond(
         addr.rootFactory,
         ch,
@@ -176,6 +176,7 @@ func deployRootDiamond{
         mintContract_code_len,
         mintContract_code,
     );
+    %{ stop_prank() %}
 
     %{ context.rootDiamond = ids.rootDiamond %}
 
