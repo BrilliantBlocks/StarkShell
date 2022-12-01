@@ -247,11 +247,9 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
 
     let instruction_len = 19 * Instruction.SIZE;
     let memory_layout_len = 10 * Variable.SIZE + facet_key.data_len + diamond_hash.data_len + diamondCut.data_len;
-    let total_len = instruction_len + memory_layout_len + 1;
-    let felt_code_len = total_len + 1;
+    let felt_code_len = instruction_len + memory_layout_len + 1;
 
     tempvar felt_code: felt* = new (
-        total_len,
         instruction_len,
         instruction0,
         instruction1,

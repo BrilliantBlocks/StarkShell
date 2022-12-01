@@ -64,8 +64,8 @@ func test_store_populates_non_zero_flob{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    tempvar testdata: felt* = new (5, 1, 2, 3, 4, 5);
-    let (hash) = IFlobDB.store(diamond_address, 6, testdata);
+    tempvar testdata: felt* = new (1, 2, 3, 4, 5);
+    let (hash) = IFlobDB.store(diamond_address, 5, testdata);
 
     let (actual_data_len, actual_data) = IFlobDB.load(diamond_address, hash);
     assert_eq(actual_data_len, 5);
@@ -86,8 +86,8 @@ func test_store_populates_zero_ish_flob{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    tempvar testdata: felt* = new (6, 1, 0, 0, 0, 0, 0);
-    let (hash) = IFlobDB.store(diamond_address, 7, testdata);
+    tempvar testdata: felt* = new (1, 0, 0, 0, 0, 0);
+    let (hash) = IFlobDB.store(diamond_address, 6, testdata);
 
     let (actual_data_len, actual_data) = IFlobDB.load(diamond_address, hash);
     assert_eq(actual_data_len, 6);
@@ -109,14 +109,14 @@ func test_store_maintains_consistency_over_multiple_flobs{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    tempvar testdata: felt* = new (6, 0, 0, 0, 0, 0, 0);
-    let (hash) = IFlobDB.store(diamond_address, 7, testdata);
-
-    tempvar testdata: felt* = new (5, 1, 2, 3, 4, 5);
+    tempvar testdata: felt* = new (0, 0, 0, 0, 0, 0);
     let (hash) = IFlobDB.store(diamond_address, 6, testdata);
 
-    tempvar testdata: felt* = new (7, 1, 2, 3, 4, 5, 1, -1000);
-    let (hash) = IFlobDB.store(diamond_address, 8, testdata);
+    tempvar testdata: felt* = new (1, 2, 3, 4, 5);
+    let (hash) = IFlobDB.store(diamond_address, 5, testdata);
+
+    tempvar testdata: felt* = new (1, 2, 3, 4, 5, 1, -1000);
+    let (hash) = IFlobDB.store(diamond_address, 7, testdata);
 
     return ();
 }
@@ -130,8 +130,8 @@ func test_store_does_not_write_to_tmp_var{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    tempvar testdata: felt* = new (5, 1, 2, 3, 4, 5);
-    IFlobDB.store(diamond_address, 6, testdata);
+    tempvar testdata: felt* = new (1, 2, 3, 4, 5);
+    IFlobDB.store(diamond_address, 5, testdata);
     %{
         tmp_var = load(context.diamond_address, "storage_internal_temp_var", "felt")[0]
         assert tmp_var == 0
@@ -148,8 +148,8 @@ func test_loadCell_of_zero_returns_first_element{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    tempvar testdata: felt* = new (6, 2, 0, 0, 0, 0, 0);
-    let (hash) = IFlobDB.store(diamond_address, 7, testdata);
+    tempvar testdata: felt* = new (2, 0, 0, 0, 0, 0);
+    let (hash) = IFlobDB.store(diamond_address, 6, testdata);
 
     let (actual_data) = IFlobDB.loadCell(diamond_address, hash, 0);
     assert_eq(actual_data, 2);
@@ -165,8 +165,8 @@ func test_loadCell_of_last_index_returns_last_element{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    tempvar testdata: felt* = new (6, 2, 0, 0, 0, 0, 3);
-    let (hash) = IFlobDB.store(diamond_address, 7, testdata);
+    tempvar testdata: felt* = new (2, 0, 0, 0, 0, 3);
+    let (hash) = IFlobDB.store(diamond_address, 6, testdata);
 
     let (actual_data) = IFlobDB.loadCell(diamond_address, hash, 5);
     assert_eq(actual_data, 3);
@@ -185,8 +185,8 @@ func test_loadRange__returns_subset{
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
 
-    tempvar testdata: felt* = new (6, 2, 0, 0, 0, 0, 3);
-    let (hash) = IFlobDB.store(diamond_address, 7, testdata);
+    tempvar testdata: felt* = new (2, 0, 0, 0, 0, 3);
+    let (hash) = IFlobDB.store(diamond_address, 6, testdata);
 
     let (actual_data_len, actual_data) = IFlobDB.loadRange(diamond_address, hash, 3, 5);
     assert_eq(actual_data_len, 3);

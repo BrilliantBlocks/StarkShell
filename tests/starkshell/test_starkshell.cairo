@@ -3,6 +3,7 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
+from starkware.cairo.common.memcpy import memcpy
 
 from src.zkode.diamond.structs import FacetCut, FacetCutAction
 from src.zkode.facets.starkshell.structs import Function, Instruction, Primitive, Variable
@@ -54,8 +55,11 @@ func __setup__{
     %{ context.program_hash = ids.program_hash %}
 
     // setShellFun already included in repo
-    let (_, felt_code) = setShellFun();
-    let (setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(felt_code);
+    let (felt_code_len, felt_code) = setShellFun();
+    let (local compact_array: felt*) = alloc();
+    assert compact_array[0] = felt_code_len;
+    memcpy(compact_array + 1, felt_code, felt_code_len);
+    let (setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(compact_array);
 
     let (felt_code_len, felt_code) = invertBoolean();
     let (invertBoolean_hash) = IFlobDB.store(rootDiamond, felt_code_len, felt_code);

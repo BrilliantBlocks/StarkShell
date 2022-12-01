@@ -4,9 +4,8 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
 from starkware.cairo.common.math import assert_le
+from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.registers import get_label_location
-
-from onlydust.stream.default_implementation import stream
 
 from src.zkode.constants import FUNCTION_SELECTORS
 
@@ -18,45 +17,51 @@ func Store(hash: felt) {
 func storage_(i: felt) -> (data: felt) {
 }
 
-// @dev Always reset to zero
-@storage_var
-func storage_internal_temp_var() -> (res: felt) {
-}
-
-// @notice _felt_code[0] = _felt_code_len
+// @emit Store
 @external
 func store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     _data_len: felt, _data: felt*
 ) -> (res: felt) {
     alloc_locals;
 
-    let (hash) = hash_chain{hash_ptr=pedersen_ptr}(_data);
-    storage_internal_temp_var.write(hash);
-    stream.foreach(_storeCell, _data_len, _data);
-    storage_internal_temp_var.write(0);
+    // push _data_len on _data and compute hash
+    let (local compact_array: felt*) = alloc();
+    assert compact_array[0] = _data_len;
+    memcpy(compact_array + 1, _data, _data_len);
+
+    let (local hash) = hash_chain{hash_ptr=pedersen_ptr}(compact_array);
+
+    // store _data as felt array beginning with its hash as index
+    _store(hash, _data_len, _data);
+    // store _data_len at index 0
+    storage_.write(hash, _data_len);
     Store.emit(hash);
 
     return (res=hash);
 }
 
-func _storeCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    index: felt, element: felt*
+func _store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    _hash: felt, _data_len: felt, _data: felt*
 ) {
-    let (hash) = storage_internal_temp_var.read();
-    let (data) = storage_.read(hash + index);
-    with_attr error_message("OVERWRITE CELL") {
-        assert data = 0;
+    alloc_locals;
+
+    if (_data_len == 0) {
+        return ();
     }
-    storage_.write(hash + index, element[0]);
-    return ();
+
+    local last_element: felt = _data[_data_len - 1];
+    local offset: felt = _data_len;
+    storage_.write(_hash + offset, last_element);
+
+    return _store(_hash, _data_len - 1, _data);
 }
 
 @view
 func load{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(_hash: felt) -> (
     res_len: felt, res: felt*
 ) {
-    let (blob_len) = storage_.read(_hash);
-    let (val_len, val) = loadRange(_hash, 0, blob_len - 1);
+    let (flob_len) = storage_.read(_hash);
+    let (val_len, val) = loadRange(_hash, 0, flob_len - 1);
     return (val_len, val);
 }
 
@@ -82,14 +87,14 @@ func loadRange{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             "INVALID OFFSETS hash={_hash} start={_offset_start} < end={_offset_end}") {
         assert_le(_offset_start, _offset_end);
     }
-    let (blob_len) = storage_.read(_hash);
+    let (flob_len) = storage_.read(_hash);
     with_attr error_message("OFFSET IS OUT OF RANGE") {
-        assert_le(_offset_end, blob_len);
+        assert_le(_offset_end, flob_len);
     }
-    let (local blob: felt*) = alloc();
-    _load(blob, _hash, _offset_start, _offset_end);
-    let blob_len = _offset_end - _offset_start + 1;
-    return (blob_len, blob);
+    let (local flob: felt*) = alloc();
+    _load(flob, _hash, _offset_start, _offset_end);
+    let flob_len = _offset_end - _offset_start + 1;
+    return (flob_len, flob);
 }
 
 @view
@@ -107,15 +112,19 @@ func loadCell{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 // @dev Initialize this facet
 @external
 func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _n: felt, _data_len: felt, _data: felt*
+    _flob_count: felt, _data_len: felt, _data: felt*
 ) -> () {
-    if (_n == 0) {
+    alloc_locals;
+
+    if (_flob_count == 0) {
         return ();
     }
 
-    store(_data[0], _data);
+    store(_data[0], _data + 1);
 
-    return __constructor__(_n - 1, _data_len - _data[0] - 1, _data + _data[0] + 1);
+    return __constructor__(
+        _flob_count=_flob_count - 1, _data_len=_data_len - _data[0] - 1, _data=_data + _data[0] + 1
+    );
 }
 
 // @dev Remove this facet

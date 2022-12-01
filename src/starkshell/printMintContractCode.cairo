@@ -17,6 +17,7 @@ func main{output_ptr: felt*}() {
     let (felt_code_len, felt_code) = mintContract(
         _diamond_hash=diamond_hash, _erc721_hash=erc721_hash
     );
+    serialize_word(felt_code_len);
     print(felt_code_len, felt_code);
 
     return ();

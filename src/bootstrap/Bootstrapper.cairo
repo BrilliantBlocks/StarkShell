@@ -42,12 +42,6 @@ struct ERC721Calldata {
     tokenId_high: felt,
 }
 
-struct FlobDbCalldata {
-    receiver: felt,
-    tokenId_len: felt,  // 1
-    tokenId0: Uint256,
-}
-
 struct StarkShellCalldata {
     function0: Function,
     function1: Function,
@@ -89,8 +83,20 @@ func deployRootDiamond{
 
     let (caller) = get_caller_address();
     let (self) = get_contract_address();
-    let (setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(_setShellFun_compiled);
-    let (mintContract_hash) = hash_chain{hash_ptr=pedersen_ptr}(_mintContract_compiled);
+
+    // push _data_len on _data and compute hash
+    let (local compact_array: felt*) = alloc();
+    assert compact_array[0] = _setShellFun_compiled_len;
+    memcpy(compact_array + 1, _setShellFun_compiled, _setShellFun_compiled_len);
+
+    let (local setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(compact_array);
+
+    // push _data_len on _data and compute hash
+    let (local compact_array: felt*) = alloc();
+    assert compact_array[0] = _mintContract_compiled_len;
+    memcpy(compact_array + 1, _mintContract_compiled, _mintContract_compiled_len);
+    let (mintContract_hash) = hash_chain{hash_ptr=pedersen_ptr}(compact_array);
+
     let (block_number) = get_block_number();
     let salt = block_number * caller;
 
@@ -201,21 +207,25 @@ func init{
     memcpy(calldata, tmp, tmp_len);
     let new_len = tmp_len;
 
-    assert calldata[new_len] = 1 + _setShellFun_compiled_len + _mintContract_compiled_len + 1;
+    assert calldata[new_len] = _setShellFun_compiled_len + _mintContract_compiled_len + 4;
     let new_len = new_len + 1;
 
     assert calldata[new_len] = 2;
     let new_len = new_len + 1;
 
     // total array len
-    assert calldata[new_len] = _setShellFun_compiled_len + _mintContract_compiled_len;
+    assert calldata[new_len] = _setShellFun_compiled_len + _mintContract_compiled_len + 2;
     let new_len = new_len + 1;
 
     // memcpy first_array
+    assert calldata[new_len] = _setShellFun_compiled_len;
+    let new_len = new_len + 1;
     memcpy(calldata + new_len, _setShellFun_compiled, _setShellFun_compiled_len);
     let new_len = new_len + _setShellFun_compiled_len;
 
     // memcpy second array
+    assert calldata[new_len] = _mintContract_compiled_len;
+    let new_len = new_len + 1;
     memcpy(calldata + new_len, _mintContract_compiled, _mintContract_compiled_len);
     let new_len = new_len + _mintContract_compiled_len;
 

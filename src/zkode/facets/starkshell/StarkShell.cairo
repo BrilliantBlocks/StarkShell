@@ -45,7 +45,22 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
         );
     }
 
-    // split flob into program and memory
+    // local x = program_raw_len;
+    // local a0 = program_raw[0];
+    // local a1 = program_raw[1];
+    // local a2 = program_raw[2];
+    // local a3 = program_raw[3];
+    // local a4 = program_raw[4];
+    // local a5 = program_raw[5];
+    // local a6 = program_raw[6];
+    // local a7 = program_raw[7];
+    // local a8 = program_raw[8];
+    // local a9 = program_raw[9];
+    // with_attr error_message("AFTER LOAD {x} {a0} {a1} {a2} {a3} {a4} {a5} {a6} {a7} {a8} {a9}") {
+    //     assert 1 = 0;
+    // }
+
+    // split flob into progra and memory
     local program_len: felt = program_raw[0];
     local program: felt* = program_raw + 1;
     local memory_len: felt = program_raw_len - 1 - program_len;

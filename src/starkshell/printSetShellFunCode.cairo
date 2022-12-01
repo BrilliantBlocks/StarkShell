@@ -6,6 +6,7 @@ from src.starkshell.setShellFun import setShellFun
 func main{output_ptr: felt*}() {
     // Replace with required function
     let (felt_code_len, felt_code) = setShellFun();
+    serialize_word(felt_code_len);
     print(felt_code_len, felt_code);
 
     return ();
