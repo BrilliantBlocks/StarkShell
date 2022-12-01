@@ -186,16 +186,30 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 // @param _debug: bool flag for emit memory
 @external
 func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _debug: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+    _debug: felt,
+    _program_len: felt,
+    _program: felt*,
+    _memory_len: felt,
+    _memory: felt*,
+    _calldata_len: felt,
+    _calldata: felt*,
 ) -> (res_len: felt, res: felt*) {
     alloc_locals;
 
+    // TODO prepare program (i.e. replace zero class hashes with this class hash)
+    // let (prep_program_len, prep_program) = Program.prepare(selector, _program_len, _program);
+    local prep_program_len: felt = _program_len;
+    local prep_program: felt* = _program;
+    let (prep_memory_len, prep_memory) = Memory.init(
+        _memory_len, _memory, _calldata_len, _calldata
+    );
+
     let (res_len, res, memory_len, memory) = exec_loop(
         _pc=0,
-        _program_len=_program_len,
-        _program=_program,
-        _memory_len=_memory_len,
-        _memory=_memory,
+        _program_len=prep_program_len,
+        _program=prep_program,
+        _memory_len=prep_memory_len,
+        _memory=prep_memory,
     );
 
     if (_debug == TRUE) {

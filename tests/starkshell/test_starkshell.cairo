@@ -177,7 +177,13 @@ namespace ITestShellFun {
     }
 
     func interpreteInstruction(
-        _debug: felt, _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
+        _debug: felt,
+        _program_len: felt,
+        _program: felt*,
+        _memory_len: felt,
+        _memory: felt*,
+        _calldata_len: felt,
+        _calldata: felt*,
     ) -> (res_len: felt, res: felt*) {
     }
 }
@@ -276,14 +282,23 @@ func test_interpreteInstruction_reverts_if_caller_not_owner{
 
     tempvar program = new ();
     tempvar memory = new ();
+    tempvar calldata = new ();
 
     local program_len = 0;
     local memory_len = 0;
+    local calldata_len = 0;
 
     %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
     ITestShellFun.interpreteInstruction(
-        diamond_address, FALSE, program_len, program, memory_len, memory
+        diamond_address,
+        _debug=FALSE,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
+        _calldata_len=calldata_len,
+        _calldata=calldata,
     );
     %{ stop_prank() %}
 
@@ -318,16 +333,24 @@ func test_interpreteInstruction_returnCalldata{
         output=NULLvar,
         );
 
-    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
     tempvar program = new (instruction0);
-    tempvar memory = new (Calldata, 3, 4);
+    tempvar memory = new ();
+    tempvar calldata = new (3, 4);
 
     local program_len = 1 * Instruction.SIZE;
-    local memory_len = 1 * Variable.SIZE + Calldata.data_len;
+    local memory_len = 0;
+    local calldata_len = 2;
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, FALSE, program_len, program, memory_len, memory
+        diamond_address,
+        _debug=FALSE,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
+        _calldata_len=calldata_len,
+        _calldata=calldata,
     );
     %{ stop_prank() %}
     assert_eq(res_len, 2);
@@ -377,16 +400,24 @@ func test_interpreteInstruction_add{
         output=NULLvar,
         );
 
-    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
     tempvar program = new (instruction0, instruction1);
-    tempvar memory = new (Calldata, 3, 4, sumvar);
+    tempvar memory = new (sumvar);
+    tempvar calldata = new (3, 4);
 
     local program_len = 2 * Instruction.SIZE;
-    local memory_len = 2 * Variable.SIZE + Calldata.data_len;
+    local memory_len = 1 * Variable.SIZE;
+    local calldata_len = 2;
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, FALSE, program_len, program, memory_len, memory
+        diamond_address,
+        _debug=FALSE,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
+        _calldata_len=calldata_len,
+        _calldata=calldata,
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
@@ -435,16 +466,24 @@ func test_interpreteInstruction_sub{
         output=NULLvar,
         );
 
-    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
     tempvar program = new (instruction0, instruction1);
-    tempvar memory = new (Calldata, 4, 3, subvar);
+    tempvar memory = new (subvar);
+    tempvar calldata = new (4, 3);
 
     local program_len = 2 * Instruction.SIZE;
-    local memory_len = 2 * Variable.SIZE + Calldata.data_len;
+    local memory_len = 1 * Variable.SIZE;
+    local calldata_len = 2;
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, FALSE, program_len, program, memory_len, memory
+        diamond_address,
+        _debug=FALSE,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
+        _calldata_len=calldata_len,
+        _calldata=calldata,
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
@@ -493,16 +532,24 @@ func test_interpreteInstruction_mul{
         output=NULLvar,
         );
 
-    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
     tempvar program = new (instruction0, instruction1);
-    tempvar memory = new (Calldata, 4, 3, mulvar);
+    tempvar memory = new (mulvar);
+    tempvar calldata = new (4, 3);
 
     local program_len = 2 * Instruction.SIZE;
-    local memory_len = 2 * Variable.SIZE + Calldata.data_len;
+    local memory_len = 1 * Variable.SIZE;
+    local calldata_len = 2;
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, FALSE, program_len, program, memory_len, memory
+        diamond_address,
+        _debug=FALSE,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
+        _calldata_len=calldata_len,
+        _calldata=calldata,
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
@@ -551,16 +598,24 @@ func test_interpreteInstruction_div{
         output=NULLvar,
         );
 
-    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
     tempvar program = new (instruction0, instruction1);
-    tempvar memory = new (Calldata, 8, 2, divvar);
+    tempvar memory = new (divvar);
+    tempvar calldata = new (8, 2);
 
     local program_len = 2 * Instruction.SIZE;
-    local memory_len = 2 * Variable.SIZE + Calldata.data_len;
+    local memory_len = 1 * Variable.SIZE;
+    local calldata_len = 2;
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
     let (res_len, res) = ITestShellFun.interpreteInstruction(
-        diamond_address, FALSE, program_len, program, memory_len, memory
+        diamond_address,
+        _debug=FALSE,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
+        _calldata_len=calldata_len,
+        _calldata=calldata,
     );
     %{ stop_prank() %}
     assert_eq(res_len, 1);
@@ -609,17 +664,25 @@ func test_interpreteInstruction_emit_events_on_div{
         output=NULLvar,
         );
 
-    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
     tempvar program = new (instruction0, instruction1);
-    tempvar memory = new (Calldata, 8, 2, divvar);
+    tempvar memory = new (divvar);
+    tempvar calldata = new (8, 2);
 
     local program_len = 2 * Instruction.SIZE;
-    local memory_len = 2 * Variable.SIZE + Calldata.data_len;
+    local memory_len = 1 * Variable.SIZE;
+    local calldata_len = 2;
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
-    %{ expect_events({"name": "InterpreterMemory", "data": [11, ids.calldata_id, 0, 0, 2, 8, 2, ids.divvar_id, 0, 0, 1, 4]}, {"name": "InterpreterResult", "data": [1, 4]}) %}
+    %{ expect_events({"name": "InterpreterResult", "data": [1, 4]}) %}
     ITestShellFun.interpreteInstruction(
-        diamond_address, TRUE, program_len, program, memory_len, memory
+        diamond_address,
+        _debug=TRUE,
+        _program_len=program_len,
+        _program=program,
+        _memory_len=memory_len,
+        _memory=memory,
+        _calldata_len=calldata_len,
+        _calldata=calldata,
     );
     %{ stop_prank() %}
 

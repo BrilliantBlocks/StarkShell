@@ -1,9 +1,10 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
+from starkware.cairo.common.memcpy import memcpy
 
 from src.zkode.facets.starkshell.structs import Primitive, Variable, Instruction
 
-func mul() -> (res_len: felt, res: felt*) {
+func mul(_x: felt, _y: felt) -> (res_len: felt, res: felt*) {
     alloc_locals;
 
     local return_keyword;
@@ -41,23 +42,31 @@ func mul() -> (res_len: felt, res: felt*) {
         output=NULLvar,
         );
 
-    tempvar Calldata = Variable(calldata_id, 0, 0, 2);
     tempvar program = new (instruction0, instruction1);
-    tempvar memory = (Calldata, 4, 3, mulvar);
+    tempvar memory = new (mulvar);
+    tempvar calldata = new (_x, _y);
 
     local program_len = 2 * Instruction.SIZE;
-    local memory_len = 2 * Variable.SIZE + Calldata.data_len;
+    local memory_len = 1 * Variable.SIZE;
+    local calldata_len = 2;
 
-    let total_len = program_len + memory_len + 1;
-    let felt_code_len = total_len + 1;
-
-    tempvar felt_code: felt* = new (
-        program_len,
-        instruction0,
-        instruction1,
-        memory_len,
-        memory,
-        );
+    let (local felt_code: felt*) = alloc();
+    let felt_code_len = 0;
+    let felt_code_len = append(felt_code_len, felt_code, program_len, program);
+    let felt_code_len = append(felt_code_len, felt_code, memory_len, memory);
+    let felt_code_len = append(felt_code_len, felt_code, calldata_len, calldata);
 
     return (felt_code_len, felt_code);
+}
+
+// @dev Append _array to _ptr
+// @return New length of _ptr
+func append(_ptr_len: felt, _ptr: felt*, _array_len: felt, _array: felt*) -> felt {
+    assert _ptr[_ptr_len] = _array_len;
+    let _ptr_len = _ptr_len + 1;
+
+    memcpy(_ptr + _ptr_len, _array, _array_len);
+    let _ptr_len = _ptr_len + _array_len;
+
+    return _ptr_len;
 }

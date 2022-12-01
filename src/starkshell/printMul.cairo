@@ -5,7 +5,7 @@ from src.starkshell.mul import mul
 
 func main{output_ptr: felt*}() {
     // Replace with required function
-    let (felt_code_len, felt_code) = mul();
+    let (felt_code_len, felt_code) = mul(4, 3);
     print(felt_code_len, felt_code);
 
     return ();
