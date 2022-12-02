@@ -11,7 +11,6 @@ from starkware.starknet.common.syscalls import (
 )
 
 from src.zkode.constants import API
-from src.zkode.diamond.IDiamond import IDiamond
 from src.zkode.diamond.library import Library
 from src.zkode.facets.starkshell.structs import (
     DataTypes,
@@ -65,19 +64,18 @@ namespace Program {
     }
 
     func prepare{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _selector: felt, _program_raw_len: felt, _program_raw: felt*
+        _this_starkshell_hash: felt, _program_raw_len: felt, _program_raw: felt*
     ) -> (program_len: felt, program: felt*) {
         alloc_locals;
-        // validate(_program_raw[0], _program_raw + 1);
-        validate(_program_raw_len, _program_raw);
 
-        let (this_diamond) = get_contract_address();
-        let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
+        validate(_program_raw_len, _program_raw);
 
         let (local program: felt*) = alloc();
         let program_len = _program_raw_len;
 
-        replace_zero_class_hashes_with_self(program, this_zklang, _program_raw_len, _program_raw);
+        replace_zero_class_hashes_with_self(
+            program, _this_starkshell_hash, _program_raw_len, _program_raw
+        );
 
         return (program_len, program);
     }
