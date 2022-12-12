@@ -11,8 +11,10 @@ from src.zkode.facets.storage.flobdb.IFlobDB import IFlobDB
 from src.zkode.facets.starkshell.library import Program, Memory, State
 from src.zkode.facets.starkshell.structs import Function, Variable
 from src.zkode.facets.starkshell.primitives.core import (
+    __ZKLANG__ASSERT_EQ,
     __ZKLANG__EVENT,
     __ZKLANG__RETURN,
+    __ZKLANG__FILTER_VAR,
     __ZKLANG__BRANCH,
     __ZKLANG__SET_FUNCTION,
     __ZKLANG__ASSERT_ONLY_OWNER,
@@ -75,6 +77,8 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     // filter current instruction from program table
     let instruction = Program.get_instruction(_pc, _program_len, _program);
 
+    local pc = _pc + 1;
+
     // TODO refactor pop
     if (instruction.primitive.selector == API.CORE.__ZKLANG__NOOP and
         instruction.input1.selector == 0) {
@@ -89,9 +93,9 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             instruction.output.selector, _memory_len, _memory, var[0], var + 1
         );
 
-        with_attr error_message("EXEC INSTRUCTION {_pc + 1}") {
+        with_attr error_message("EXEC INSTRUCTION {pc}") {
             return exec_loop(
-                _pc=_pc + 1,
+                _pc=pc,
                 _program_len=_program_len,
                 _program=_program,
                 _memory_len=new_memory_len,
@@ -114,9 +118,9 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
             instruction.output.selector, _memory_len, _memory, var[0], var + 1
         );
 
-        with_attr error_message("EXEC INSTRUCTION {_pc + 1}") {
+        with_attr error_message("EXEC INSTRUCTION {pc}") {
             return exec_loop(
-                _pc=_pc + 1,
+                _pc=pc,
                 _program_len=_program_len,
                 _program=_program,
                 _memory_len=new_memory_len,
@@ -130,7 +134,7 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     );
 
     // TODO remove temporary fix
-    let calldata_len = calldata[0];
+    local calldata_len = calldata[0];
     let calldata = calldata + 1;
 
     with_attr error_message("PRIMITIVE EXEC ERROR") {
@@ -164,9 +168,9 @@ func exec_loop{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         );
     }
 
-    with_attr error_message("EXEC INSTRUCTION {_pc + 1}") {
+    with_attr error_message("EXEC INSTRUCTION {pc}") {
         return exec_loop(
-            _pc=_pc + 1,
+            _pc=pc,
             _program_len=_program_len,
             _program=_program,
             _memory_len=new_memory_len,

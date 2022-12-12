@@ -893,6 +893,21 @@ func test_load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     assert_eq(var[1], TRUE);
     assert_eq(var[2], FALSE);
 
+    let (var_len, var) = Memory.load_variable_payload(
+        var0.selector, var2.selector, memory_len, memory
+    );
+
+    assert_eq(var_len, var0.data_len + var2.data_len + 1);
+    assert_eq(var[0], var0.data_len + var2.data_len);
+    assert_eq(var[1], 4);
+    assert_eq(var[2], 3);
+    assert_eq(var[3], 2);
+    assert_eq(var[4], 1);
+    assert_eq(var[5], 0);
+    assert_eq(var[6], TRUE);
+    assert_eq(var[7], FALSE);
+    assert_eq(var[8], TRUE);
+
     return ();
 }
 

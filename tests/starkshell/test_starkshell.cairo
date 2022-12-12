@@ -3,7 +3,9 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
+from starkware.cairo.common.math import split_felt
 
+from src.zkode.constants import FUNCTION_SELECTORS
 from src.zkode.diamond.structs import FacetCut, FacetCutAction
 from src.zkode.facets.starkshell.structs import Function, Instruction, Primitive, Variable
 
@@ -170,6 +172,9 @@ namespace ITestShellFun {
     func setShellFun(_fun: Function) -> () {
     }
 
+    func updateMetadata(_low: felt, _high: felt, _data: felt) -> () {
+    }
+
     func foo(x: felt, y: felt) -> (x_res: felt, y_res: felt) {
     }
 
@@ -180,6 +185,25 @@ namespace ITestShellFun {
         _program_len: felt, _program: felt*, _memory_len: felt, _memory: felt*
     ) -> (res_len: felt, res: felt*) {
     }
+}
+
+@external
+func test_updateMetadata{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> () {
+    alloc_locals;
+    local diamond_address;
+    %{ ids.diamond_address = context.diamond_address %}
+    local root;
+    %{ ids.root= context.rootDiamond %}
+
+    let (high, low) = split_felt(diamond_address);
+    local data = 'my_diamond_name';
+
+    %{ expect_events({"name": "name", "data": [ids.data]}) %}
+    %{ stop_prank = start_prank(ids.User1, context.rootDiamond) %}
+    ITestShellFun.updateMetadata(root, low, high, data);
+    %{ stop_prank() %}
+
+    return ();
 }
 
 @external

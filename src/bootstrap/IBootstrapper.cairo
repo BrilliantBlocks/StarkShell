@@ -13,6 +13,9 @@ namespace IBootstrapper {
         _mintContract_selector: felt,
         _mintContract_compiled_len: felt,
         _mintContract_compiled: felt*,
+        _updateMetadata_selector: felt,
+        _updateMetadata_compiled_len: felt,
+        _updateMetadata_compiled: felt*,
     ) -> (rootAddress: felt) {
     }
 
@@ -28,6 +31,10 @@ namespace IBootstrapper {
         _mintContract_hash: felt,
         _mintContract_compiled_len: felt,
         _mintContract_compiled: felt*,
+        _updateMetadata_selector: felt,
+        _updateMetadata_hash: felt,
+        _updateMetadata_compiled_len: felt,
+        _updateMetadata_compiled: felt*,
     ) -> () {
     }
 }

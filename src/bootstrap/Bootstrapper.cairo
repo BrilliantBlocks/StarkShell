@@ -51,6 +51,7 @@ struct FlobDbCalldata {
 struct StarkShellCalldata {
     function0: Function,
     function1: Function,
+    function2: Function,
 }
 
 struct DiamondCutCalldata {
@@ -84,6 +85,9 @@ func deployRootDiamond{
     _mintContract_selector: felt,
     _mintContract_compiled_len: felt,
     _mintContract_compiled: felt*,
+    _updateMetadata_selector: felt,
+    _updateMetadata_compiled_len: felt,
+    _updateMetadata_compiled: felt*,
 ) -> (rootAddress: felt) {
     alloc_locals;
 
@@ -91,6 +95,8 @@ func deployRootDiamond{
     let (self) = get_contract_address();
     let (setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(_setShellFun_compiled);
     let (mintContract_hash) = hash_chain{hash_ptr=pedersen_ptr}(_mintContract_compiled);
+    let (updateMetadata_hash) = hash_chain{hash_ptr=pedersen_ptr}(_updateMetadata_compiled);
+
     let (block_number) = get_block_number();
     let salt = block_number * caller;
 
@@ -127,6 +133,10 @@ func deployRootDiamond{
         mintContract_hash,
         _mintContract_compiled_len,
         _mintContract_compiled,
+        _updateMetadata_selector,
+        updateMetadata_hash,
+        _updateMetadata_compiled_len,
+        _updateMetadata_compiled,
     );
 
     NewRootDiamond.emit(address);
@@ -150,6 +160,10 @@ func init{
     _mintContract_hash: felt,
     _mintContract_compiled_len: felt,
     _mintContract_compiled: felt*,
+    _updateMetadata_selector: felt,
+    _updateMetadata_hash: felt,
+    _updateMetadata_compiled_len: felt,
+    _updateMetadata_compiled: felt*,
 ) -> () {
     alloc_locals;
 
@@ -189,8 +203,8 @@ func init{
             tokenId_high=high,
             ),
         StarkShellCalldata.SIZE + 1,
-        2,
-        StarkShellCalldata(Function(_setShellFun_selector, _setShellFun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0)),
+        3,
+        StarkShellCalldata(Function(_setShellFun_selector, _setShellFun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0), Function(_updateMetadata_selector, _updateMetadata_hash, 0)),
         DiamondCutCalldata.SIZE,
         DiamondCutCalldata(0),
         11, 0, 0, 0, 4, 184555836509371486644856095017587421344261193474617388276263770152936827443, 203998027954878725543997547266317984232748597657159516903365148909254028897, 202244606418614541364902086132942206699045874315590809968639424267107263609, 10754949894223100254076072945295018243026244912222009195, FALSE, 0, 0,  // https://m4chgvnjpozvm7p7jeo7vj3susfrkuencv6j5bf3u6mokcshjmeq.arweave.net/ZwRzVal7s1Z9_0kd-qdypIsVUI0VfJ6Eu6eY5QpHSwk
@@ -201,14 +215,14 @@ func init{
     memcpy(calldata, tmp, tmp_len);
     let new_len = tmp_len;
 
-    assert calldata[new_len] = 1 + _setShellFun_compiled_len + _mintContract_compiled_len + 1;
+    assert calldata[new_len] = 1 + _setShellFun_compiled_len + _mintContract_compiled_len + _updateMetadata_compiled_len + 1;
     let new_len = new_len + 1;
 
-    assert calldata[new_len] = 2;
+    assert calldata[new_len] = 3;
     let new_len = new_len + 1;
 
     // total array len
-    assert calldata[new_len] = _setShellFun_compiled_len + _mintContract_compiled_len;
+    assert calldata[new_len] = _setShellFun_compiled_len + _mintContract_compiled_len + _updateMetadata_compiled_len;
     let new_len = new_len + 1;
 
     // memcpy first_array
@@ -218,6 +232,10 @@ func init{
     // memcpy second array
     memcpy(calldata + new_len, _mintContract_compiled, _mintContract_compiled_len);
     let new_len = new_len + _mintContract_compiled_len;
+
+    // memcpy third array
+    memcpy(calldata + new_len, _updateMetadata_compiled, _updateMetadata_compiled_len);
+    let new_len = new_len + _updateMetadata_compiled_len;
 
     let calldata_len = new_len;
 

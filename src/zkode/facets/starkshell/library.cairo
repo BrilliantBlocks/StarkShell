@@ -164,6 +164,7 @@ namespace Memory {
         let mem_len = append_caller_address_var(mem_len, mem);
         let mem_len = append_contract_address_var(mem_len, mem);
         let mem_len = append_booleans_var(mem_len, mem);
+        let mem_len = append_root_var(mem_len, mem);
 
         // get_block_number()
         // get_timestampe()
@@ -174,6 +175,23 @@ namespace Memory {
         let mem_len = mem_len + _memory_len;
 
         return (mem_len, mem);
+    }
+
+    func append_root_var{syscall_ptr: felt*, range_check_ptr}(_ptr_len: felt, _ptr: felt*) -> felt {
+        alloc_locals;
+
+        tempvar root_address_var = new Variable(
+            selector=API.CORE.__ZKLANG__ROOT_VAR,
+            protected=TRUE,
+            type=DataTypes.FELT,
+            data_len=1,
+            );
+        let (self) = get_contract_address();
+        let (root_address) = IDiamond.getRoot(self);
+        memcpy(_ptr + _ptr_len, root_address_var, Variable.SIZE);
+        assert _ptr[_ptr_len + Variable.SIZE] = root_address;
+
+        return _ptr_len + Variable.SIZE + root_address_var.data_len;
     }
 
     func append_booleans_var{syscall_ptr: felt*}(_ptr_len: felt, _ptr: felt*) -> felt {

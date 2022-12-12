@@ -6,6 +6,7 @@ from starkware.cairo.common.uint256 import Uint256
 from src.bootstrap.Bootstrapper import IBootstrapper, ClassHash
 from src.starkshell.setShellFun import setShellFun
 from src.starkshell.mintContract import mintContract
+from src.starkshell.updateMetadata import updateMetadata
 from src.zkode.facets.token.erc1155.structs import TokenBatch
 from src.zkode.diamond.structs import FacetCut, FacetCutAction
 from src.zkode.diamond.IDiamond import IDiamond
@@ -23,17 +24,20 @@ const Adversary = 789;
 struct Selector {
     mintContract: felt,
     setShellFun: felt,
+    updateMetadata: felt,
 }
 
 func getSelectors() -> Selector {
     alloc_locals;
     local mintContract;
     local setShellFun;
+    local updateMetadata;
 
     %{
         variables = [
             "mintContract",
             "setShellFun",
+            "updateMetadata",
             ]
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
@@ -41,6 +45,7 @@ func getSelectors() -> Selector {
     local selectors: Selector = Selector(
         mintContract,
         setShellFun,
+        updateMetadata,
         );
 
     return selectors;
@@ -119,11 +124,13 @@ func getAddresses() -> Address {
 
     return addresses;
 }
+
 func computeSelectors() -> () {
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         context.mintContract = get_selector_from_name("mintContract")
         context.setShellFun = get_selector_from_name("setShellFun")
+        context.updateMetadata = get_selector_from_name("updateMetadata")
     %}
 
     return ();
@@ -162,19 +169,23 @@ func deployRootDiamond{
     let ch: ClassHash = getClassHashes();
     let sel: Selector = getSelectors();
 
-    let (code_len, code) = setShellFun();
+    let (setShellFun_code_len, setShellFun_code) = setShellFun();
     let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
+    let (updateMetadata_code_len, updateMetadata_code) = updateMetadata();
 
     // TODO prank cheatcode?
     let (rootDiamond) = IBootstrapper.deployRootDiamond(
         addr.rootFactory,
         ch,
         sel.setShellFun,
-        code_len,
-        code,
+        setShellFun_code_len,
+        setShellFun_code,
         sel.mintContract,
         mintContract_code_len,
         mintContract_code,
+        sel.updateMetadata,
+        updateMetadata_code_len,
+        updateMetadata_code,
     );
 
     %{ context.rootDiamond = ids.rootDiamond %}
