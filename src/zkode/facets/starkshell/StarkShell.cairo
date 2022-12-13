@@ -2,10 +2,12 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.memcpy import memcpy
 from starkware.cairo.common.registers import get_label_location
 from starkware.starknet.common.syscalls import get_contract_address
 
 from src.zkode.constants import API
+from src.zkode.diamond.IDiamond import IDiamond
 from src.zkode.diamond.library import Library
 from src.zkode.facets.storage.flobdb.IFlobDB import IFlobDB
 from src.zkode.facets.starkshell.library import Program, Memory, State
@@ -36,6 +38,7 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 ) -> (retdata_size: felt, retdata: felt*) {
     alloc_locals;
     let fun: Function = State.get_fun(selector);
+    let (fun_param_len, fun_param) = State.get_params(selector);
 
     // if repo is 0 assume that this contract holds the code
     let (self) = get_contract_address();
@@ -53,9 +56,13 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     local memory_len: felt = program_raw_len - 1 - program_len;
     local memory: felt* = program_raw + 1 + program_len;
 
+    let (root) = IDiamond.getRoot(self);
+
     // init
     let (prep_program_len, prep_program) = Program.prepare(selector, program_len, program);
-    let (prep_memory_len, prep_memory) = Memory.init(memory_len, memory, calldata_size, calldata);
+    let (prep_memory_len, prep_memory) = Memory.init(
+        memory_len, memory, calldata_size, calldata, fun_param_len, fun_param, root
+    );
 
     with_attr error_message("EXEC INSTRUCTION 0") {
         let (retdata_size, retdata, _, _) = exec_loop(
@@ -200,15 +207,21 @@ func __ZKLANG__EXEC{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_
 // ===============
 @external
 func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _fun_len: felt, _fun: Function*
+    _fun_len: felt, _fun: Function*, _params_len: felt, _params: felt*
 ) -> () {
     alloc_locals;
 
     if (_fun_len == 0) {
         return ();
     }
-    __ZKLANG__SET_FUNCTION(_fun[0]);
-    return __constructor__(_fun_len - 1, _fun + Function.SIZE);
+
+    local params_len = _params[0];
+    let (local params: felt*) = alloc();
+    memcpy(params, _params + 1, params_len);
+    __ZKLANG__SET_FUNCTION(_fun[0], params_len, params);
+
+    local x = params_len + 1;
+    return __constructor__(_fun_len - 1, _fun + Function.SIZE, _params_len - x, _params + x);
 }
 
 @external

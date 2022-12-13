@@ -2,6 +2,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.hash import hash2
 from starkware.cairo.common.memcpy import memcpy
 
 from starkware.starknet.common.syscalls import (
@@ -31,6 +32,10 @@ func fun_selector_program_hash_mapping_(fun_selector: felt) -> (program_hash: fe
 
 @storage_var
 func program_hash_repo_address_mapping_(program_hash: felt) -> (repo_address: felt) {
+}
+
+@storage_var
+func fun_selector_params_mapping_(fun_selector: felt) -> (res: felt) {
 }
 
 namespace Program {
@@ -154,7 +159,13 @@ namespace Program {
 // ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 namespace Memory {
     func init{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _memory_len: felt, _memory: felt*, _calldata_len: felt, _calldata: felt*
+        _memory_len: felt,
+        _memory: felt*,
+        _calldata_len: felt,
+        _calldata: felt*,
+        _fun_param_len: felt,
+        _fun_param: felt*,
+        _root: felt,
     ) -> (mem_len: felt, mem: felt*) {
         alloc_locals;
         let mem_len = 0;
@@ -164,7 +175,7 @@ namespace Memory {
         let mem_len = append_caller_address_var(mem_len, mem);
         let mem_len = append_contract_address_var(mem_len, mem);
         let mem_len = append_booleans_var(mem_len, mem);
-        let mem_len = append_root_var(mem_len, mem);
+        let mem_len = append_root_var(mem_len, mem, _root);
 
         // get_block_number()
         // get_timestampe()
@@ -177,7 +188,9 @@ namespace Memory {
         return (mem_len, mem);
     }
 
-    func append_root_var{syscall_ptr: felt*, range_check_ptr}(_ptr_len: felt, _ptr: felt*) -> felt {
+    func append_root_var{syscall_ptr: felt*, range_check_ptr}(
+        _ptr_len: felt, _ptr: felt*, _root: felt
+    ) -> felt {
         alloc_locals;
 
         tempvar root_address_var = new Variable(
@@ -186,10 +199,8 @@ namespace Memory {
             type=DataTypes.FELT,
             data_len=1,
             );
-        let (self) = get_contract_address();
-        let (root_address) = IDiamond.getRoot(self);
         memcpy(_ptr + _ptr_len, root_address_var, Variable.SIZE);
-        assert _ptr[_ptr_len + Variable.SIZE] = root_address;
+        assert _ptr[_ptr_len + Variable.SIZE] = _root;
 
         return _ptr_len + Variable.SIZE + root_address_var.data_len;
     }
@@ -463,7 +474,7 @@ namespace State {
     }
 
     func set_fun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _function: Function
+        _function: Function, _params_len: felt, _params: felt*
     ) -> () {
         alloc_locals;
         let first_free_index = first_free_fun_index(_function.selector, 0);
@@ -471,7 +482,57 @@ namespace State {
         fun_selector_program_hash_mapping_.write(_function.selector, _function.program_hash);
         program_hash_repo_address_mapping_.write(_function.program_hash, _function.repo_address);
 
+        // Make likelihood of storage collisions neglible even in the case of corrupt selectors
+        let (offset: felt) = hash2{hash_ptr=pedersen_ptr}(_function.selector, 0);
+        fun_selector_params_mapping_.write(offset, _params_len);
+        set_params_recursively(offset, _params_len, _params);
+
         return ();
+    }
+
+    func set_params_recursively{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt, _params_len: felt, _params: felt*
+    ) -> () {
+        alloc_locals;
+
+        if (_params_len == 0) {
+            return ();
+        }
+
+        local last_element = _params[_params_len - 1];
+        fun_selector_params_mapping_.write(_selector + _params_len, last_element);
+
+        return set_params_recursively(_selector, _params_len - 1, _params);
+    }
+
+    func get_params{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt
+    ) -> (res_len: felt, res: felt*) {
+        alloc_locals;
+
+        local params_len = 0;
+        let (local params: felt*) = alloc();
+        let (offset: felt) = hash2{hash_ptr=pedersen_ptr}(_selector, 0);
+
+        let params_len = populate_params(offset, params_len, params);
+
+        return (params_len, params);
+    }
+
+    func populate_params{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _selector: felt, _params_len: felt, _params: felt*
+    ) -> felt {
+        alloc_locals;
+
+        let (params_len: felt) = fun_selector_params_mapping_.read(_selector);
+        if (_params_len == params_len) {
+            return _params_len;
+        }
+
+        let (data_point: felt) = fun_selector_params_mapping_.read(_selector + _params_len + 1);
+        assert _params[_params_len] = data_point;
+
+        return populate_params(_selector, _params_len + 1, _params + 1);
     }
 
     func first_free_fun_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

@@ -72,9 +72,10 @@ func __ZKLANG__REVERT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
 @external
 func __ZKLANG__SET_FUNCTION{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    _function: Function
+    _function: Function, _params_len: felt, _params: felt*
 ) -> () {
-    State.set_fun(_function);
+    State.set_fun(_function, _params_len, _params);
+
     return ();
 }
 

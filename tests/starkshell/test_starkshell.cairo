@@ -91,7 +91,7 @@ func __setup__{
     tempvar fun_invertBoolean = Function(fun_selector_invertBoolean, invertBoolean_hash, rootDiamond);
     tempvar fun_interpreteInstruction = Function(fun_selector_interpreteInstruction, interpreteInstruction_hash, rootDiamond);
     local fun_len = 4;
-    local fun_calldata_size = fun_len * Function.SIZE + 1;
+    local fun_calldata_size = fun_len * Function.SIZE + 1 + 5;
 
     tempvar calldata: felt* = new (
         6, User1, 1, 1, 0, 1, 0,
@@ -101,6 +101,11 @@ func __setup__{
         fun_setShellFun,
         fun_invertBoolean,
         fun_interpreteInstruction,
+        4,
+        0,
+        0,
+        0,
+        0,
         );
     let calldata_len = 7 + fun_calldata_size + 1;
 
@@ -169,7 +174,7 @@ func test_returnCalldata_array{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, r
 
 @contract_interface
 namespace ITestShellFun {
-    func setShellFun(_fun: Function) -> () {
+    func setShellFun(_fun: Function, _param_len: felt, _param: felt*) -> () {
     }
 
     func updateMetadata(_low: felt, _high: felt, _data: felt) -> () {
@@ -220,9 +225,11 @@ func test_setZKLangFun{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
     %{ ids.rootDiamond = context.rootDiamond %}
 
     tempvar x: Function = Function(fun_selector_foo, program_hash, rootDiamond);
+    local param_len = 0;
+    let (local param: felt*) = alloc();
 
     %{ stop_prank = start_prank(ids.User1, context.diamond_address) %}
-    ITestShellFun.setShellFun(diamond_address, x);
+    ITestShellFun.setShellFun(diamond_address, x, param_len, param);
     %{ stop_prank() %}
 
     // New starkshell function is recognized as public function
@@ -251,10 +258,12 @@ func test_setZKLangFun_reverts_if_caller_not_owner{
     %{ ids.rootDiamond = context.rootDiamond %}
 
     tempvar x: Function = Function(fun_selector_foo, program_hash, rootDiamond);
+    local param_len = 0;
+    let (local param: felt*) = alloc();
 
     %{ stop_prank = start_prank(ids.User2, context.diamond_address) %}
     %{ expect_revert(error_message="NOT AUTHORIZED") %}
-    ITestShellFun.setShellFun(diamond_address, x);
+    ITestShellFun.setShellFun(diamond_address, x, param_len, param);
     %{ stop_prank() %}
 
     return ();

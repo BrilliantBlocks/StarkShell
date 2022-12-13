@@ -19,6 +19,9 @@ func test_init_memory_on_empty_calldata_and_empty_memory{
     let _calldata_len = 0;
     tempvar _memory = new ();
     let _memory_len = 0;
+    tempvar param = new ();
+    let param_len = 0;
+    let root = 999;
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = 0;
 
@@ -47,8 +50,13 @@ func test_init_memory_on_empty_calldata_and_empty_memory{
     memcpy(expected_memory + expected_memory_len, true_var, true_var_len);
     tempvar expected_memory_len = expected_memory_len + true_var_len;
 
+    tempvar root_address_var = new Variable(API.CORE.__ZKLANG__ROOT_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar root_address_var_len = Variable.SIZE + root_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, root_address_var, root_address_var_len);
+    tempvar expected_memory_len = expected_memory_len + root_address_var_len;
+
     let (actual_memory_len, actual_memory) = Memory.init(
-        _memory_len, _memory, _calldata_len, _calldata
+        _memory_len, _memory, _calldata_len, _calldata, param_len, param, root
     );
 
     assert_eq(actual_memory_len, expected_memory_len);
@@ -85,6 +93,9 @@ func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     let _calldata_len = 1;
     tempvar _memory = new ();
     let _memory_len = 0;
+    tempvar param = new ();
+    let param_len = 0;
+    let root = 999;
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = 0;
 
@@ -130,8 +141,19 @@ func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     memcpy(expected_memory + expected_memory_len + Variable.SIZE, true_data, true_var.data_len);
     tempvar expected_memory_len = expected_memory_len + true_var_len;
 
+    tempvar root_address_var = new Variable(API.CORE.__ZKLANG__ROOT_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar root_address = new (0x999);
+    tempvar root_address_var_len = Variable.SIZE + root_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, root_address_var, Variable.SIZE);
+    memcpy(
+        expected_memory + expected_memory_len + Variable.SIZE,
+        root_address,
+        root_address_var.data_len,
+    );
+    tempvar expected_memory_len = expected_memory_len + root_address_var_len;
+
     let (actual_memory_len, actual_memory) = Memory.init(
-        _memory_len, _memory, _calldata_len, _calldata
+        _memory_len, _memory, _calldata_len, _calldata, param_len, param, root
     );
 
     assert_eq(actual_memory_len, expected_memory_len);
@@ -153,6 +175,9 @@ func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
     let _calldata_len = 5;
     tempvar _memory = new ();
     let _memory_len = 0;
+    tempvar param = new ();
+    let param_len = 0;
+    let root = 999;
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = 0;
 
@@ -198,8 +223,18 @@ func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
     memcpy(expected_memory + expected_memory_len + Variable.SIZE, true_data, true_var.data_len);
     tempvar expected_memory_len = expected_memory_len + true_var_len;
 
+    tempvar root_address_var = new Variable(API.CORE.__ZKLANG__ROOT_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar root_address = new (0x999);
+    tempvar root_address_var_len = Variable.SIZE + root_address_var.data_len;
+    memcpy(expected_memory + expected_memory_len, root_address_var, Variable.SIZE);
+    memcpy(
+        expected_memory + expected_memory_len + Variable.SIZE,
+        root_address,
+        root_address_var.data_len,
+    );
+    tempvar expected_memory_len = expected_memory_len + root_address_var_len;
     let (actual_memory_len, actual_memory) = Memory.init(
-        _memory_len, _memory, _calldata_len, _calldata
+        _memory_len, _memory, _calldata_len, _calldata, param_len, param, root
     );
 
     assert_eq(actual_memory_len, expected_memory_len);
