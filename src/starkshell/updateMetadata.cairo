@@ -24,6 +24,7 @@ func updateMetadata() -> (res_len: felt, res: felt*) {
     local event_data;
     local range1;
     local range2;
+    local key_param;
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         ids.return_keyword = get_selector_from_name("__ZKLANG__RETURN")
@@ -43,6 +44,7 @@ func updateMetadata() -> (res_len: felt, res: felt*) {
         ids.caller_address_var = get_selector_from_name("__ZKLANG__CALLER_ADDRESS_VAR")
         ids.range1 = get_selector_from_name("range1")
         ids.range2 = get_selector_from_name("range2")
+        ids.key_param = get_selector_from_name("param_key")
     %}
 
     // Declare special variables
@@ -60,7 +62,9 @@ func updateMetadata() -> (res_len: felt, res: felt*) {
     tempvar ownerOfDataVar = Variable(ownerOf_res, 0, 0, 0);
     tempvar OwnerVar = Variable(ownerOf_res, 0, 0, 0);
     tempvar EventDataVar = Variable(event_data, 0, 0, 0);
+    tempvar KeyParam = Variable(key_param, 0, 0, 0);
 
+    // IERC721.ownerOf Uint256($0:2) | assert_eq $caller ; emit $(key_param) $2:
     // push calldata
     tempvar instruction0 = Instruction(
         primitive=Primitive(0, noop_prmtv),
@@ -125,11 +129,11 @@ func updateMetadata() -> (res_len: felt, res: felt*) {
         output=EventDataVar,
         );
 
-    // emit() (maybe event_data needs push)
+    // emit()
     tempvar instruction8 = Instruction(
         primitive=Primitive(0, event_prmtv),
-        input1=EventDataVar,
-        input2=NULLvar,
+        input1=KeyParam,
+        input2=EventDataVar,
         output=NULLvar,
         );
 
@@ -149,10 +153,11 @@ func updateMetadata() -> (res_len: felt, res: felt*) {
         ownerOfDataVar,
         rootVar,
         EventDataVar,
+        KeyParam,
         );
 
     let instruction_len = 10 * Instruction.SIZE;
-    let memory_layout_len = 7 * Variable.SIZE + 2 + 2 + 1;
+    let memory_layout_len = 8 * Variable.SIZE + 2 + 2 + 1;
     let total_len = instruction_len + memory_layout_len + 1;
     let felt_code_len = total_len + 1;
 

@@ -220,8 +220,11 @@ func __constructor__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
     memcpy(params, _params + 1, params_len);
     __ZKLANG__SET_FUNCTION(_fun[0], params_len, params);
 
-    local x = params_len + 1;
-    return __constructor__(_fun_len - 1, _fun + Function.SIZE, _params_len - x, _params + x);
+    local delta = params_len + 1;
+
+    return __constructor__(
+        _fun_len - 1, _fun + Function.SIZE, _params_len - delta, _params + delta
+    );
 }
 
 @external

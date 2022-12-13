@@ -185,7 +185,29 @@ namespace Memory {
         memcpy(mem + mem_len, _memory, _memory_len);
         let mem_len = mem_len + _memory_len;
 
+        let (mem_len, mem) = init_params(mem_len, mem, _fun_param_len, _fun_param);
+
         return (mem_len, mem);
+    }
+
+    func init_params{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        _mem_len: felt, _mem: felt*, _params_len: felt, _params: felt*
+    ) -> (mem_len: felt, mem: felt*) {
+        alloc_locals;
+
+        if (_params_len == 0) {
+            return (_mem_len, _mem);
+        }
+
+        let var = cast(_params, Variable*);
+        local payload_len = var.data_len;
+        let (local payload: felt*) = alloc();
+        memcpy(payload, _params + Variable.SIZE, payload_len);
+
+        let (mem_len, mem) = update_variable(var.selector, _mem_len, _mem, payload_len, payload);
+        local delta = Variable.SIZE + var.data_len;
+
+        return init_params(mem_len, mem, _params_len - delta, _params + delta);
     }
 
     func append_root_var{syscall_ptr: felt*, range_check_ptr}(
@@ -491,7 +513,7 @@ namespace State {
     }
 
     func set_params_recursively{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _selector: felt, _params_len: felt, _params: felt*
+        _offset: felt, _params_len: felt, _params: felt*
     ) -> () {
         alloc_locals;
 
@@ -500,9 +522,9 @@ namespace State {
         }
 
         local last_element = _params[_params_len - 1];
-        fun_selector_params_mapping_.write(_selector + _params_len, last_element);
+        fun_selector_params_mapping_.write(_offset + _params_len, last_element);
 
-        return set_params_recursively(_selector, _params_len - 1, _params);
+        return set_params_recursively(_offset, _params_len - 1, _params);
     }
 
     func get_params{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -520,19 +542,19 @@ namespace State {
     }
 
     func populate_params{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _selector: felt, _params_len: felt, _params: felt*
+        _offset: felt, _params_len: felt, _params: felt*
     ) -> felt {
         alloc_locals;
 
-        let (params_len: felt) = fun_selector_params_mapping_.read(_selector);
+        let (params_len: felt) = fun_selector_params_mapping_.read(_offset);
         if (_params_len == params_len) {
-            return _params_len;
+            return params_len;
         }
 
-        let (data_point: felt) = fun_selector_params_mapping_.read(_selector + _params_len + 1);
+        let (data_point: felt) = fun_selector_params_mapping_.read(_offset + _params_len + 1);
         assert _params[_params_len] = data_point;
 
-        return populate_params(_selector, _params_len + 1, _params + 1);
+        return populate_params(_offset, _params_len + 1, _params);
     }
 
     func first_free_fun_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

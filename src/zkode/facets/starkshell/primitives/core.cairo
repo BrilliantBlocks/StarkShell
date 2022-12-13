@@ -49,14 +49,13 @@ func __ZKLANG__BRANCH{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
 @external
 func __ZKLANG__EVENT{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    //( _key: felt, _val_len: felt, _val: felt*
-    _val_len: felt, _val: felt*
+    _key: felt, _val_len: felt, _val: felt*
 ) {
     alloc_locals;
 
-    // tempvar key = new (_key);
-    tempvar key = new (1528802474226268325865027367859591458315299653151958663884057507666229546336);
+    tempvar key = new (_key);
     local key_len = 1;
+
     emit_event(key_len, key, _val_len, _val);
 
     return ();
