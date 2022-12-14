@@ -204,11 +204,37 @@ func init{
             ),
         StarkShellCalldata.SIZE + 1 + 9,
         3,
-        StarkShellCalldata(Function(_setShellFun_selector, _setShellFun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0), Function(_updateMetadata_selector, _updateMetadata_hash, 0)),
-        8, 0, 0, 5, 465330906121207756919483712490106284233474427241768683713250428177289303613, 0, 0, 1, 1528802474226268325865027367859591458315299653151958663884057507666229546336,
+        StarkShellCalldata(
+            Function(_setShellFun_selector, _setShellFun_hash, 0),
+            Function(_mintContract_selector, _mintContract_hash, 0),
+            Function(_updateMetadata_selector, _updateMetadata_hash, 0)
+            ),
+        8,
+        0,  // setShellFun params_len
+        0,  // mintContract params_len
+        5,  // updateMetadata params_len
+        // ### Begin Variable ###
+        465330906121207756919483712490106284233474427241768683713250428177289303613,
+        0,
+        0,
+        1,
+        1528802474226268325865027367859591458315299653151958663884057507666229546336,
+        // ### End Variable ###
         DiamondCutCalldata.SIZE,
         DiamondCutCalldata(0),
-        11, 0, 0, 0, 4, 184555836509371486644856095017587421344261193474617388276263770152936827443, 203998027954878725543997547266317984232748597657159516903365148909254028897, 202244606418614541364902086132942206699045874315590809968639424267107263609, 10754949894223100254076072945295018243026244912222009195, FALSE, 0, 0,  // https://m4chgvnjpozvm7p7jeo7vj3susfrkuencv6j5bf3u6mokcshjmeq.arweave.net/ZwRzVal7s1Z9_0kd-qdypIsVUI0VfJ6Eu6eY5QpHSwk
+        // ### Metadata ###
+        11,
+        0,  // don't care
+        0,  // don't care
+        0,  // don't care
+        4,  // https://m4chgvnjpozvm7p7jeo7vj3susfrkuencv6j5bf3u6mokcshjmeq.arweave.net/ZwRzVal7s1Z9_0kd-qdypIsVUI0VfJ6Eu6eY5QpHSwk
+        184555836509371486644856095017587421344261193474617388276263770152936827443,
+        203998027954878725543997547266317984232748597657159516903365148909254028897,
+        202244606418614541364902086132942206699045874315590809968639424267107263609,
+        10754949894223100254076072945295018243026244912222009195,
+        FALSE,  // no infix
+        0,  // no suffix
+        0,  // don't care
         ), felt*);
 
     let (local calldata: felt*) = alloc();
