@@ -9,6 +9,12 @@ from src.zkode.constants import FUNCTION_SELECTORS, IDIAMONDCUT_ID
 from src.zkode.diamond.library import Diamond
 from src.zkode.diamond.structs import FacetCut
 
+@event
+func DiamondCut(
+    _facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*
+) -> () {
+}
+
 // @emit DiamondCut
 // @param _facetCut Array of added facets
 // @param _calldata Array of assembled calldata for all FacetCuts
@@ -32,7 +38,10 @@ func _diamondCut{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, bitwise_ptr: BitwiseBuiltin*, range_check_ptr
 }(_facetCut_len: felt, _facetCut: FacetCut*, _calldata_len: felt, _calldata: felt*) -> () {
     alloc_locals;
+
     Diamond._diamondCut(_facetCut_len, _facetCut, _calldata_len, _calldata);
+    DiamondCut.emit(_facetCut_len, _facetCut, _calldata_len, _calldata);
+
     return ();
 }
 
