@@ -90,7 +90,8 @@ func compute_selectors() -> () {
 func declare_contracts() -> () {
     %{
         context.feltmap = declare("./src/zkode/facets/storage/feltmap/FeltMap.cairo").class_hash
-        context.diamond = declare("./src/zkode/diamond/Diamond.cairo").class_hash
+        context.declared_diamond = declare("./src/zkode/diamond/Diamond.cairo")
+        context.diamond =  context.declared_diamond.class_hash
         context.diamondCut = declare("./src/zkode/facets/upgradability/DiamondCut.cairo").class_hash
         context.erc721 = declare("./src/zkode/facets/token/erc721/ERC721.cairo").class_hash
         context.flobDb = declare("./src/zkode/facets/storage/flobdb/FlobDB.cairo").class_hash
@@ -112,7 +113,7 @@ func deploy_root{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
-    local salt = 0;
+    local salt = 0;  // that is the salt which protostar uses
     local bootstrapper_addr;
     local bootstrapper_class;
     local diamond_class;
@@ -128,8 +129,7 @@ func deploy_root{
     local root;
     %{
         calldata = [0, 0, context.bootstrapper_class, context.feltmap]
-        declared_diamond =  declare("./src/zkode/diamond/Diamond.cairo")
-        prepared_diamond =  prepare(declared=declared_diamond, constructor_calldata=calldata)
+        prepared_diamond =  prepare(declared=context.declared_diamond, constructor_calldata=calldata, salt=ids.salt)
         ids.root = prepared_diamond.contract_address
     %}
 
@@ -137,6 +137,7 @@ func deploy_root{
         BrilliantBlocks, root, diamond_class, ch
     );
 
+    local x = root;
     %{
         stop_prank_callable = start_prank(
             ids.BrilliantBlocks, target_contract_address=context.bootstrapper_addr
@@ -155,6 +156,11 @@ func deploy_root{
     );
     %{ stop_prank_callable() %}
     %{ context.root = ids.root %}
+
+    local y = root;
+    with_attr error_message("Precomputing address failed") {
+        assert root = x;
+    }
 
     return ();
 }

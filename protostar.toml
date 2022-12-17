@@ -1,5 +1,5 @@
 [project]
-protostar-version = "0.8"
+protostar-version = "0.9"
 lib-path = "lib"
 
 [contracts]
