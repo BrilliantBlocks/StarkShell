@@ -44,17 +44,17 @@ func get_calldata{pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let (mintContract_compiled_len, mintContract_compiled) = mintContract(
         _diamond_hash, _classes.erc721
     );
-    let (updateMetadata_compiled_len, updateMetadata_compiled) = updateMetadata();
+    let (updateName_compiled_len, updateName_compiled) = updateMetadata();
     let (registerFacet_compiled_len, registerFacet_compiled) = registerFacet(_classes.feltmap);
 
     let (setShellFun_hash) = hash_chain{hash_ptr=pedersen_ptr}(setShellFun_compiled);
     let (mintContract_hash) = hash_chain{hash_ptr=pedersen_ptr}(mintContract_compiled);
-    let (updateMetadata_hash) = hash_chain{hash_ptr=pedersen_ptr}(updateMetadata_compiled);
+    let (updateName_hash) = hash_chain{hash_ptr=pedersen_ptr}(updateName_compiled);
     let (registerFacet_hash) = hash_chain{hash_ptr=pedersen_ptr}(registerFacet_compiled);
 
     const setShellFun_selector = 0x1adb6ae929f40d0880cc53d4e03bcb65d131ce4bc0a37875753dd778d3b78d7;
     const mintContract_selector = 0x1881835aeeaa493c5f7836114d6e3f8dc2d53ea6ef4dece5e3e9ba3b021806;
-    const updateMetadata_selector = 0xd1df127d90a37687d0a986a667f4f88eebc4437582fa7bff7d6955ab689037;
+    const updateName_selector = 0x19913e3386003e426925800083de8bc11547201d62a44eea7e39cefffcc021c;
     const registerFacet_selector = 0x8df66d1b7b73453a17ae01160e020e7b0e1f3cc261ad06a813ad616a280d5b;
 
     let facetCut_len = ClassHash.SIZE;
@@ -89,19 +89,19 @@ func get_calldata{pedersen_ptr: HashBuiltin*, range_check_ptr}(
         StarkShellCalldata(
             Function(setShellFun_selector, setShellFun_hash, 0),
             Function(mintContract_selector, mintContract_hash, 0),
-            Function(updateMetadata_selector, updateMetadata_hash, 0),
+            Function(updateName_selector, updateName_hash, 0),
             Function(registerFacet_selector, registerFacet_hash, 0),
             ),
         9,
         0,  // setShellFun params_len
         0,  // mintContract params_len
-        5,  // updateMetadata params_len
+        5,  // updateNamedata params_len
         // ### Begin Variable ###
         465330906121207756919483712490106284233474427241768683713250428177289303613,
         0,
         0,
         1,
-        1528802474226268325865027367859591458315299653151958663884057507666229546336,
+        722777708519828350460777408219631278991880314003707080813313655427100836380,
         // ### End Variable ###
         0,  // registerFacet params_len
         DiamondCutCalldata.SIZE,
@@ -126,14 +126,14 @@ func get_calldata{pedersen_ptr: HashBuiltin*, range_check_ptr}(
     memcpy(calldata, tmp, tmp_len);
     let new_len = tmp_len;
 
-    assert calldata[new_len] = 1 + setShellFun_compiled_len + mintContract_compiled_len + updateMetadata_compiled_len + registerFacet_compiled_len + 1;
+    assert calldata[new_len] = 1 + setShellFun_compiled_len + mintContract_compiled_len + updateName_compiled_len + registerFacet_compiled_len + 1;
     let new_len = new_len + 1;
 
     assert calldata[new_len] = 4;
     let new_len = new_len + 1;
 
     // total array len
-    assert calldata[new_len] = setShellFun_compiled_len + mintContract_compiled_len + updateMetadata_compiled_len + registerFacet_compiled_len;
+    assert calldata[new_len] = setShellFun_compiled_len + mintContract_compiled_len + updateName_compiled_len + registerFacet_compiled_len;
     let new_len = new_len + 1;
 
     // memcpy first_array
@@ -145,8 +145,8 @@ func get_calldata{pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let new_len = new_len + mintContract_compiled_len;
 
     // memcpy third array
-    memcpy(calldata + new_len, updateMetadata_compiled, updateMetadata_compiled_len);
-    let new_len = new_len + updateMetadata_compiled_len;
+    memcpy(calldata + new_len, updateName_compiled, updateName_compiled_len);
+    let new_len = new_len + updateName_compiled_len;
 
     // memcpy fourth array
     memcpy(calldata + new_len, registerFacet_compiled, registerFacet_compiled_len);

@@ -133,7 +133,7 @@ func updateMetadata() -> (res_len: felt, res: felt*) {
     tempvar instruction8 = Instruction(
         primitive=Primitive(0, event_prmtv),
         input1=KeyParam,
-        input2=EventDataVar,
+        input2=Calldata,
         output=NULLvar,
         );
 

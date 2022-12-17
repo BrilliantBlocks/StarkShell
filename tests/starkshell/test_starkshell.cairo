@@ -211,7 +211,7 @@ func test_updateMetadata{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
     let (high, low) = split_felt(diamond_address);
     local data = 'my_diamond_name';
 
-    %{ expect_events({"name": "name", "data": [ids.data]}) %}
+    %{ expect_events({"updateName": "name", "data": [ids.low, ids.high, ids.data]}) %}
     %{ stop_prank = start_prank(ids.User1, context.root) %}
     ITestShellFun.updateMetadata(root, low, high, data);
     %{ stop_prank() %}
