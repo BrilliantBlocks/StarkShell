@@ -3,6 +3,7 @@ from starkware.cairo.common.bool import FALSE, TRUE
 
 from src.zkode.facets.starkshell.structs import Primitive, Variable, Instruction
 
+// TODO parameterize
 func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, res: felt*) {
     alloc_locals;
     local deploy_primitive;
@@ -233,7 +234,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
     tempvar salt = Variable(salt_var, 0, 0, 0);
 
     tempvar memory_layout = (
-        facet_key, 16, 0, 0,  // TODO bug source 16 is diamondCut only
+        facet_key, 1, 0, 0,  // TODO bug source 16 is diamondCut only
         diamond_addr,
         tokenId,
         diamond_constructor_calldata,

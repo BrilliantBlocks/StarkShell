@@ -12,11 +12,11 @@ from src.zkode.interfaces.ITCF import ITCF
 
 from tests.setup import (
     ClassHash,
-    getClassHashes,
-    computeSelectors,
-    declareContracts,
-    deployRootDiamondFactory,
-    deployRootDiamond,
+    get_class_hashes,
+    compute_selectors,
+    declare_contracts,
+    deploy_bootstrapper,
+    deploy_root,
 )
 
 from protostar.asserts import assert_eq
@@ -30,15 +30,15 @@ func __setup__{
 }() -> () {
     alloc_locals;
 
-    computeSelectors();
-    declareContracts();
-    deployRootDiamondFactory();
-    deployRootDiamond();
+    compute_selectors();
+    declare_contracts();
+    deploy_bootstrapper();
+    deploy_root();
 
-    local rootDiamond;
-    %{ ids.rootDiamond = context.rootDiamond %}
+    local root;
+    %{ ids.root = context.root %}
 
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     // User mints a diamond with UniversalMetadata
     tempvar facetCut = new FacetCut(ch.metadata, FacetCutAction.Add);
@@ -46,10 +46,8 @@ func __setup__{
     tempvar calldata: felt* = new (7, 0, 0, 0, 0, 0, 0, 0,);
     let calldata_len = 8;
 
-    %{ stop_prank = start_prank(ids.User, ids.rootDiamond) %}
-    let (diamond_address) = ITCF.mintContract(
-        rootDiamond, facetCut_len, facetCut, calldata_len, calldata
-    );
+    %{ stop_prank = start_prank(ids.User, ids.root) %}
+    let (diamond_address) = ITCF.mintContract(root, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 
@@ -64,7 +62,7 @@ func test_facetFunctionSelectors_returns_empty_array{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, ch.metadata);
     assert_eq(selectors_len, 0);
@@ -128,7 +126,7 @@ func test_supportsInterface_returns_false_on_erc5114_without_token_facet{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     const IERC5114_METADATA_ID = 0x6cea869c;
     let (supportsIERC5114) = IDiamond.supportsInterface(diamond_address, IERC5114_METADATA_ID);

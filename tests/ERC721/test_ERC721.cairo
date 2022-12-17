@@ -12,11 +12,11 @@ from src.zkode.interfaces.ITCF import ITCF
 
 from tests.setup import (
     ClassHash,
-    getClassHashes,
-    computeSelectors,
-    declareContracts,
-    deployRootDiamondFactory,
-    deployRootDiamond,
+    get_class_hashes,
+    compute_selectors,
+    declare_contracts,
+    deploy_bootstrapper,
+    deploy_root,
 )
 
 from protostar.asserts import assert_eq
@@ -89,15 +89,15 @@ func __setup__{
 }() -> () {
     alloc_locals;
 
-    computeSelectors();
-    declareContracts();
-    deployRootDiamondFactory();
-    deployRootDiamond();
+    compute_selectors();
+    declare_contracts();
+    deploy_bootstrapper();
+    deploy_root();
 
-    local rootDiamond;
-    %{ ids.rootDiamond = context.rootDiamond %}
+    local root;
+    %{ ids.root = context.root %}
 
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     // User mints a diamond with ERC721
     let facetCut_len = 1;
@@ -116,12 +116,10 @@ func __setup__{
 
     %{
         stop_prank_callable = start_prank(
-            ids.User, target_contract_address=context.rootDiamond
+            ids.User, target_contract_address=context.root
         )
     %}
-    let (diamond_address) = ITCF.mintContract(
-        rootDiamond, facetCut_len, facetCut, calldata_len, calldata
-    );
+    let (diamond_address) = ITCF.mintContract(root, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank_callable() %}
     %{ context.diamond_address = ids.diamond_address %}
 
@@ -151,7 +149,7 @@ func test_destructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     // Remove ERC721 facet from diamond
     let facetCut_len = 1;
@@ -175,7 +173,7 @@ func test_getImplementation_return_erc721{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     let (token_class_hash) = IDiamond.getImplementation(diamond_address);
     assert_eq(token_class_hash, ch.erc721);
@@ -191,7 +189,7 @@ func test_erc721_has_eight_functions{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, ch.erc721);
     assert_eq(selectors_len, 8);
@@ -207,7 +205,7 @@ func test_facetAddress_returns_erc721_for_balanceOf{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.balanceOf);
@@ -224,7 +222,7 @@ func test_facetAddress_returns_erc721_for_ownerOf{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.ownerOf);
@@ -241,7 +239,7 @@ func test_facetAddress_returns_erc721_for_getApproved{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.getApproved);
@@ -258,7 +256,7 @@ func test_facetAddress_returns_erc721_for_isApprovedForAll{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.isApprovedForAll);
@@ -275,7 +273,7 @@ func test_facetAddress_returns_erc721_for_approve{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.approve);
@@ -292,7 +290,7 @@ func test_facetAddress_returns_erc721_for_setApprovalForAll{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.setApprovalForAll);
@@ -309,7 +307,7 @@ func test_facetAddress_returns_erc721_for_transferFrom{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.transferFrom);
@@ -326,7 +324,7 @@ func test_facetAddress_returns_erc721_for_safeTransferFrom{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
     let erc721 = getERC721Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc721.safeTransferFrom);

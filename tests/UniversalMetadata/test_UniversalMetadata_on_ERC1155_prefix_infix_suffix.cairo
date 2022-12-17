@@ -9,15 +9,16 @@ from src.zkode.diamond.structs import FacetCut, FacetCutAction
 from src.zkode.diamond.IDiamond import IDiamond
 from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
 from src.zkode.facets.metadata.metadata.IUniversalMetadata import IERC1155Metadata
+from src.zkode.facets.storage.feltmap.IFeltMap import IFeltMap
 from src.zkode.interfaces.ITCF import ITCF
 
 from tests.setup import (
     ClassHash,
-    getClassHashes,
-    computeSelectors,
-    declareContracts,
-    deployRootDiamondFactory,
-    deployRootDiamond,
+    get_class_hashes,
+    compute_selectors,
+    declare_contracts,
+    deploy_bootstrapper,
+    deploy_root,
 )
 
 from protostar.asserts import assert_eq
@@ -64,27 +65,36 @@ func __setup__{
 }() -> () {
     alloc_locals;
 
-    computeSelectors();
-    declareContracts();
-    deployRootDiamondFactory();
-    deployRootDiamond();
+    compute_selectors();
+    declare_contracts();
+    deploy_bootstrapper();
+    deploy_root();
 
-    local rootDiamond;
-    %{ ids.rootDiamond = context.rootDiamond %}
+    local root;
+    %{ ids.root = context.root %}
 
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
+
+    local erc1155_class;
+    %{
+        context.erc1155_class = declare("./src/zkode/facets/token/erc1155/ERC1155.cairo").class_hash
+        ids.erc1155_class = context.erc1155_class
+    %}
+
+    // BrilliantBlocks adds erc1155 to registry
+    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.root) %}
+    IFeltMap.registerElement(root, erc1155_class);
+    %{ stop_prank() %}
 
     // User mints a diamond and adds UniversalMetadata and ERC-1155
     let data = getTestData();
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.metadata, FacetCutAction.Add), FacetCut(ch.erc1155, FacetCutAction.Add),), FacetCut*);
+    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.metadata, FacetCutAction.Add), FacetCut(erc1155_class, FacetCutAction.Add),), FacetCut*);
     let facetCut_len = 2;
     tempvar calldata: felt* = new (11, 0, 0, 0, 2, data.prefix1, data.prefix2, TRUE, 2, data.suffix1, data.suffix2, 0, 6, User, 1, 1, 0, 1, 0);
     let calldata_len = 19;
 
-    %{ stop_prank = start_prank(ids.User, ids.rootDiamond) %}
-    let (diamond_address) = ITCF.mintContract(
-        rootDiamond, facetCut_len, facetCut, calldata_len, calldata
-    );
+    %{ stop_prank = start_prank(ids.User, ids.root) %}
+    let (diamond_address) = ITCF.mintContract(root, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 

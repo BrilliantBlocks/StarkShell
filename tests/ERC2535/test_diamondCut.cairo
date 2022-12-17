@@ -13,11 +13,11 @@ from src.zkode.constants import NULL
 
 from tests.setup import (
     ClassHash,
-    getClassHashes,
-    computeSelectors,
-    declareContracts,
-    deployRootDiamondFactory,
-    deployRootDiamond,
+    get_class_hashes,
+    compute_selectors,
+    declare_contracts,
+    deploy_bootstrapper,
+    deploy_root,
 )
 
 from protostar.asserts import assert_eq, assert_not_eq
@@ -38,15 +38,13 @@ func __setup__{
 }() -> () {
     alloc_locals;
 
-    computeSelectors();
-    declareContracts();
-    deployRootDiamondFactory();
-    deployRootDiamond();
+    compute_selectors();
+    declare_contracts();
+    deploy_bootstrapper();
+    deploy_root();
 
-    local rootDiamond;
-    %{ ids.rootDiamond = context.rootDiamond %}
-
-    let ch: ClassHash = getClassHashes();
+    local root;
+    %{ ids.root = context.root %}
 
     // USER mints a diamond
     let (local FCNULLptr: FacetCut*) = alloc();
@@ -54,10 +52,10 @@ func __setup__{
 
     %{
         stop_prank_callable = start_prank(
-            ids.User, target_contract_address=context.rootDiamond
+            ids.User, target_contract_address=context.root
         )
     %}
-    let (diamond_address) = ITCF.mintContract(rootDiamond, NULL, FCNULLptr, NULL, NULLptr);
+    let (diamond_address) = ITCF.mintContract(root, NULL, FCNULLptr, NULL, NULLptr);
     %{ stop_prank_callable() %}
     %{ context.diamond_address = ids.diamond_address %}
 
@@ -73,7 +71,7 @@ func test_diamondCut_remove_diamondCut{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     let (facetCut: FacetCut*) = alloc();
     assert facetCut[0].facetAddress = ch.diamondCut;
@@ -105,7 +103,7 @@ func test_diamondCut_add_erc721{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    let ch: ClassHash = get_class_hashes();
 
     let (facetCut: FacetCut*) = alloc();
     assert facetCut[0].facetAddress = ch.erc721;
@@ -135,8 +133,8 @@ func test_diamondCut_add_erc721{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     let (actual_facets_len: felt, actual_facets: felt*) = IDiamond.facetAddresses(diamond_address);
     let expected_facets_len = 2;
     assert_eq(actual_facets_len, expected_facets_len);
-    assert_eq(actual_facets[0], ch.erc721);
-    assert_eq(actual_facets[1], ch.diamondCut);
+    assert_eq(actual_facets[0], ch.diamondCut);
+    assert_eq(actual_facets[1], ch.erc721);
 
     return ();
 }

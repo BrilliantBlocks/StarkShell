@@ -3,17 +3,9 @@ from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from src.bootstrap.Bootstrapper import IBootstrapper, ClassHash
-from src.starkshell.setShellFun import setShellFun
-from src.starkshell.mintContract import mintContract
-from src.starkshell.updateMetadata import updateMetadata
-from src.zkode.facets.token.erc1155.structs import TokenBatch
-from src.zkode.diamond.structs import FacetCut, FacetCutAction
-from src.zkode.diamond.IDiamond import IDiamond
-from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
-from src.zkode.facets.token.erc1155.IERC1155 import IERC1155
-from src.zkode.facets.token.erc721.IERC721 import IERC721
-from src.zkode.interfaces.ITCF import ITCF
+from src.bootstrap.Bootstrapper import IBootstrapper
+from src.bootstrap.config.calldata import get_calldata
+from src.bootstrap.structs import ClassHash
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -27,7 +19,7 @@ struct Selector {
     updateMetadata: felt,
 }
 
-func getSelectors() -> Selector {
+func get_selectors() -> Selector {
     alloc_locals;
     local mintContract;
     local setShellFun;
@@ -51,81 +43,40 @@ func getSelectors() -> Selector {
     return selectors;
 }
 
-func getClassHashes() -> ClassHash {
+func get_class_hashes() -> ClassHash {
     alloc_locals;
-    local feltmap;
-    local diamond;
     local diamondCut;
     local erc721;
-    local erc1155;
-    local erc20;
-    local erc5114;
+    local feltmap;
     local flobDb;
-    local rootDiamondFactory;
-    local starkshell;
     local metadata;
+    local starkshell;
 
     %{
         variables = [
-            "feltmap",
-            "diamond",
             "diamondCut",
             "erc721",
-            "erc1155",
-            "erc5114",
-            "erc20",
+            "feltmap",
             "flobDb",
-            "rootDiamondFactory",
-            "starkshell",
             "metadata",
+            "starkshell",
             ]
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
 
     local classHashes: ClassHash = ClassHash(
-        feltmap,
-        diamond,
-        diamondCut,
-        erc721,
-        erc1155,
-        erc20,
-        erc5114,
-        flobDb,
-        rootDiamondFactory,
-        starkshell,
-        metadata,
+        diamondCut=diamondCut,
+        erc721=erc721,
+        feltmap=feltmap,
+        flobDb=flobDb,
+        metadata=metadata,
+        starkshell=starkshell,
         );
 
     return classHashes;
 }
 
-struct Address {
-    rootDiamond: felt,
-    rootFactory: felt,
-}
-
-func getAddresses() -> Address {
-    alloc_locals;
-    local rootDiamond;
-    local rootFactory;
-
-    %{
-        variables = [
-            "rootDiamond",
-            "rootFactory",
-            ]
-        [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
-    %}
-
-    local addresses: Address = Address(
-        rootDiamond,
-        rootFactory,
-        );
-
-    return addresses;
-}
-
-func computeSelectors() -> () {
+func compute_selectors() -> () {
     %{
         from starkware.starknet.public.abi import get_selector_from_name
         context.mintContract = get_selector_from_name("mintContract")
@@ -136,17 +87,14 @@ func computeSelectors() -> () {
     return ();
 }
 
-func declareContracts() -> () {
+func declare_contracts() -> () {
     %{
         context.feltmap = declare("./src/zkode/facets/storage/feltmap/FeltMap.cairo").class_hash
         context.diamond = declare("./src/zkode/diamond/Diamond.cairo").class_hash
         context.diamondCut = declare("./src/zkode/facets/upgradability/DiamondCut.cairo").class_hash
         context.erc721 = declare("./src/zkode/facets/token/erc721/ERC721.cairo").class_hash
-        context.erc1155 = declare("./src/zkode/facets/token/erc1155/ERC1155.cairo").class_hash
-        context.erc20 = declare("./src/zkode/facets/token/erc20/ERC20.cairo").class_hash
-        context.erc5114 = declare("./src/zkode/facets/token/erc5114/ERC5114.cairo").class_hash
         context.flobDb = declare("./src/zkode/facets/storage/flobdb/FlobDB.cairo").class_hash
-        context.rootDiamondFactory = declare("./src/bootstrap/Bootstrapper.cairo").class_hash
+        context.bootstrapper_class = declare("./src/bootstrap/Bootstrapper.cairo").class_hash
         context.starkshell = declare("./src/zkode/facets/starkshell/StarkShell.cairo").class_hash
         context.metadata = declare("./src/zkode/facets/metadata/metadata/UniversalMetadata.cairo").class_hash
     %}
@@ -154,41 +102,59 @@ func declareContracts() -> () {
     return ();
 }
 
-func deployRootDiamondFactory() -> () {
-    %{ context.rootFactory = deploy_contract("./src/bootstrap/Bootstrapper.cairo", [0]).contract_address %}
+func deploy_bootstrapper() -> () {
+    %{ context.bootstrapper_addr = deploy_contract("./src/bootstrap/Bootstrapper.cairo", [0]).contract_address %}
 
     return ();
 }
 
-func deployRootDiamond{
+func deploy_root{
     syscall_ptr: felt*, bitwise_ptr: BitwiseBuiltin*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() -> () {
     alloc_locals;
+    local salt = 0;
+    local bootstrapper_addr;
+    local bootstrapper_class;
+    local diamond_class;
+    %{
+        ids.bootstrapper_addr = context.bootstrapper_addr
+        ids.bootstrapper_class = context.bootstrapper_class
+        ids.diamond_class = context.diamond
+    %}
 
-    let addr: Address = getAddresses();
-    let ch: ClassHash = getClassHashes();
-    let sel: Selector = getSelectors();
+    let ch: ClassHash = get_class_hashes();
+    let sel: Selector = get_selectors();
 
-    let (setShellFun_code_len, setShellFun_code) = setShellFun();
-    let (mintContract_code_len, mintContract_code) = mintContract(ch.diamond, ch.erc721);
-    let (updateMetadata_code_len, updateMetadata_code) = updateMetadata();
+    local root;
+    %{
+        calldata = [0, 0, context.bootstrapper_class, context.feltmap]
+        declared_diamond =  declare("./src/zkode/diamond/Diamond.cairo")
+        prepared_diamond =  prepare(declared=declared_diamond, constructor_calldata=calldata)
+        ids.root = prepared_diamond.contract_address
+    %}
 
-    // TODO prank cheatcode?
-    let (rootDiamond) = IBootstrapper.deployRootDiamond(
-        addr.rootFactory,
-        ch,
-        sel.setShellFun,
-        setShellFun_code_len,
-        setShellFun_code,
-        sel.mintContract,
-        mintContract_code_len,
-        mintContract_code,
-        sel.updateMetadata,
-        updateMetadata_code_len,
-        updateMetadata_code,
+    let (facetCut_len, facetCut, calldata_len, calldata) = get_calldata(
+        BrilliantBlocks, root, diamond_class, ch
     );
 
-    %{ context.rootDiamond = ids.rootDiamond %}
+    %{
+        stop_prank_callable = start_prank(
+            ids.BrilliantBlocks, target_contract_address=context.bootstrapper_addr
+        )
+    %}
+    let (root) = IBootstrapper.deployRoot(
+        bootstrapper_addr,
+        salt,
+        diamond_class,
+        bootstrapper_class,
+        ch.feltmap,
+        facetCut_len,
+        facetCut,
+        calldata_len,
+        calldata,
+    );
+    %{ stop_prank_callable() %}
+    %{ context.root = ids.root %}
 
     return ();
 }

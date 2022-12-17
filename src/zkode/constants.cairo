@@ -63,7 +63,7 @@ namespace FUNCTION_SELECTORS {
 
     namespace IBootstrapper {
         const deployRootDiamond = 0x3d4c13cf2f41871327019138f3b2db9c0d38914e60782206253101a54f06352;
-        const init = 0x3b6771b04b068edcfb8c265b21ed5c6a5748d427138f776f3f164cc45f75b31;
+        const initRoot = 0x1a7cbc03cecc34ac67f96cf40d3e9d6e5796d07fe6e42d29e83ecd0fa2286c;
     }
 
     namespace DIAMONDCUT {

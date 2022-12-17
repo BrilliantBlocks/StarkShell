@@ -8,17 +8,11 @@ from src.zkode.facets.token.erc5114.structs import NFT
 
 from src.zkode.diamond.IDiamond import IDiamond
 from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
+from src.zkode.facets.storage.feltmap.IFeltMap import IFeltMap
 from src.zkode.facets.token.erc5114.IERC5114 import IERC5114
 from src.zkode.interfaces.ITCF import ITCF
 
-from tests.setup import (
-    ClassHash,
-    getClassHashes,
-    computeSelectors,
-    declareContracts,
-    deployRootDiamondFactory,
-    deployRootDiamond,
-)
+from tests.setup import compute_selectors, declare_contracts, deploy_bootstrapper, deploy_root
 
 from protostar.asserts import assert_eq
 
@@ -60,19 +54,28 @@ func __setup__{
 }() -> () {
     alloc_locals;
 
-    computeSelectors();
-    declareContracts();
-    deployRootDiamondFactory();
-    deployRootDiamond();
+    compute_selectors();
+    declare_contracts();
+    deploy_bootstrapper();
+    deploy_root();
 
-    local rootDiamond;
-    %{ ids.rootDiamond = context.rootDiamond %}
+    local root;
+    %{ ids.root = context.root %}
 
-    let ch: ClassHash = getClassHashes();
+    local erc5114_class;
+    %{
+        context.erc5114_class = declare("./src/zkode/facets/token/erc5114/ERC5114.cairo").class_hash
+        ids.erc5114_class = context.erc5114_class
+    %}
+
+    // BrilliantBlocks adds erc5114 to registry
+    %{ stop_prank = start_prank(ids.BrilliantBlocks, context.root) %}
+    IFeltMap.registerElement(root, erc5114_class);
+    %{ stop_prank() %}
 
     // User mints a diamond with ERC5114
     let facetCut_len = 1;
-    tempvar facetCut = new FacetCut(ch.erc5114, FacetCutAction.Add);
+    tempvar facetCut = new FacetCut(erc5114_class, FacetCutAction.Add);
 
     let calldata_len = ERC5114Calldata.SIZE + 1;
     tempvar calldata = new (
@@ -85,12 +88,10 @@ func __setup__{
 
     %{
         stop_prank_callable = start_prank(
-            ids.User, target_contract_address=context.rootDiamond
+            ids.User, target_contract_address=context.root
         )
     %}
-    let (diamond_address) = ITCF.mintContract(
-        rootDiamond, facetCut_len, facetCut, calldata_len, calldata
-    );
+    let (diamond_address) = ITCF.mintContract(root, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank_callable() %}
     %{ context.diamond_address = ids.diamond_address %}
 
@@ -119,11 +120,12 @@ func test_destructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    local erc5114_class;
+    %{ ids.erc5114_class = context.erc5114_class %}
 
     // Remove ERC5114 facet from diamond
     let facetCut_len = 1;
-    tempvar facetCut = new FacetCut(ch.erc5114, FacetCutAction.Remove);
+    tempvar facetCut = new FacetCut(erc5114_class, FacetCutAction.Remove);
 
     let calldata_len = 1;
     tempvar calldata = new (0);
@@ -143,10 +145,11 @@ func test_getImplementation_return_erc5114{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    local erc5114_class;
+    %{ ids.erc5114_class = context.erc5114_class %}
 
     let (token_class_hash) = IDiamond.getImplementation(diamond_address);
-    assert_eq(token_class_hash, ch.erc5114);
+    assert_eq(token_class_hash, erc5114_class);
     return ();
 }
 
@@ -157,9 +160,12 @@ func test_erc5114_has_one_function{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    local erc5114_class;
+    %{ ids.erc5114_class = context.erc5114_class %}
 
-    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(diamond_address, ch.erc5114);
+    let (selectors_len, selectors) = IDiamond.facetFunctionSelectors(
+        diamond_address, erc5114_class
+    );
     assert_eq(selectors_len, 1);
 
     return ();
@@ -173,11 +179,12 @@ func test_facet_returns_erc5114_for_ownerOf{
 
     local diamond_address;
     %{ ids.diamond_address = context.diamond_address %}
-    let ch: ClassHash = getClassHashes();
+    local erc5114_class;
+    %{ ids.erc5114_class = context.erc5114_class %}
     let erc5114 = getERC5114Selectors();
 
     let (facet) = IDiamond.facetAddress(diamond_address, erc5114.ownerOf);
-    assert_eq(facet, ch.erc5114);
+    assert_eq(facet, erc5114_class);
 
     return ();
 }

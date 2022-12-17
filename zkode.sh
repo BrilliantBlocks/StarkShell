@@ -15,6 +15,7 @@ export DIAMOND_CUT_SRC=./build/DiamondCut.json
 export METADATA_SRC=./build/UniversalMetadata.json
 export SETSHELLFUN=$(python3.9 -c "from starkware.starknet.public.abi import get_selector_from_name; print(get_selector_from_name('setShellFun'))")
 export MINT_CONTRACT=$(python3.9 -c "from starkware.starknet.public.abi import get_selector_from_name; print(get_selector_from_name('mintContract'))")
+export SALT=0
 
 
 # Declare contract and filter output for class hash
@@ -29,13 +30,8 @@ echo "Compile contracts"
 protostar build
 
 
-echo "Compile StarkShell functions"
-cairo-compile src/starkshell/printSetShellFunCode.cairo --output build/printSetShellFunCode.json
-cairo-compile src/starkshell/printMintContractCode.cairo --output build/printMintContractCode.json
-
-
 echo "Create account"
-ACCOUNT0=0x51cc82f8ab2d80899b97e30330fc9210da510facbe5b39edd0d49848e437530
+export OWNER=0x51cc82f8ab2d80899b97e30330fc9210da510facbe5b39edd0d49848e437530
 cat >$HOME/.starknet_accounts/starknet_open_zeppelin_accounts.json <<EOL
 {
     "alpha-goerli": {
@@ -43,7 +39,7 @@ cat >$HOME/.starknet_accounts/starknet_open_zeppelin_accounts.json <<EOL
             "private_key": "0x54304f405dce0f150d400de64a2412739eb48f655d499fe9cd46e1749f23e1a",
             "public_key": "0x6048bbaaa21f3a4a6500302c50dc0f2e90c9a6f894e7430e51fd05d0bc69b4f",
             "salt": "0x1f1f5f3cd6bc6ab4bcb5dfc2ac3c6fe4c5620bb03b44c388972ec394ba8bea5",
-            "address": "${ACCOUNT0}",
+            "address": "${OWNER}",
             "deployed": false
         }
     }
@@ -101,32 +97,32 @@ export METADATA_HASH=$(declare_class $METADATA_SRC)
 echo -ne " ($(echo $((100 * 11/11)))%)                   \r"
 echo -ne "\n"
 
-echo "Deploy Bootstrapper"
 
-BOOTSTRAPPER_ADDR=$(starknet deploy --class_hash $BOOTSTRAPPER_HASH --gateway_url $DEVNET --feeder_gateway_url $DEVNET --inputs 0 | grep "address" | awk '{print $NF}')
+echo "Deploy Bootstrapper"
+export BOOTSTRAPPER_ADDR=$(starknet deploy --class_hash $BOOTSTRAPPER_HASH --gateway_url $DEVNET --feeder_gateway_url $DEVNET --inputs 0 | grep "address" | awk '{print $NF}')
+
+
+echo "Compile print_calldata"
+cairo-compile src/bootstrap/config/print_calldata.cairo --output build/print_calldata.json
+
+# print_calldata.cairo requires this variable
+export ROOT=0
+
+echo "Precompute root address"
+export ROOT=$(starknet call \
+    --address $BOOTSTRAPPER_ADDR \
+    --function precomputeRootAddress \
+    --inputs $(cairo-run --program build/print_calldata.json --print_output --layout=small | tail -n +2 | xargs) \
+    --abi ./build/Bootstrapper_abi.json \
+    --gateway_url $DEVNET \
+    --feeder_gateway_url $DEVNET)
 
 
 echo "Deploy root diamond from Bootstrapper"
-
-# NOTICE zklang fun len are hardcoded
 starknet invoke \
     --address $BOOTSTRAPPER_ADDR \
-    --function deployRootDiamond \
-    --inputs \
-        $FELTMAP_HASH \
-        $DIAMOND_HASH \
-        $DIAMOND_CUT_HASH \
-        $ERC721_HASH \
-        $ERC1155_HASH \
-        $ERC20_HASH \
-        $ERC5114_HASH \
-        $FLOBDB_HASH \
-        $BOOTSTRAPPER_HASH \
-        $STARKSHELL_HASH \
-        $METADATA_HASH \
-        $SETSHELLFUN \
-        44 \
-        $(cairo-run --program build/printSetShellFunCode.json --print_output --layout=small | tail -n +2 | xargs) \
-        $MINT_CONTRACT \
-        313 \
-        $(cairo-run --program build/printMintContractCode.json --print_output --layout=small | tail -n +2 | xargs) --abi ./build/Bootstrapper_abi.json --gateway_url $DEVNET --feeder_gateway_url $DEVNET
+    --function deployRoot \
+    --inputs $(cairo-run --program build/print_calldata.json --print_output --layout=small | tail -n +2 | xargs) \
+    --abi ./build/Bootstrapper_abi.json \
+    --gateway_url $DEVNET \
+    --feeder_gateway_url $DEVNET

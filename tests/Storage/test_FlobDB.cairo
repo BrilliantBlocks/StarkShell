@@ -13,11 +13,11 @@ from src.zkode.facets.storage.flobdb.IFlobDB import IFlobDB
 
 from tests.setup import (
     ClassHash,
-    getClassHashes,
-    computeSelectors,
-    declareContracts,
-    deployRootDiamondFactory,
-    deployRootDiamond,
+    get_class_hashes,
+    compute_selectors,
+    declare_contracts,
+    deploy_bootstrapper,
+    deploy_root,
 )
 
 from protostar.asserts import assert_eq
@@ -31,24 +31,22 @@ func __setup__{
 }() -> () {
     alloc_locals;
 
-    computeSelectors();
-    declareContracts();
-    deployRootDiamondFactory();
-    deployRootDiamond();
+    compute_selectors();
+    declare_contracts();
+    deploy_bootstrapper();
+    deploy_root();
 
-    local rootDiamond;
-    %{ ids.rootDiamond = context.rootDiamond %}
+    local root;
+    %{ ids.root = context.root %}
 
-    let ch: ClassHash = getClassHashes();  // User mints a test diamond
+    let ch: ClassHash = get_class_hashes();  // User mints a test diamond
 
     tempvar facetCut = new FacetCut(ch.flobDb, FacetCutAction.Add);
     let facetCut_len = 1;
     tempvar calldata: felt* = new (2, 0, 0);
     let calldata_len = 3;
-    %{ stop_prank = start_prank(ids.User, context.rootDiamond) %}
-    let (diamond_address) = ITCF.mintContract(
-        rootDiamond, facetCut_len, facetCut, calldata_len, calldata
-    );
+    %{ stop_prank = start_prank(ids.User, context.root) %}
+    let (diamond_address) = ITCF.mintContract(root, facetCut_len, facetCut, calldata_len, calldata);
     %{ stop_prank() %}
     %{ context.diamond_address = ids.diamond_address %}
 
