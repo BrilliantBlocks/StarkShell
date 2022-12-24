@@ -4,8 +4,6 @@ from starkware.cairo.common.serialize import serialize_word
 from src.starkshell.interpreteInstruction import interpreteInstruction
 
 func main{output_ptr: felt*}() {
-    alloc_locals;
-
     let (felt_code_len, felt_code) = interpreteInstruction();
     print(felt_code_len, felt_code);
 
