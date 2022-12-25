@@ -42,10 +42,7 @@ func getTestData{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
         ids.prefix1, ids.prefix2 = array[0], array[1]
     %}
 
-    local data: TestData = TestData(
-        prefix1,
-        prefix2,
-        );
+    local data: TestData = TestData(prefix1, prefix2);
     return data;
 }
 
@@ -67,9 +64,14 @@ func __setup__{
 
     // User mints a diamond and adds UniversalMetadata and ERC-1155
     let data = getTestData();
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.metadata, FacetCutAction.Add), FacetCut(ch.erc1155, FacetCutAction.Add),), FacetCut*);
+    tempvar facetCut: FacetCut* = cast(
+        new (FacetCut(ch.metadata, FacetCutAction.Add), FacetCut(ch.erc1155, FacetCutAction.Add)),
+        FacetCut*,
+    );
     let facetCut_len = 2;
-    tempvar calldata: felt* = new (9, 0, 0, 0, TestData.SIZE, data.prefix1, data.prefix2, TRUE, 0, 0, 6, User, 1, 1, 0, 1, 0);
+    tempvar calldata: felt* = new (
+        9, 0, 0, 0, TestData.SIZE, data.prefix1, data.prefix2, TRUE, 0, 0, 6, User, 1, 1, 0, 1, 0
+    );
     let calldata_len = 17;
 
     %{ stop_prank = start_prank(ids.User, ids.rootDiamond) %}

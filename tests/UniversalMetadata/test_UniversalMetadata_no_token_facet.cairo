@@ -43,7 +43,7 @@ func __setup__{
     // User mints a diamond with UniversalMetadata
     tempvar facetCut = new FacetCut(ch.metadata, FacetCutAction.Add);
     let facetCut_len = 1;
-    tempvar calldata: felt* = new (7, 0, 0, 0, 0, 0, 0, 0,);
+    tempvar calldata: felt* = new (7, 0, 0, 0, 0, 0, 0, 0);
     let calldata_len = 8;
 
     %{ stop_prank = start_prank(ids.User, ids.rootDiamond) %}

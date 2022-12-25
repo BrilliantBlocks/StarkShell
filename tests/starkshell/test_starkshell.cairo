@@ -82,24 +82,37 @@ func __setup__{
 
     // User1 mints a diamond and adds ERC-1155 and StarkShell
     let facetCut_len = 2;
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.erc1155, FacetCutAction.Add), FacetCut(ch.starkshell, FacetCutAction.Add),), FacetCut*);
+    tempvar facetCut: FacetCut* = cast(
+        new (FacetCut(ch.erc1155, FacetCutAction.Add), FacetCut(ch.starkshell, FacetCutAction.Add)),
+        FacetCut*,
+    );
 
     tempvar fun_returnCalldata = Function(fun_selector_returnCalldata, program_hash, rootDiamond);
     tempvar fun_setShellFun = Function(fun_selector_setShellFun, setShellFun_hash, rootDiamond);
-    tempvar fun_invertBoolean = Function(fun_selector_invertBoolean, invertBoolean_hash, rootDiamond);
-    tempvar fun_interpreteInstruction = Function(fun_selector_interpreteInstruction, interpreteInstruction_hash, rootDiamond);
+    tempvar fun_invertBoolean = Function(
+        fun_selector_invertBoolean, invertBoolean_hash, rootDiamond
+    );
+    tempvar fun_interpreteInstruction = Function(
+        fun_selector_interpreteInstruction, interpreteInstruction_hash, rootDiamond
+    );
     local fun_len = 4;
     local fun_calldata_size = fun_len * Function.SIZE + 1;
 
     tempvar calldata: felt* = new (
-        6, User1, 1, 1, 0, 1, 0,
+        6,
+        User1,
+        1,
+        1,
+        0,
+        1,
+        0,
         fun_calldata_size,
         fun_len,
         fun_returnCalldata,
         fun_setShellFun,
         fun_invertBoolean,
         fun_interpreteInstruction,
-        );
+    );
     let calldata_len = 7 + fun_calldata_size + 1;
 
     %{ stop_prank = start_prank(ids.User1, context.rootDiamond) %}
@@ -331,7 +344,7 @@ func test_interpreteInstruction_returnCalldata{
         input1=Calldata,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar program = new (instruction0);
     tempvar memory = new ();
@@ -391,14 +404,14 @@ func test_interpreteInstruction_add{
         input1=Calldata,
         input2=NULLvar,
         output=sumvar,
-        );
+    );
 
     tempvar instruction1 = Instruction(
         primitive=Primitive(ch.starkshell, return_keyword),
         input1=sumvar,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar program = new (instruction0, instruction1);
     tempvar memory = new (sumvar);
@@ -457,14 +470,14 @@ func test_interpreteInstruction_sub{
         input1=Calldata,
         input2=NULLvar,
         output=subvar,
-        );
+    );
 
     tempvar instruction1 = Instruction(
         primitive=Primitive(ch.starkshell, return_keyword),
         input1=subvar,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar program = new (instruction0, instruction1);
     tempvar memory = new (subvar);
@@ -523,14 +536,14 @@ func test_interpreteInstruction_mul{
         input1=Calldata,
         input2=NULLvar,
         output=mulvar,
-        );
+    );
 
     tempvar instruction1 = Instruction(
         primitive=Primitive(ch.starkshell, return_keyword),
         input1=mulvar,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar program = new (instruction0, instruction1);
     tempvar memory = new (mulvar);
@@ -589,14 +602,14 @@ func test_interpreteInstruction_div{
         input1=Calldata,
         input2=NULLvar,
         output=divvar,
-        );
+    );
 
     tempvar instruction1 = Instruction(
         primitive=Primitive(ch.starkshell, return_keyword),
         input1=divvar,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar program = new (instruction0, instruction1);
     tempvar memory = new (divvar);
@@ -655,14 +668,14 @@ func test_interpreteInstruction_emit_events_on_div{
         input1=Calldata,
         input2=NULLvar,
         output=divvar,
-        );
+    );
 
     tempvar instruction1 = Instruction(
         primitive=Primitive(ch.starkshell, return_keyword),
         input1=divvar,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar program = new (instruction0, instruction1);
     tempvar memory = new (divvar);

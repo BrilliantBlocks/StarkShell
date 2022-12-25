@@ -22,25 +22,14 @@ func setShellFun() -> (res_len: felt, res: felt*) {
     tempvar NULLvar = Variable(0, 0, 0, 0);
 
     tempvar instruction0 = Instruction(
-        Primitive(0, assert_only_owner_keyword),
-        NULLvar,
-        NULLvar,
-        NULLvar,
-        );
+        Primitive(0, assert_only_owner_keyword), NULLvar, NULLvar, NULLvar
+    );
 
     tempvar instruction1 = Instruction(
-        Primitive(0, set_function_keyword),
-        Variable(var0_identifier, 0, 0, 0),
-        NULLvar,
-        NULLvar,
-        );
+        Primitive(0, set_function_keyword), Variable(var0_identifier, 0, 0, 0), NULLvar, NULLvar
+    );
 
-    tempvar instruction2 = Instruction(
-        Primitive(0, return_keyword),
-        NULLvar,
-        NULLvar,
-        NULLvar,
-        );
+    tempvar instruction2 = Instruction(Primitive(0, return_keyword), NULLvar, NULLvar, NULLvar);
 
     tempvar memory_layout = ();
 
@@ -50,13 +39,8 @@ func setShellFun() -> (res_len: felt, res: felt*) {
     let felt_code_len = total_len + 1;
 
     tempvar felt_code: felt* = new (
-        total_len,
-        instruction_len,
-        instruction0,
-        instruction1,
-        instruction2,
-        memory_layout,
-        );
+        total_len, instruction_len, instruction0, instruction1, instruction2, memory_layout
+    );
 
     return (felt_code_len, felt_code);
 }

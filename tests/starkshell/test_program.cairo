@@ -17,20 +17,20 @@ func test_get_instruction{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(1, 1), Variable(0, 1, 2, 3), Variable(0, 0, 0, 0), Variable(4, 5, 6, 7),
-        );
+        Primitive(1, 1), Variable(0, 1, 2, 3), Variable(0, 0, 0, 0), Variable(4, 5, 6, 7)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(2, 2), Variable(8, 9, 10, 11), Variable(0, 0, 0, 0), Variable(12, 13, 14, 15),
-        );
+        Primitive(2, 2), Variable(8, 9, 10, 11), Variable(0, 0, 0, 0), Variable(12, 13, 14, 15)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(3, 3), Variable(0, 0, -1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(3, 3), Variable(0, 0, -1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 2, 3), Variable(0, 0, 0, 0), Variable(4, 5, 6, 7),
-        );
+        Primitive(4, 4), Variable(0, 1, 2, 3), Variable(0, 0, 0, 0), Variable(4, 5, 6, 7)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(5, 5), Variable(8, 9, 10, 11), Variable(0, 0, 0, 0), Variable(12, 13, 14, 15),
-        );
+        Primitive(5, 5), Variable(8, 9, 10, 11), Variable(0, 0, 0, 0), Variable(12, 13, 14, 15)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -136,20 +136,20 @@ func test_validate_reverts_on_non_boolean_protected{
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1),
-        );
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 3, 0, 0),
-        );
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 3, 0, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1),
-        );
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1),
-        );
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -173,20 +173,20 @@ func test_validate_reverts_on_unknown_type_key{
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1),
-        );
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 3, 0),
-        );
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 3, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1),
-        );
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1),
-        );
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -210,20 +210,20 @@ func test_validate_returns_nothing_on_anything_else{
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1),
-        );
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 1, 0),
-        );
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 1, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1),
-        );
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1),
-        );
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -246,20 +246,20 @@ func test_replace_zero_class_hashes_with_self{
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(0, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(0, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(0, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1),
-        );
+        Primitive(0, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(1, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 1, 0),
-        );
+        Primitive(1, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 1, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1),
-        );
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(0, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1),
-        );
+        Primitive(0, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -365,20 +365,20 @@ func test_prepare_reverts_on_non_boolean_protected{
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1),
-        );
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 3, 0, 0),
-        );
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 3, 0, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1),
-        );
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1),
-        );
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -403,20 +403,20 @@ func test_prepare_reverts_on_unknown_type_key{
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(1, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1),
-        );
+        Primitive(2, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 3, 0),
-        );
+        Primitive(3, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 3, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1),
-        );
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1),
-        );
+        Primitive(5, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);
@@ -441,20 +441,20 @@ func test_prepare_replaces_zero_class_hash_with_starkshell_hash{
     let program_len = 5 * Instruction.SIZE;
 
     tempvar instruction_0 = new Instruction(
-        Primitive(0, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0),
-        );
+        Primitive(0, 1), Variable(0, 1, 1, 0), Variable(0, 0, 0, 0), Variable(0, 0, 0, 0)
+    );
     tempvar instruction_1 = new Instruction(
-        Primitive(0, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1),
-        );
+        Primitive(0, 2), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(0, 1, 1, 1)
+    );
     tempvar instruction_2 = new Instruction(
-        Primitive(1, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 1, 0),
-        );
+        Primitive(1, 3), Variable(0, 0, 1, 0), Variable(0, 0, 0, 0), Variable(0, 1, 1, 0)
+    );
     tempvar instruction_3 = new Instruction(
-        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1),
-        );
+        Primitive(4, 4), Variable(0, 1, 1, 1), Variable(0, 0, 0, 0), Variable(1, 0, 0, 1)
+    );
     tempvar instruction_4 = new Instruction(
-        Primitive(0, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1),
-        );
+        Primitive(0, 5), Variable(1, 0, 1, 1), Variable(0, 0, 0, 0), Variable(1, 1, 1, 1)
+    );
 
     memcpy(program + 0 * Instruction.SIZE, instruction_0, Instruction.SIZE);
     memcpy(program + 1 * Instruction.SIZE, instruction_1, Instruction.SIZE);

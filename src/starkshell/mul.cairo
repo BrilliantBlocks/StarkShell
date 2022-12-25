@@ -33,14 +33,14 @@ func mul(_x: felt, _y: felt) -> (res_len: felt, res: felt*) {
         input1=Calldata,
         input2=NULLvar,
         output=mulvar,
-        );
+    );
 
     tempvar instruction1 = Instruction(
         primitive=Primitive(starkshell_hash, return_keyword),
         input1=mulvar,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar program = new (instruction0, instruction1);
     tempvar memory = new (mulvar);

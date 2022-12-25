@@ -48,7 +48,9 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     let (local this_starkshell_hash: felt) = IDiamond.facetAddress(self, selector);
 
     // if repo is 0 assume that this contract holds the code
-    local normalized_repo_address: felt = Library._if_x_is_zero_then_y_else_x(fun.repo_address, self);
+    local normalized_repo_address: felt = Library._if_x_is_zero_then_y_else_x(
+        fun.repo_address, self
+    );
 
     with_attr error_message("LOADING CODE FAILED") {
         let (program_raw_len, program_raw) = IFlobDB.load(

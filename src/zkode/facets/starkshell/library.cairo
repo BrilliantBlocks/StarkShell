@@ -178,18 +178,12 @@ namespace Memory {
         alloc_locals;
 
         tempvar false_var = new Variable(
-            selector=API.CORE.__ZKLANG__FALSE_VAR,
-            protected=TRUE,
-            type=DataTypes.BOOL,
-            data_len=1,
-            );
+            selector=API.CORE.__ZKLANG__FALSE_VAR, protected=TRUE, type=DataTypes.BOOL, data_len=1
+        );
 
         tempvar true_var = new Variable(
-            selector=API.CORE.__ZKLANG__TRUE_VAR,
-            protected=TRUE,
-            type=DataTypes.BOOL,
-            data_len=1,
-            );
+            selector=API.CORE.__ZKLANG__TRUE_VAR, protected=TRUE, type=DataTypes.BOOL, data_len=1
+        );
 
         memcpy(_ptr + _ptr_len, false_var, Variable.SIZE);
         assert _ptr[_ptr_len + Variable.SIZE] = FALSE;
@@ -208,7 +202,7 @@ namespace Memory {
             protected=TRUE,
             type=DataTypes.FELT,
             data_len=1,
-            );
+        );
         let (contract_address) = get_contract_address();
         memcpy(_ptr + _ptr_len, contract_address_var, Variable.SIZE);
         assert _ptr[_ptr_len + Variable.SIZE] = contract_address;
@@ -224,7 +218,7 @@ namespace Memory {
             protected=TRUE,
             type=DataTypes.FELT,
             data_len=1,
-            );
+        );
         let (caller) = get_caller_address();
         memcpy(_ptr + _ptr_len, caller_address_var, Variable.SIZE);
         assert _ptr[_ptr_len + Variable.SIZE] = caller;
@@ -240,7 +234,7 @@ namespace Memory {
             protected=FALSE,
             type=DataTypes.FELT,
             data_len=_calldata_len,
-            );
+        );
         memcpy(_ptr + _ptr_len, calldata_var, Variable.SIZE);
         memcpy(_ptr + _ptr_len + Variable.SIZE, _calldata, _calldata_len);
 
@@ -392,7 +386,7 @@ namespace Memory {
         let total_var_size = Variable.SIZE + _memory[Variable.data_len];
 
         if (_memory[Variable.selector] == _selector) {
-            return (start=_i, end=_i + total_var_size,);
+            return (start=_i, end=_i + total_var_size);
         }
 
         return get_index_of_var_in_memory(

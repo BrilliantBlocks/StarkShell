@@ -29,18 +29,26 @@ namespace API {
         const __ZKLANG__EVENT = 0x315c4e503b7f8705e10f5e48d4899db38942f0874c59e0debd029d0e1dd9a26;
         const __ZKLANG__BRANCH = 0xce691f9bc53c77ba4a888fec927f8beb04746d9f4256b40c4566af3a100ea5;
         const __ZKLANG__REVERT = 0x28089cf47fb4b74d7ca26ab7ac970b2dc2b1bd4ed7dc25ca96784bc366a815f;
-        const __ZKLANG__CALLDATA_VAR = 0x3c6f3599ac37319bbc36d2acb3ea0b2567cdbe7fd6ed09616db6414f36bdc40;
-        const __ZKLANG__SET_FUNCTION = 0x18ae100d40c97134a859d0645d6b26e9c64a971383a16c41bc2aa306cd97972;
+        const __ZKLANG__CALLDATA_VAR = 0x3c6f3599ac37319bbc36d2acb3ea0b2567cdbe7fd6ed09616db6414f36bdc40
+            ;
+        const __ZKLANG__SET_FUNCTION = 0x18ae100d40c97134a859d0645d6b26e9c64a971383a16c41bc2aa306cd97972
+            ;
         const __ZKLANG__EXEC = 0x1420ce4716273931c8d8177eb8b3996fafbf893270232b06f31b5189858987b;
-        const __ZKLANG__ASSERT_ONLY_OWNER = 0x39549628361e8cbb303e3c959c8576de71ccf55f61a66b77e3067f0d3d7c90c;
-        const __ZKLANG__CALLER_ADDRESS_VAR = 0x322f3db6714056d8d260dfc87d0ebe50e764b25f536f9aea41d6544f025077b;
-        const __ZKLANG__CONTRACT_ADDRESS_VAR = 0x3b6b7fdff7b925dac637ced22595f8b097b895737f63123221f0e4ec0c89242;
-        const __ZKLANG__CALL_CONTRACT = 0x312f27d7b0a81e57007cc55c68e29ea785910acec2974f2bad0e32bc93147d5;
+        const __ZKLANG__ASSERT_ONLY_OWNER = 0x39549628361e8cbb303e3c959c8576de71ccf55f61a66b77e3067f0d3d7c90c
+            ;
+        const __ZKLANG__CALLER_ADDRESS_VAR = 0x322f3db6714056d8d260dfc87d0ebe50e764b25f536f9aea41d6544f025077b
+            ;
+        const __ZKLANG__CONTRACT_ADDRESS_VAR = 0x3b6b7fdff7b925dac637ced22595f8b097b895737f63123221f0e4ec0c89242
+            ;
+        const __ZKLANG__CALL_CONTRACT = 0x312f27d7b0a81e57007cc55c68e29ea785910acec2974f2bad0e32bc93147d5
+            ;
         // TODO make NOOP zero and transform during init
         const __ZKLANG__NOOP = 0x1f0ddfce203a54a45080b91f88d9af5e165c95f44efaa5edc1506a2dad901dd;
-        const __ZKLANG__FELT_TO_UINT256 = 0x3726882ac05e3fc9b328e583644a4818c6fca2ca42d90d300f0d451eba6fdcc;
+        const __ZKLANG__FELT_TO_UINT256 = 0x3726882ac05e3fc9b328e583644a4818c6fca2ca42d90d300f0d451eba6fdcc
+            ;
         const __ZKLANG__DEPLOY = 0x198a90daab7e1dfab015a5564a3305ffcaaf28717870a466d15194efdcca578;
-        const __ZKLANG__FALSE_VAR = 0x29fa8f7f93e496ecbc2d5a3dd8462c9a743f89dd5196e4be6a32ec3d1cf11a4;
+        const __ZKLANG__FALSE_VAR = 0x29fa8f7f93e496ecbc2d5a3dd8462c9a743f89dd5196e4be6a32ec3d1cf11a4
+            ;
         const __ZKLANG__TRUE_VAR = 0x5b053620a9db99726fb9138818c2d9e12e212722320e03b1da43e0dc46da0d;
     }
 }
@@ -109,7 +117,8 @@ namespace FUNCTION_SELECTORS {
         const isApprovedForAll = 0x21cdf9aedfed41bc4485ae779fda471feca12075d9127a0fc70ac6b3b3d9c30;
         const setApprovalForAll = 0x2d4c8ea4c8fb9f571d1f6f9b7692fff8e5ceaf73b1df98e7da8c1109b39ae9a;
         const safeTransferFrom = 0x19d59d013d4aa1a8b1ce4c8299086f070733b453c02d0dc46e735edc04d6444;
-        const safeBatchTransferFrom = 0x23cc35d21c405aa7adf1f3afcf558aec0dbe6a45cade725420609aef87e9035;
+        const safeBatchTransferFrom = 0x23cc35d21c405aa7adf1f3afcf558aec0dbe6a45cade725420609aef87e9035
+            ;
     }
 
     namespace ERC1155Metadata {
@@ -120,7 +129,8 @@ namespace FUNCTION_SELECTORS {
         const __constructor__ = 0x3b9a86822e238443322f8092dd01ed69fb0d96d2fad90e9ad9ba03f8e92097b;
         const __destructor__ = 0x2127299f0c39ad6a0f5a7ccb0857ab472c30192b18dd40a88a5af64edd63a74;
         const __pub_func__ = 0x2d75e96b04d57d3c04af66c6b24042eee64c95f792ad16cc2404154690a2c04;
-        const __supports_interface__ = 0x20f621f78ecca5435389efa53ca29525b75fe9745044ce3b56b4b1e6056d791;
+        const __supports_interface__ = 0x20f621f78ecca5435389efa53ca29525b75fe9745044ce3b56b4b1e6056d791
+            ;
         const __royalty_info = 0xef10f72befea4b2767793ab9151f232f087d5a39ad0d959a7406a84aaaf55a;
     }
 
@@ -140,7 +150,8 @@ namespace FUNCTION_SELECTORS {
 
     namespace ERC4906 {
         const updateTokenURI = 0x2ce2072fc0e89a2053fac74913af88590b52e043d8a71a775737487a427e3d0;
-        const updateTokenBatchURI = 0x3c6f820fdee2e32345dc4f820b22fcdf1e015a504eabc9d9478aa24ce57e480;
+        const updateTokenBatchURI = 0x3c6f820fdee2e32345dc4f820b22fcdf1e015a504eabc9d9478aa24ce57e480
+            ;
     }
 
     namespace ERC5007 {
