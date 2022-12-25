@@ -69,7 +69,7 @@ func getERC1155Selectors() -> ERC1155Selectors {
         setApprovalForAll,
         safeTransferFrom,
         safeBatchTransferFrom,
-        );
+    );
 
     return selectors;
 }
@@ -98,14 +98,9 @@ func __setup__{
     tempvar calldata = new (
         ERC1155Calldata.SIZE,
         ERC1155Calldata(
-            receiver=User,
-            tokenBatch_len=1,
-            tokenBatch0=TokenBatch(
-                Uint256(1, 0),
-                Uint256(1, 0),
-                ),
-            ),
-        );
+            receiver=User, tokenBatch_len=1, tokenBatch0=TokenBatch(Uint256(1, 0), Uint256(1, 0))
+        ),
+    );
     %{
         stop_prank_callable = start_prank(
             ids.User, target_contract_address=context.rootDiamond

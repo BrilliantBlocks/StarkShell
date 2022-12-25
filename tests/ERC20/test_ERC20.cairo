@@ -76,7 +76,7 @@ func getERC20Selectors() -> ERC20Selectors {
         transferFrom,
         increaseAllowance,
         decreaseAllowance,
-        );
+    );
 
     return selectors;
 }
@@ -103,9 +103,8 @@ func __setup__{
 
     let calldata_len = ERC20Calldata.SIZE + 1;
     tempvar calldata = new (
-        ERC20Calldata.SIZE,
-        ERC20Calldata(receiver=User, balance=Uint256(1000000, 0))
-        );
+        ERC20Calldata.SIZE, ERC20Calldata(receiver=User, balance=Uint256(1000000, 0))
+    );
 
     %{
         stop_prank_callable = start_prank(

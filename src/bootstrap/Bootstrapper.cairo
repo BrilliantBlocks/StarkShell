@@ -109,7 +109,9 @@ func deployRootDiamond{
             class_hash=_class.diamond,
             contract_address_salt=salt,
             constructor_calldata_size=DiamondCalldata.SIZE,
-            constructor_calldata=new (DiamondCalldata(0, 0, _class.rootDiamondFactory, _class.feltmap)),
+            constructor_calldata=new (
+                DiamondCalldata(0, 0, _class.rootDiamondFactory, _class.feltmap)
+            ),
             deploy_from_zero=FALSE,
         );
     }
@@ -157,44 +159,61 @@ func init{
     let (high, low) = split_felt(self);
 
     let facetCut_len = 6;
-    tempvar facetCut: FacetCut* = cast(new (
-        FacetCut(_class.feltmap, FacetCutAction.Add),
-        FacetCut(_class.erc721, FacetCutAction.Add),
-        FacetCut(_class.starkshell, FacetCutAction.Add),
-        FacetCut(_class.diamondCut, FacetCutAction.Add),
-        FacetCut(_class.metadata, FacetCutAction.Add),
-        FacetCut(_class.flobDb, FacetCutAction.Add),
-        ), FacetCut*);
+    tempvar facetCut: FacetCut* = cast(
+        new (
+            FacetCut(_class.feltmap, FacetCutAction.Add),
+            FacetCut(_class.erc721, FacetCutAction.Add),
+            FacetCut(_class.starkshell, FacetCutAction.Add),
+            FacetCut(_class.diamondCut, FacetCutAction.Add),
+            FacetCut(_class.metadata, FacetCutAction.Add),
+            FacetCut(_class.flobDb, FacetCutAction.Add),
+        ),
+        FacetCut*,
+    );
 
-    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (StarkShellCalldata.SIZE + 2) + (DiamondCutCalldata.SIZE + 1) + 12;
-    tempvar tmp = cast(new (
-        BFRCalldata.SIZE + 1,
-        BFRCalldata.SIZE,
-        BFRCalldata(
-            _class.feltmap,
-            _class.erc721,
-            _class.flobDb,
-            _class.starkshell,
-            _class.diamondCut,
-            _class.metadata,
-            _class.erc1155,
-            _class.erc20,
-            _class.erc5114,
+    let tmp_len = (BFRCalldata.SIZE + 2) + (ERC721Calldata.SIZE + 1) + (
+        StarkShellCalldata.SIZE + 2
+    ) + (DiamondCutCalldata.SIZE + 1) + 12;
+    tempvar tmp = cast(
+        new (
+            BFRCalldata.SIZE + 1,
+            BFRCalldata.SIZE,
+            BFRCalldata(
+                _class.feltmap,
+                _class.erc721,
+                _class.flobDb,
+                _class.starkshell,
+                _class.diamondCut,
+                _class.metadata,
+                _class.erc1155,
+                _class.erc20,
+                _class.erc5114,
             ),
-        ERC721Calldata.SIZE,
-        ERC721Calldata(
-            receiver=_owner,
-            tokenId_len=1,
-            tokenId_low=low,
-            tokenId_high=high,
+            ERC721Calldata.SIZE,
+            ERC721Calldata(receiver=_owner, tokenId_len=1, tokenId_low=low, tokenId_high=high),
+            StarkShellCalldata.SIZE + 1,
+            2,
+            StarkShellCalldata(
+                Function(_setShellFun_selector, _setShellFun_hash, 0),
+                Function(_mintContract_selector, _mintContract_hash, 0),
             ),
-        StarkShellCalldata.SIZE + 1,
-        2,
-        StarkShellCalldata(Function(_setShellFun_selector, _setShellFun_hash, 0), Function(_mintContract_selector, _mintContract_hash, 0)),
-        DiamondCutCalldata.SIZE,
-        DiamondCutCalldata(0),
-        11, 0, 0, 0, 4, 184555836509371486644856095017587421344261193474617388276263770152936827443, 203998027954878725543997547266317984232748597657159516903365148909254028897, 202244606418614541364902086132942206699045874315590809968639424267107263609, 10754949894223100254076072945295018243026244912222009195, FALSE, 0, 0,  // https://m4chgvnjpozvm7p7jeo7vj3susfrkuencv6j5bf3u6mokcshjmeq.arweave.net/ZwRzVal7s1Z9_0kd-qdypIsVUI0VfJ6Eu6eY5QpHSwk
-        ), felt*);
+            DiamondCutCalldata.SIZE,
+            DiamondCutCalldata(0),
+            11,
+            0,
+            0,
+            0,
+            4,
+            184555836509371486644856095017587421344261193474617388276263770152936827443,
+            203998027954878725543997547266317984232748597657159516903365148909254028897,
+            202244606418614541364902086132942206699045874315590809968639424267107263609,
+            10754949894223100254076072945295018243026244912222009195,
+            FALSE,
+            0,
+            0,
+        ),
+        felt*,
+    );
 
     let (local calldata: felt*) = alloc();
 

@@ -38,10 +38,7 @@ func getSelectors() -> Selector {
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
 
-    local selectors: Selector = Selector(
-        mintContract,
-        setShellFun,
-        );
+    local selectors: Selector = Selector(mintContract, setShellFun);
 
     return selectors;
 }
@@ -89,7 +86,7 @@ func getClassHashes() -> ClassHash {
         rootDiamondFactory,
         starkshell,
         metadata,
-        );
+    );
 
     return classHashes;
 }
@@ -112,10 +109,7 @@ func getAddresses() -> Address {
         [setattr(ids, v, getattr(context, v)) if hasattr(context, v) else setattr(ids, v, 0) for v in variables]
     %}
 
-    local addresses: Address = Address(
-        rootDiamond,
-        rootFactory,
-        );
+    local addresses: Address = Address(rootDiamond, rootFactory);
 
     return addresses;
 }

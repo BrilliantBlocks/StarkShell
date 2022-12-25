@@ -31,23 +31,17 @@ func interpreteInstruction() -> (res_len: felt, res: felt*) {
         input1=NULLvar,
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     // res = exec(_program, _memory)
     tempvar instruction1 = Instruction(
-        primitive=Primitive(0, exec_keyword),
-        input1=Calldata,
-        input2=NULLvar,
-        output=ResultVar,
-        );
+        primitive=Primitive(0, exec_keyword), input1=Calldata, input2=NULLvar, output=ResultVar
+    );
 
     // return res
     tempvar instruction2 = Instruction(
-        primitive=Primitive(0, return_keyword),
-        input1=ResultVar,
-        input2=NULLvar,
-        output=NULLvar,
-        );
+        primitive=Primitive(0, return_keyword), input1=ResultVar, input2=NULLvar, output=NULLvar
+    );
 
     tempvar memory_layout = (ResultVar);
 
@@ -57,13 +51,8 @@ func interpreteInstruction() -> (res_len: felt, res: felt*) {
     let felt_code_len = total_len + 1;
 
     tempvar felt_code: felt* = new (
-        total_len,
-        instruction_len,
-        instruction0,
-        instruction1,
-        instruction2,
-        memory_layout,
-        );
+        total_len, instruction_len, instruction0, instruction1, instruction2, memory_layout
+    );
 
     return (felt_code_len, felt_code);
 }

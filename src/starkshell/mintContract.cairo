@@ -75,7 +75,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(caller_address_var, 0, 0, 0),
         input2=NULLvar,
         output=Variable(salt_var, 0, 0, 0),
-        );
+    );
 
     // salt = sum(balance.low + balance.high)
     tempvar instruction1 = Instruction(
@@ -83,7 +83,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(salt_var, 0, 0, 0),
         input2=NULLvar,
         output=Variable(salt_var, 0, 0, 0),
-        );
+    );
 
     // salt = caller_address + salt
     tempvar instruction2 = Instruction(
@@ -91,7 +91,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(salt_var, 0, 0, 0),
         input2=Variable(caller_address_var, 0, 0, 0),
         output=Variable(salt_var, 0, 0, 0),
-        );
+    );
 
     // Prepare deploy params
     tempvar instruction3 = Instruction(
@@ -99,7 +99,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(diamond_hash_var, 0, 0, 0),
         input2=Variable(salt_var, 0, 0, 0),
         output=Variable(deploy_cfg_var, 0, 0, 0),
-        );
+    );
 
     // Prepare constructor calldata
     tempvar instruction4 = Instruction(
@@ -107,7 +107,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(this_address_var, 0, 0, 0),
         input2=Variable(facet_key_var, 0, 0, 0),
         output=Variable(diamond_constructor_var, 0, 0, 0),
-        );
+    );
 
     // Pop deploy_cfg var
     tempvar instruction5 = Instruction(
@@ -115,7 +115,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=NULLvar,
         input2=Variable(deploy_cfg_var, 0, 0, 0),
         output=Variable(deploy_cfg_var, 0, 0, 0),
-        );
+    );
 
     // deploy()
     tempvar instruction6 = Instruction(
@@ -123,7 +123,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(deploy_cfg_var, 0, 0, 0),
         input2=Variable(diamond_constructor_var, 0, 0, 0),
         output=Variable(diamond_addr_var, 0, 0, 0),
-        );
+    );
 
     // convert address to token id
     tempvar instruction7 = Instruction(
@@ -131,7 +131,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(diamond_addr_var, 0, 0, 0),
         input2=NULLvar,
         output=Variable(tokenId_var, 0, 0, 0),
-        );
+    );
 
     // mint token for address
     tempvar instruction8 = Instruction(
@@ -139,7 +139,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(this_address_var, 0, 0, 0),
         input2=Variable(tokenId_var, 0, 0, 0),
         output=NULLvar,
-        );
+    );
 
     // diamond_address + diamondCut selector = diamondCut_var
     tempvar instruction9 = Instruction(
@@ -147,7 +147,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(diamond_addr_var, 0, 0, 0),
         input2=Variable(diamondCut_func, 0, 0, 0),
         output=Variable(diamondCut_var, 0, 0, 0),
-        );
+    );
 
     // pop()
     tempvar instruction10 = Instruction(
@@ -155,7 +155,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=NULLvar,
         input2=Variable(diamondCut_var, 0, 0, 0),
         output=Variable(diamondCut_var, 0, 0, 0),
-        );
+    );
 
     // push()
     tempvar instruction11 = Instruction(
@@ -163,7 +163,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(calldata_var, 0, 0, 0),
         input2=NULLvar,
         output=Variable(calldata_var, 0, 0, 0),
-        );
+    );
 
     // diamondCut_var + calldata = diamondCut_var
     tempvar instruction12 = Instruction(
@@ -171,7 +171,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(diamondCut_var, 0, 0, 0),
         input2=Variable(calldata_var, 0, 0, 0),
         output=Variable(diamondCut_var, 0, 0, 0),
-        );
+    );
 
     // pop()
     tempvar instruction13 = Instruction(
@@ -179,7 +179,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=NULLvar,
         input2=Variable(diamondCut_var, 0, 0, 0),
         output=Variable(diamondCut_var, 0, 0, 0),
-        );
+    );
 
     // IDiamond.diamondCut(diamondCut_var)
     tempvar instruction14 = Instruction(
@@ -187,7 +187,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(diamondCut_var, 0, 0, 0),
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     // self + caller = transferFrom_var
     tempvar instruction15 = Instruction(
@@ -195,7 +195,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(this_address_var, 0, 0, 0),
         input2=Variable(caller_address_var, 0, 0, 0),
         output=Variable(transferFrom_var, 0, 0, 0),
-        );
+    );
 
     // pop()
     tempvar instruction16 = Instruction(
@@ -203,7 +203,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=NULLvar,
         input2=Variable(transferFrom_var, 0, 0, 0),
         output=Variable(transferFrom_var, 0, 0, 0),
-        );
+    );
 
     // transfer(transferFrom_var)
     tempvar instruction17 = Instruction(
@@ -211,7 +211,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(transferFrom_var, 0, 0, 0),
         input2=Variable(tokenId_var, 0, 0, 0),
         output=NULLvar,
-        );
+    );
 
     // return diamondAddress
     tempvar instruction18 = Instruction(
@@ -219,7 +219,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         input1=Variable(diamond_addr_var, 0, 0, 0),
         input2=NULLvar,
         output=NULLvar,
-        );
+    );
 
     tempvar facet_key = Variable(facet_key_var, 0, 0, 3);
     tempvar diamond_addr = Variable(diamond_addr_var, 0, 0, 0);
@@ -233,20 +233,26 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
     tempvar salt = Variable(salt_var, 0, 0, 0);
 
     tempvar memory_layout = (
-        facet_key, 16, 0, 0,  // TODO bug source 16 is diamondCut only
+        facet_key,
+        16,
+        0,
+        0,
         diamond_addr,
         tokenId,
         diamond_constructor_calldata,
-        diamond_hash, _diamond_hash,
-        diamondCut, diamondCut_func,
+        diamond_hash,
+        _diamond_hash,
+        diamondCut,
+        diamondCut_func,
         diamondCut_v,
         deploy_cfg,
         transferFrom_calldata,
         salt,
-        );
+    );
 
     let instruction_len = 19 * Instruction.SIZE;
-    let memory_layout_len = 10 * Variable.SIZE + facet_key.data_len + diamond_hash.data_len + diamondCut.data_len;
+    let memory_layout_len = 10 * Variable.SIZE + facet_key.data_len + diamond_hash.data_len +
+        diamondCut.data_len;
     let total_len = instruction_len + memory_layout_len + 1;
     let felt_code_len = total_len + 1;
 
@@ -273,7 +279,7 @@ func mintContract(_diamond_hash: felt, _erc721_hash: felt) -> (res_len: felt, re
         instruction17,
         instruction18,
         memory_layout,
-        );
+    );
 
     return (felt_code_len, felt_code);
 }

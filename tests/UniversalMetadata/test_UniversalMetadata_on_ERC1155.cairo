@@ -41,9 +41,12 @@ func __setup__{
     let ch: ClassHash = getClassHashes();
 
     // User mints a diamond with UniversalMetadata and ERC-1155
-    tempvar facetCut: FacetCut* = cast(new (FacetCut(ch.metadata, FacetCutAction.Add), FacetCut(ch.erc1155, FacetCutAction.Add),), FacetCut*);
+    tempvar facetCut: FacetCut* = cast(
+        new (FacetCut(ch.metadata, FacetCutAction.Add), FacetCut(ch.erc1155, FacetCutAction.Add)),
+        FacetCut*,
+    );
     let facetCut_len = 2;
-    tempvar calldata: felt* = new (7, 0, 0, 0, 0, 0, 0, 0, 6, User, 1, 1, 0, 1, 0,);
+    tempvar calldata: felt* = new (7, 0, 0, 0, 0, 0, 0, 0, 6, User, 1, 1, 0, 1, 0);
     let calldata_len = 15;
 
     %{ stop_prank = start_prank(ids.User, ids.rootDiamond) %}

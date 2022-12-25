@@ -116,12 +116,9 @@ func test_diamondCut_add_erc721{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     tempvar calldata = new (
         ERC721Calldata.SIZE,
         ERC721Calldata(
-            receiver=User,
-            tokenId_len=2,
-            tokenId0=Uint256(1, 0),
-            tokenId1=Uint256(3, 0),
-            ),
-        );
+            receiver=User, tokenId_len=2, tokenId0=Uint256(1, 0), tokenId1=Uint256(3, 0)
+        ),
+    );
 
     %{
         stop_prank_callable = start_prank(

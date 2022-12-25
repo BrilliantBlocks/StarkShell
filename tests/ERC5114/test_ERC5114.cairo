@@ -47,9 +47,7 @@ func getERC5114Selectors() -> ERC5114Selectors {
         [setattr(ids, v, get_selector_from_name(v)) for v in variables]
     %}
 
-    local selectors: ERC5114Selectors = ERC5114Selectors(
-        ownerOf,
-        );
+    local selectors: ERC5114Selectors = ERC5114Selectors(ownerOf);
 
     return selectors;
 }
@@ -76,12 +74,8 @@ func __setup__{
 
     let calldata_len = ERC5114Calldata.SIZE + 1;
     tempvar calldata = new (
-        ERC5114Calldata.SIZE,
-        ERC5114Calldata(
-            tokenId=Uint256(1, 0),
-            nft=NFT(0x789, Uint256(2, 0)),
-            )
-        );
+        ERC5114Calldata.SIZE, ERC5114Calldata(tokenId=Uint256(1, 0), nft=NFT(0x789, Uint256(2, 0)))
+    );
 
     %{
         stop_prank_callable = start_prank(

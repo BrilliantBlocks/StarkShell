@@ -40,32 +40,21 @@ func invertBoolean() -> (res_len: felt, res: felt*) {
         Variable(var0_identifier, 0, 0, 0),
         Variable(sentinel_selector, 0, 0, 0),
         NULLvar,
-        );
+    );
 
     tempvar instruction1 = Instruction(
-        Primitive(0, return_keyword),
-        Variable(false_identifier, 0, 0, 0),
-        NULLvar,
-        NULLvar,
-        );
+        Primitive(0, return_keyword), Variable(false_identifier, 0, 0, 0), NULLvar, NULLvar
+    );
 
     tempvar instruction2 = Instruction(
-        Primitive(0, return_keyword),
-        Variable(true_identifier, 0, 0, 0),
-        NULLvar,
-        NULLvar,
-        );
+        Primitive(0, return_keyword), Variable(true_identifier, 0, 0, 0), NULLvar, NULLvar
+    );
 
     tempvar sentinel_var = Variable(
-        selector=sentinel_selector,
-        protected=FALSE,
-        type=0,
-        data_len=2,
-        );
+        selector=sentinel_selector, protected=FALSE, type=0, data_len=2
+    );
 
-    tempvar memory_layout = (
-        sentinel_var, 1, 2,
-        );
+    tempvar memory_layout = (sentinel_var, 1, 2);
 
     let instruction_len = 3 * Instruction.SIZE;
     let memory_layout_len = 1 * Variable.SIZE + sentinel_var.data_len;
@@ -73,13 +62,8 @@ func invertBoolean() -> (res_len: felt, res: felt*) {
     let felt_code_len = total_len + 1;
 
     tempvar felt_code: felt* = new (
-        total_len,
-        instruction_len,
-        instruction0,
-        instruction1,
-        instruction2,
-        memory_layout,
-        );
+        total_len, instruction_len, instruction0, instruction1, instruction2, memory_layout
+    );
 
     return (felt_code_len, felt_code);
 }

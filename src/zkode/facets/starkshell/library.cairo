@@ -11,7 +11,6 @@ from starkware.starknet.common.syscalls import (
 )
 
 from src.zkode.constants import API
-from src.zkode.diamond.IDiamond import IDiamond
 from src.zkode.diamond.library import Library
 from src.zkode.facets.starkshell.structs import (
     DataTypes,
@@ -65,19 +64,18 @@ namespace Program {
     }
 
     func prepare{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        _selector: felt, _program_raw_len: felt, _program_raw: felt*
+        _this_starkshell_hash: felt, _program_raw_len: felt, _program_raw: felt*
     ) -> (program_len: felt, program: felt*) {
         alloc_locals;
-        // validate(_program_raw[0], _program_raw + 1);
-        validate(_program_raw_len, _program_raw);
 
-        let (this_diamond) = get_contract_address();
-        let (this_zklang) = IDiamond.facetAddress(this_diamond, _selector);
+        validate(_program_raw_len, _program_raw);
 
         let (local program: felt*) = alloc();
         let program_len = _program_raw_len;
 
-        replace_zero_class_hashes_with_self(program, this_zklang, _program_raw_len, _program_raw);
+        replace_zero_class_hashes_with_self(
+            program, _this_starkshell_hash, _program_raw_len, _program_raw
+        );
 
         return (program_len, program);
     }
@@ -180,18 +178,12 @@ namespace Memory {
         alloc_locals;
 
         tempvar false_var = new Variable(
-            selector=API.CORE.__ZKLANG__FALSE_VAR,
-            protected=TRUE,
-            type=DataTypes.BOOL,
-            data_len=1,
-            );
+            selector=API.CORE.__ZKLANG__FALSE_VAR, protected=TRUE, type=DataTypes.BOOL, data_len=1
+        );
 
         tempvar true_var = new Variable(
-            selector=API.CORE.__ZKLANG__TRUE_VAR,
-            protected=TRUE,
-            type=DataTypes.BOOL,
-            data_len=1,
-            );
+            selector=API.CORE.__ZKLANG__TRUE_VAR, protected=TRUE, type=DataTypes.BOOL, data_len=1
+        );
 
         memcpy(_ptr + _ptr_len, false_var, Variable.SIZE);
         assert _ptr[_ptr_len + Variable.SIZE] = FALSE;
@@ -210,7 +202,7 @@ namespace Memory {
             protected=TRUE,
             type=DataTypes.FELT,
             data_len=1,
-            );
+        );
         let (contract_address) = get_contract_address();
         memcpy(_ptr + _ptr_len, contract_address_var, Variable.SIZE);
         assert _ptr[_ptr_len + Variable.SIZE] = contract_address;
@@ -226,7 +218,7 @@ namespace Memory {
             protected=TRUE,
             type=DataTypes.FELT,
             data_len=1,
-            );
+        );
         let (caller) = get_caller_address();
         memcpy(_ptr + _ptr_len, caller_address_var, Variable.SIZE);
         assert _ptr[_ptr_len + Variable.SIZE] = caller;
@@ -242,7 +234,7 @@ namespace Memory {
             protected=FALSE,
             type=DataTypes.FELT,
             data_len=_calldata_len,
-            );
+        );
         memcpy(_ptr + _ptr_len, calldata_var, Variable.SIZE);
         memcpy(_ptr + _ptr_len + Variable.SIZE, _calldata, _calldata_len);
 
@@ -394,7 +386,7 @@ namespace Memory {
         let total_var_size = Variable.SIZE + _memory[Variable.data_len];
 
         if (_memory[Variable.selector] == _selector) {
-            return (start=_i, end=_i + total_var_size,);
+            return (start=_i, end=_i + total_var_size);
         }
 
         return get_index_of_var_in_memory(

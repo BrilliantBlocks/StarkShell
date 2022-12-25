@@ -22,17 +22,23 @@ func test_init_memory_on_empty_calldata_and_empty_memory{
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = 0;
 
-    tempvar calldata_var = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
+    tempvar calldata_var = new Variable(
+        API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len
+    );
     tempvar calldata_var_len = Variable.SIZE + calldata_var.data_len;
     memcpy(expected_memory + expected_memory_len, calldata_var, calldata_var_len);
     tempvar expected_memory_len = expected_memory_len + calldata_var_len;
 
-    tempvar caller_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar caller_address_var = new Variable(
+        API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1
+    );
     tempvar caller_address_var_len = Variable.SIZE + caller_address_var.data_len;
     memcpy(expected_memory + expected_memory_len, caller_address_var, caller_address_var_len);
     tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
-    tempvar contract_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar contract_address_var = new Variable(
+        API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1
+    );
     tempvar contract_address_var_len = Variable.SIZE + contract_address_var.data_len;
     memcpy(expected_memory + expected_memory_len, contract_address_var, contract_address_var_len);
     tempvar expected_memory_len = expected_memory_len + contract_address_var_len;
@@ -88,13 +94,17 @@ func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = 0;
 
-    tempvar calldata_var = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
+    tempvar calldata_var = new Variable(
+        API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len
+    );
     tempvar calldata_var_len = Variable.SIZE + calldata_var.data_len;
     memcpy(expected_memory + expected_memory_len, calldata_var, Variable.SIZE);
     memcpy(expected_memory + expected_memory_len + Variable.SIZE, _calldata, _calldata_len);
     tempvar expected_memory_len = expected_memory_len + calldata_var_len;
 
-    tempvar caller_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar caller_address_var = new Variable(
+        API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1
+    );
     tempvar caller_address_data = new (0x7);
     tempvar caller_address_var_len = Variable.SIZE + caller_address_var.data_len;
     memcpy(expected_memory + expected_memory_len, caller_address_var, Variable.SIZE);
@@ -105,7 +115,9 @@ func test_init_memory_on_non_single_width_calldata_on_empty_memory{
     );
     tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
-    tempvar contract_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar contract_address_var = new Variable(
+        API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1
+    );
     tempvar caller_address_data = new (0x13);
     tempvar contract_address_var_len = Variable.SIZE + contract_address_var.data_len;
     memcpy(expected_memory + expected_memory_len, contract_address_var, Variable.SIZE);
@@ -156,13 +168,17 @@ func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
     let (local expected_memory: felt*) = alloc();
     let expected_memory_len = 0;
 
-    tempvar calldata_var = new Variable(API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len);
+    tempvar calldata_var = new Variable(
+        API.CORE.__ZKLANG__CALLDATA_VAR, FALSE, DataTypes.FELT, _calldata_len
+    );
     tempvar calldata_var_len = Variable.SIZE + calldata_var.data_len;
     memcpy(expected_memory + expected_memory_len, calldata_var, Variable.SIZE);
     memcpy(expected_memory + expected_memory_len + Variable.SIZE, _calldata, _calldata_len);
     tempvar expected_memory_len = expected_memory_len + calldata_var_len;
 
-    tempvar caller_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar caller_address_var = new Variable(
+        API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1
+    );
     tempvar caller_address_data = new (0x7);
     tempvar caller_address_var_len = Variable.SIZE + caller_address_var.data_len;
     memcpy(expected_memory + expected_memory_len, caller_address_var, Variable.SIZE);
@@ -173,7 +189,9 @@ func test_init_memory_on_calldata_with_five_elements_on_empty_memory{
     );
     tempvar expected_memory_len = expected_memory_len + caller_address_var_len;
 
-    tempvar contract_address_var = new Variable(API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1);
+    tempvar contract_address_var = new Variable(
+        API.CORE.__ZKLANG__CALLER_ADDRESS_VAR, TRUE, DataTypes.FELT, 1
+    );
     tempvar contract_address_data = new (0x7);
     tempvar caller_address_var_len = Variable.SIZE + contract_address_var.data_len;
     memcpy(expected_memory + expected_memory_len, contract_address_var, Variable.SIZE);
@@ -222,40 +240,21 @@ func test_is_variable_in_memory_returns_true_if_var_in_memory{
 }() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -309,40 +308,21 @@ func test_is_variable_in_memory_returns_false_if_var_not_in_non_empty_memory{
 }() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -396,40 +376,21 @@ func test_get_index_of_var_in_memory{
 }() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -487,40 +448,21 @@ func test_split_memory_split_at_first_variable{
 }() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -560,40 +502,21 @@ func test_split_memory_split_at_last_variable{
 }() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -633,40 +556,21 @@ func test_split_memory_split_at_a_middle_variable{
 }() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -704,40 +608,21 @@ func test_split_memory_split_at_a_middle_variable{
 func test_load_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -808,40 +693,21 @@ func test_load_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 func test_load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=1,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=1, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=TRUE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -900,40 +766,21 @@ func test_load_variable_payload{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
 func test_update_variable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=0,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=0, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=FALSE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
@@ -1008,40 +855,21 @@ func test_update_variable_reverts_if_consts_are_updated{
 }() {
     alloc_locals;
 
-    tempvar var0 = new Variable(
-        selector=3,
-        protected=FALSE,
-        type=DataTypes.FELT,
-        data_len=5,
-        );
+    tempvar var0 = new Variable(selector=3, protected=FALSE, type=DataTypes.FELT, data_len=5);
     tempvar var0_data = new (4, 3, 2, 1, 0);
 
-    tempvar var1 = new Variable(
-        selector=6,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=1,
-        );
+    tempvar var1 = new Variable(selector=6, protected=FALSE, type=DataTypes.BOOL, data_len=1);
     tempvar var1_data = new (TRUE);
 
-    tempvar var2 = new Variable(
-        selector=2,
-        protected=TRUE,
-        type=DataTypes.BOOL,
-        data_len=3,
-        );
+    tempvar var2 = new Variable(selector=2, protected=TRUE, type=DataTypes.BOOL, data_len=3);
     tempvar var2_data = new (TRUE, FALSE, TRUE);
 
-    tempvar var3 = new Variable(
-        selector=7,
-        protected=FALSE,
-        type=DataTypes.BOOL,
-        data_len=2,
-        );
+    tempvar var3 = new Variable(selector=7, protected=FALSE, type=DataTypes.BOOL, data_len=2);
     tempvar var3_data = new (TRUE, FALSE);
 
     let (local memory: felt*) = alloc();
-    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len + var3.data_len;
+    let memory_len = 4 * Variable.SIZE + var0.data_len + var1.data_len + var2.data_len +
+        var3.data_len;
 
     // Copy first variable
     memcpy(memory, var0, Variable.SIZE);
