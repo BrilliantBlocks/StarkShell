@@ -4,12 +4,12 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from src.zkode.diamond.structs import FacetCut, FacetCutAction
+from src.components.diamond.structs import FacetCut, FacetCutAction
 
-from src.zkode.diamond.IDiamond import IDiamond
-from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
-from src.zkode.facets.metadata.metadata.IUniversalMetadata import IERC1155Metadata
-from src.zkode.interfaces.ITCF import ITCF
+from src.components.diamond.IDiamond import IDiamond
+from src.components.facets.upgradability.IDiamondCut import IDiamondCut
+from src.components.facets.metadata.metadata.IUniversalMetadata import IERC1155Metadata
+from src.components.interfaces.ITCF import ITCF
 
 from tests.setup import (
     ClassHash,
@@ -41,7 +41,7 @@ func getTestData{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     local suffix2;
     %{
         from tests.util import str_to_felt_array
-        array = str_to_felt_array("https://www.brilliantblocks.io/zkode/")
+        array = str_to_felt_array("https://www.brilliantblocks.io/components/")
         assert len(array) == 2
         ids.prefix1, ids.prefix2 = array[0], array[1]
         array = str_to_felt_array("/starknet-is-awesome/metadata.json")
@@ -109,7 +109,7 @@ func test_uri_returns_prefix_infix_suffix_on_minted_token{
     %{
         from tests.util import felt_array_to_str
         actual_str = felt_array_to_str([ids.token_uri_len, ids.actual_data.prefix1, ids.actual_data.prefix2, ids.infix1, ids.actual_data.suffix1, ids.actual_data.suffix2])
-        assert actual_str == "https://www.brilliantblocks.io/zkode/1/starknet-is-awesome/metadata.json"
+        assert actual_str == "https://www.brilliantblocks.io/starkshell/1/starknet-is-awesome/metadata.json"
     %}
     return ();
 }
@@ -133,7 +133,7 @@ func test_uri_returns_prefix_infix_suffix_on_not_minted_token{
     %{
         from tests.util import felt_array_to_str
         actual_str = felt_array_to_str([ids.token_uri_len, ids.actual_data.prefix1, ids.actual_data.prefix2, ids.infix1, ids.infix2, ids.suffix1, ids.suffix2])
-        assert actual_str == f"https://www.brilliantblocks.io/zkode/{2 + 2**128}/starknet-is-awesome/metadata.json"
+        assert actual_str == f"https://www.brilliantblocks.io/starkshell/{2 + 2**128}/starknet-is-awesome/metadata.json"
     %}
     return ();
 }

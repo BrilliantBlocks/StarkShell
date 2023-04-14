@@ -1,7 +1,7 @@
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.bool import FALSE, TRUE
 
-from src.zkode.facets.starkshell.structs import Primitive, Variable, Instruction
+from src.components.facets.starkshell.structs import Primitive, Variable, Instruction
 
 func interpreteInstruction() -> (res_len: felt, res: felt*) {
     alloc_locals;

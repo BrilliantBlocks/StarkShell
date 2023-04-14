@@ -16,11 +16,11 @@ from starkware.starknet.common.syscalls import (
 )
 from starkware.cairo.common.uint256 import Uint256
 
-from src.zkode.constants import FUNCTION_SELECTORS
-from src.zkode.diamond.structs import FacetCut, FacetCutAction
-from src.zkode.diamond.library import Diamond
-from src.zkode.facets.storage.feltmap.IFeltMap import IFeltMap
-from src.zkode.facets.starkshell.library import Function
+from src.components.constants import FUNCTION_SELECTORS
+from src.components.diamond.structs import FacetCut, FacetCutAction
+from src.components.diamond.library import Diamond
+from src.components.facets.storage.feltmap.IFeltMap import IFeltMap
+from src.components.facets.starkshell.library import Function
 from src.bootstrap.IBootstrapper import IBootstrapper, ClassHash
 
 struct BFRCalldata {

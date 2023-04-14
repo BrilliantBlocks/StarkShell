@@ -4,13 +4,13 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.hash_chain import hash_chain
 
-from src.zkode.diamond.structs import FacetCut, FacetCutAction
-from src.zkode.facets.starkshell.structs import Function, Instruction, Primitive, Variable
+from src.components.diamond.structs import FacetCut, FacetCutAction
+from src.components.facets.starkshell.structs import Function, Instruction, Primitive, Variable
 
-from src.zkode.diamond.IDiamond import IDiamond
-from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
-from src.zkode.interfaces.ITCF import ITCF
-from src.zkode.facets.storage.flobdb.IFlobDB import IFlobDB
+from src.components.diamond.IDiamond import IDiamond
+from src.components.facets.upgradability.IDiamondCut import IDiamondCut
+from src.components.interfaces.ITCF import ITCF
+from src.components.facets.storage.flobdb.IFlobDB import IFlobDB
 
 from src.starkshell.invertBoolean import invertBoolean
 from src.starkshell.returnCalldata import returnCalldata

@@ -4,12 +4,12 @@ from starkware.cairo.common.bool import FALSE, TRUE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from src.zkode.diamond.structs import FacetCut, FacetCutAction
+from src.components.diamond.structs import FacetCut, FacetCutAction
 
-from src.zkode.diamond.IDiamond import IDiamond
-from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
-from src.zkode.facets.metadata.metadata.IUniversalMetadata import IERC1155Metadata
-from src.zkode.interfaces.ITCF import ITCF
+from src.components.diamond.IDiamond import IDiamond
+from src.components.facets.upgradability.IDiamondCut import IDiamondCut
+from src.components.facets.metadata.metadata.IUniversalMetadata import IERC1155Metadata
+from src.components.interfaces.ITCF import ITCF
 
 from tests.setup import (
     ClassHash,
@@ -37,7 +37,7 @@ func getTestData{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     local prefix2;
     %{
         from tests.util import str_to_felt_array
-        array = str_to_felt_array("https://www.brilliantblocks.io/zkode/")
+        array = str_to_felt_array("https://www.brilliantblocks.io/starkshell/")
         assert len(array) == ids.TestData.SIZE
         ids.prefix1, ids.prefix2 = array[0], array[1]
     %}
@@ -97,7 +97,7 @@ func test_uri_returns_prefix_on_minted_token{
     local actual_data: TestData = TestData(token_uri[0], token_uri[1]);
     %{
         from tests.util import felt_array_to_str
-        assert felt_array_to_str([ids.TestData.SIZE, ids.actual_data.prefix1, ids.actual_data.prefix2]) == "https://www.brilliantblocks.io/zkode/"
+        assert felt_array_to_str([ids.TestData.SIZE, ids.actual_data.prefix1, ids.actual_data.prefix2]) == "https://www.brilliantblocks.io/starkshell/"
     %}
 
     return ();
@@ -119,7 +119,7 @@ func test_uri_returns_prefix_on_not_minted_token{
     local actual_data: TestData = TestData(token_uri[0], token_uri[1]);
     %{
         from tests.util import felt_array_to_str
-        assert felt_array_to_str([ids.TestData.SIZE, ids.actual_data.prefix1, ids.actual_data.prefix2]) == "https://www.brilliantblocks.io/zkode/"
+        assert felt_array_to_str([ids.TestData.SIZE, ids.actual_data.prefix1, ids.actual_data.prefix2]) == "https://www.brilliantblocks.io/starkshell/"
     %}
 
     return ();

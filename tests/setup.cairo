@@ -6,13 +6,13 @@ from starkware.cairo.common.uint256 import Uint256
 from src.bootstrap.Bootstrapper import IBootstrapper, ClassHash
 from src.starkshell.setShellFun import setShellFun
 from src.starkshell.mintContract import mintContract
-from src.zkode.facets.token.erc1155.structs import TokenBatch
-from src.zkode.diamond.structs import FacetCut, FacetCutAction
-from src.zkode.diamond.IDiamond import IDiamond
-from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
-from src.zkode.facets.token.erc1155.IERC1155 import IERC1155
-from src.zkode.facets.token.erc721.IERC721 import IERC721
-from src.zkode.interfaces.ITCF import ITCF
+from src.components.facets.token.erc1155.structs import TokenBatch
+from src.components.diamond.structs import FacetCut, FacetCutAction
+from src.components.diamond.IDiamond import IDiamond
+from src.components.facets.upgradability.IDiamondCut import IDiamondCut
+from src.components.facets.token.erc1155.IERC1155 import IERC1155
+from src.components.facets.token.erc721.IERC721 import IERC721
+from src.components.interfaces.ITCF import ITCF
 
 from protostar.asserts import assert_eq, assert_not_eq
 
@@ -131,17 +131,17 @@ func computeSelectors() -> () {
 
 func declareContracts() -> () {
     %{
-        context.feltmap = declare("./src/zkode/facets/storage/feltmap/FeltMap.cairo").class_hash
-        context.diamond = declare("./src/zkode/diamond/Diamond.cairo").class_hash
-        context.diamondCut = declare("./src/zkode/facets/upgradability/DiamondCut.cairo").class_hash
-        context.erc721 = declare("./src/zkode/facets/token/erc721/ERC721.cairo").class_hash
-        context.erc1155 = declare("./src/zkode/facets/token/erc1155/ERC1155.cairo").class_hash
-        context.erc20 = declare("./src/zkode/facets/token/erc20/ERC20.cairo").class_hash
-        context.erc5114 = declare("./src/zkode/facets/token/erc5114/ERC5114.cairo").class_hash
-        context.flobDb = declare("./src/zkode/facets/storage/flobdb/FlobDB.cairo").class_hash
+        context.feltmap = declare("./src/components/facets/storage/feltmap/FeltMap.cairo").class_hash
+        context.diamond = declare("./src/components/diamond/Diamond.cairo").class_hash
+        context.diamondCut = declare("./src/components/facets/upgradability/DiamondCut.cairo").class_hash
+        context.erc721 = declare("./src/components/facets/token/erc721/ERC721.cairo").class_hash
+        context.erc1155 = declare("./src/components/facets/token/erc1155/ERC1155.cairo").class_hash
+        context.erc20 = declare("./src/components/facets/token/erc20/ERC20.cairo").class_hash
+        context.erc5114 = declare("./src/components/facets/token/erc5114/ERC5114.cairo").class_hash
+        context.flobDb = declare("./src/components/facets/storage/flobdb/FlobDB.cairo").class_hash
         context.rootDiamondFactory = declare("./src/bootstrap/Bootstrapper.cairo").class_hash
-        context.starkshell = declare("./src/zkode/facets/starkshell/StarkShell.cairo").class_hash
-        context.metadata = declare("./src/zkode/facets/metadata/metadata/UniversalMetadata.cairo").class_hash
+        context.starkshell = declare("./src/components/facets/starkshell/StarkShell.cairo").class_hash
+        context.metadata = declare("./src/components/facets/metadata/metadata/UniversalMetadata.cairo").class_hash
     %}
 
     return ();

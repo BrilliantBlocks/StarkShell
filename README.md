@@ -1,53 +1,51 @@
 <p align="center"> 
   <img src="images/brilliantblocks_logo.png" alt="brilliantblocks-logo" width="30%" height="30%">
 </p>
-<h1 align="center"> ZKODE </h1>
+<h1 align="center"> StarkShell </h1>
 
-[![Tests](https://github.com/BrilliantBlocks/diamond_v2/actions/workflows/main.yaml/badge.svg)](https://github.com/BrilliantBlocks/diamond_v2/actions/workflows/main.yaml)
-
-This repository contains the code base for a modular smart contract system, which is built as a modified version of the “Diamond” ERC-2535 multi-facet proxy contract.
-With this interface standard, smart contracts ("Diamonds") can be assembled from existing functionality components ("Facets") as individually required.
-This enables composability and continuous upgradeability for developers.
-
+This repository contains StarkShell, an on-chain virtual machine (VM), and its surrounding code base for a modular smart contract system.
+It can be used for both on-chain development as well as exploratory testing.
 
 ## Features
 
-- [x] Upgradability
+- [x] Dynamic interface
+- [x] Ad hoc interpreter
+- [x] Access NFTs
+- [x] Parameterizable functions
+- [x] Import system
 - [x] On-chain deployment
-- [x] Dynamic interface detection
-- [x] ERC-20 - Fungible Tokens
-- [x] ERC-721 - Non-Fungible Tokens
-- [x] ERC-1155 - Semi-Fungible Tokens
-- [x] ERC-5114 - Soulbound Badges
-- [ ] ERC-2981 - Royalties
-- [ ] ERC-4675 - Multi-Fractional NFTs
-
+- [ ] Storage system
 
 ## Repository Overview
 
-The main smart contract aka. *the diamond*:
-- [src/diamond](./src/zkode/diamond/)
+The diamond contract:
+- [src/components/diamond](./src/components/diamond/)
 
 Functional extensions for diamonds aka. *the facets*:
-- [src/facets](./src/zkode/facets/)
+- [src/components/facets](./src/components/facets/)
 
     Configurability and upgradability:
-    - [src/facets/upgradability](./src/zkode/facets/upgradability)
+    - [src/components/facets/upgradability](./src/components/facets/upgradability)
 
-    Catalog of supported token standards:
-    - [src/facets/token](./src/zkode/facets/token)
+    StarkShell facet:
+    - [src/components/facets/starkshell](./src/components/facets/starkshell)
 
-        ERC-1155:
-        - [src/facets/token/erc1155](./src/zkode/facets/token/erc1155)
+Bootstrapper contract:
+- [src/bootstrap](./src/bootstrap)
 
-        ERC-20:
-        - [src/facets/token/erc20](./src/zkode/facets/token/erc20)
+## How To Get Started
 
-        ERC-5114:
-        - [src/facets/token/erc5114](./src/zkode/facets/token/erc5114)
+1. Start your local development server
+```bash
+starknet-devnet
+```
 
-        ERC-721:
-        - [src/facets/token/erc721](./src/zkode/facets/token/erc721)
-    
-    Single metadata facet for all token standards:
-    - [src/facets/metadata](./src/zkode/facets/metadata)
+2. Make `starkshell.sh` executable and run the script for initializing the dApp.
+```bash
+chmod +x starkshell.sh
+./starkshell.sh
+```
+
+The script deploys a root diamond, which itself is a VM.
+The functionality which is not covered by other components is programmed with StarkShell.
+The encoded instructions are in [src/starkshell](./src/starkshell).

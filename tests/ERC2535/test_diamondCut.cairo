@@ -4,12 +4,12 @@ from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import BitwiseBuiltin, HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from src.zkode.diamond.structs import FacetCut, FacetCutAction
+from src.components.diamond.structs import FacetCut, FacetCutAction
 
-from src.zkode.facets.upgradability.IDiamondCut import IDiamondCut
-from src.zkode.diamond.IDiamond import IDiamond
-from src.zkode.interfaces.ITCF import ITCF
-from src.zkode.constants import NULL
+from src.components.facets.upgradability.IDiamondCut import IDiamondCut
+from src.components.diamond.IDiamond import IDiamond
+from src.components.interfaces.ITCF import ITCF
+from src.components.constants import NULL
 
 from tests.setup import (
     ClassHash,
