@@ -1,0 +1,1090 @@
+type Array<starkshell::registerMachine::Instruction> = Array<starkshell::registerMachine::Instruction> [storable: true, drop: true, dup: false, zero_sized: false];
+type u32 = u32 [storable: true, drop: true, dup: true, zero_sized: false];
+type NonZero<u32> = NonZero<u32> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<NonZero<u32>> = Struct<ut@Tuple, NonZero<u32>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::Panic = Struct<ut@core::panics::Panic> [storable: true, drop: true, dup: true, zero_sized: true];
+type Array<felt252> = Array<felt252> [storable: true, drop: true, dup: false, zero_sized: false];
+type Tuple<core::panics::Panic, Array<felt252>> = Struct<ut@Tuple, core::panics::Panic, Array<felt252>> [storable: true, drop: true, dup: false, zero_sized: false];
+type core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)> = Enum<ut@core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>, Tuple<NonZero<u32>>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Unit = Struct<ut@Tuple> [storable: true, drop: true, dup: true, zero_sized: true];
+type core::option::Option::<core::integer::u32> = Enum<ut@core::option::Option::<core::integer::u32>, u32, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type u64 = u64 [storable: true, drop: true, dup: true, zero_sized: false];
+type core::option::Option::<core::zeroable::NonZero::<core::integer::u32>> = Enum<ut@core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, NonZero<u32>, Unit> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>> = Struct<ut@Tuple, core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)> = Enum<ut@core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>, Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Box<starkshell::registerMachine::Instruction> = Box<starkshell::registerMachine::Instruction> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<Box<starkshell::registerMachine::Instruction>> = Struct<ut@Tuple, Box<starkshell::registerMachine::Instruction>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)> = Enum<ut@core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>, Tuple<Box<starkshell::registerMachine::Instruction>>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Array<u32> = Array<u32> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<u32>> = Snapshot<Array<u32>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::array::Span::<core::integer::u32> = Struct<ut@core::array::Span::<core::integer::u32>, Snapshot<Array<u32>>> [storable: true, drop: true, dup: true, zero_sized: false];
+type starkshell::registerMachine::Instruction = Struct<ut@starkshell::registerMachine::Instruction, u32, u32, u32, u32> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<starkshell::registerMachine::Instruction> = Struct<ut@Tuple, starkshell::registerMachine::Instruction> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)> = Enum<ut@core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>, Tuple<starkshell::registerMachine::Instruction>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type BuiltinCosts = BuiltinCosts [storable: true, drop: true, dup: true, zero_sized: false];
+type Box<u32> = Box<u32> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<Box<u32>> = Struct<ut@Tuple, Box<u32>> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)> = Enum<ut@core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>, Tuple<Box<u32>>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type felt252 = felt252 [storable: true, drop: true, dup: true, zero_sized: false];
+type core::result::Result::<core::integer::u32, core::integer::u32> = Enum<ut@core::result::Result::<core::integer::u32, core::integer::u32>, u32, u32> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<Array<u32>, u32, Unit> = Struct<ut@Tuple, Array<u32>, u32, Unit> [storable: true, drop: true, dup: false, zero_sized: false];
+type core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())> = Enum<ut@core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, Tuple<Array<u32>, u32, Unit>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Snapshot<Array<starkshell::registerMachine::Instruction>> = Snapshot<Array<starkshell::registerMachine::Instruction>> [storable: true, drop: true, dup: true, zero_sized: false];
+type Tuple<Unit> = Struct<ut@Tuple, Unit> [storable: true, drop: true, dup: true, zero_sized: true];
+type core::panics::PanicResult::<((),)> = Enum<ut@core::panics::PanicResult::<((),)>, Tuple<Unit>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Tuple<u32> = Struct<ut@Tuple, u32> [storable: true, drop: true, dup: true, zero_sized: false];
+type core::panics::PanicResult::<(@core::integer::u32,)> = Enum<ut@core::panics::PanicResult::<(@core::integer::u32,)>, Tuple<u32>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type core::panics::PanicResult::<(core::integer::u32,)> = Enum<ut@core::panics::PanicResult::<(core::integer::u32,)>, Tuple<u32>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type Tuple<Array<u32>> = Struct<ut@Tuple, Array<u32>> [storable: true, drop: true, dup: false, zero_sized: false];
+type core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)> = Enum<ut@core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>, Tuple<Array<u32>>, Tuple<core::panics::Panic, Array<felt252>>> [storable: true, drop: true, dup: false, zero_sized: false];
+type GasBuiltin = GasBuiltin [storable: true, drop: false, dup: false, zero_sized: false];
+type RangeCheck = RangeCheck [storable: true, drop: false, dup: false, zero_sized: false];
+
+libfunc disable_ap_tracking = disable_ap_tracking;
+libfunc array_new<starkshell::registerMachine::Instruction> = array_new<starkshell::registerMachine::Instruction>;
+libfunc u32_const<1> = u32_const<1>;
+libfunc u32_const<0> = u32_const<0>;
+libfunc u32_const<3> = u32_const<3>;
+libfunc struct_construct<starkshell::registerMachine::Instruction> = struct_construct<starkshell::registerMachine::Instruction>;
+libfunc store_temp<starkshell::registerMachine::Instruction> = store_temp<starkshell::registerMachine::Instruction>;
+libfunc array_append<starkshell::registerMachine::Instruction> = array_append<starkshell::registerMachine::Instruction>;
+libfunc u32_const<4> = u32_const<4>;
+libfunc u32_const<2> = u32_const<2>;
+libfunc u32_const<5> = u32_const<5>;
+libfunc u32_const<6> = u32_const<6>;
+libfunc array_new<u32> = array_new<u32>;
+libfunc store_temp<u32> = store_temp<u32>;
+libfunc array_append<u32> = array_append<u32>;
+libfunc store_temp<RangeCheck> = store_temp<RangeCheck>;
+libfunc store_temp<GasBuiltin> = store_temp<GasBuiltin>;
+libfunc store_temp<Array<starkshell::registerMachine::Instruction>> = store_temp<Array<starkshell::registerMachine::Instruction>>;
+libfunc store_temp<Array<u32>> = store_temp<Array<u32>>;
+libfunc function_call<user@starkshell::registerMachine::exec_loop> = function_call<user@starkshell::registerMachine::exec_loop>;
+libfunc enum_match<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>> = enum_match<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>>;
+libfunc branch_align = branch_align;
+libfunc struct_deconstruct<Tuple<Array<u32>>> = struct_deconstruct<Tuple<Array<u32>>>;
+libfunc snapshot_take<Array<u32>> = snapshot_take<Array<u32>>;
+libfunc array_len<u32> = array_len<u32>;
+libfunc function_call<user@core::integer::U32Sub::sub> = function_call<user@core::integer::U32Sub::sub>;
+libfunc enum_match<core::panics::PanicResult::<(core::integer::u32,)>> = enum_match<core::panics::PanicResult::<(core::integer::u32,)>>;
+libfunc drop<Array<u32>> = drop<Array<u32>>;
+libfunc struct_deconstruct<Tuple<u32>> = struct_deconstruct<Tuple<u32>>;
+libfunc store_temp<Snapshot<Array<u32>>> = store_temp<Snapshot<Array<u32>>>;
+libfunc function_call<user@core::array::ArrayImpl::<core::integer::u32>::at> = function_call<user@core::array::ArrayImpl::<core::integer::u32>::at>;
+libfunc enum_match<core::panics::PanicResult::<(@core::integer::u32,)>> = enum_match<core::panics::PanicResult::<(@core::integer::u32,)>>;
+libfunc rename<u32> = rename<u32>;
+libfunc function_call<user@core::debug::U32PrintImpl::print> = function_call<user@core::debug::U32PrintImpl::print>;
+libfunc drop<Unit> = drop<Unit>;
+libfunc struct_construct<Unit> = struct_construct<Unit>;
+libfunc struct_construct<Tuple<Unit>> = struct_construct<Tuple<Unit>>;
+libfunc enum_init<core::panics::PanicResult::<((),)>, 0> = enum_init<core::panics::PanicResult::<((),)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<((),)>> = store_temp<core::panics::PanicResult::<((),)>>;
+libfunc enum_init<core::panics::PanicResult::<((),)>, 1> = enum_init<core::panics::PanicResult::<((),)>, 1>;
+libfunc snapshot_take<Array<starkshell::registerMachine::Instruction>> = snapshot_take<Array<starkshell::registerMachine::Instruction>>;
+libfunc array_len<starkshell::registerMachine::Instruction> = array_len<starkshell::registerMachine::Instruction>;
+libfunc function_call<user@starkshell::registerMachine::exec_loop[expr115]> = function_call<user@starkshell::registerMachine::exec_loop[expr115]>;
+libfunc enum_match<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>> = enum_match<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>;
+libfunc struct_deconstruct<Tuple<Array<u32>, u32, Unit>> = struct_deconstruct<Tuple<Array<u32>, u32, Unit>>;
+libfunc drop<u32> = drop<u32>;
+libfunc struct_construct<Tuple<Array<u32>>> = struct_construct<Tuple<Array<u32>>>;
+libfunc enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>, 0> = enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>> = store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>>;
+libfunc enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>, 1> = enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>, 1>;
+libfunc u32_overflowing_sub = u32_overflowing_sub;
+libfunc enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 0> = enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 0>;
+libfunc store_temp<core::result::Result::<core::integer::u32, core::integer::u32>> = store_temp<core::result::Result::<core::integer::u32, core::integer::u32>>;
+libfunc jump = jump;
+libfunc enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 1> = enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 1>;
+libfunc felt252_const<155785504329508738615720351733824384887> = felt252_const<155785504329508738615720351733824384887>;
+libfunc rename<core::result::Result::<core::integer::u32, core::integer::u32>> = rename<core::result::Result::<core::integer::u32, core::integer::u32>>;
+libfunc store_temp<felt252> = store_temp<felt252>;
+libfunc function_call<user@core::result::ResultTraitImpl::<core::integer::u32, core::integer::u32>::expect::<core::integer::u32Drop>> = function_call<user@core::result::ResultTraitImpl::<core::integer::u32, core::integer::u32>::expect::<core::integer::u32Drop>>;
+libfunc struct_construct<Tuple<u32>> = struct_construct<Tuple<u32>>;
+libfunc enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 0> = enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(core::integer::u32,)>> = store_temp<core::panics::PanicResult::<(core::integer::u32,)>>;
+libfunc enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1> = enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1>;
+libfunc function_call<user@core::array::array_at::<core::integer::u32>> = function_call<user@core::array::array_at::<core::integer::u32>>;
+libfunc enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>> = enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>;
+libfunc struct_deconstruct<Tuple<Box<u32>>> = struct_deconstruct<Tuple<Box<u32>>>;
+libfunc unbox<u32> = unbox<u32>;
+libfunc enum_init<core::panics::PanicResult::<(@core::integer::u32,)>, 0> = enum_init<core::panics::PanicResult::<(@core::integer::u32,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(@core::integer::u32,)>> = store_temp<core::panics::PanicResult::<(@core::integer::u32,)>>;
+libfunc enum_init<core::panics::PanicResult::<(@core::integer::u32,)>, 1> = enum_init<core::panics::PanicResult::<(@core::integer::u32,)>, 1>;
+libfunc u32_to_felt252 = u32_to_felt252;
+libfunc function_call<user@core::debug::Felt252PrintImpl::print> = function_call<user@core::debug::Felt252PrintImpl::print>;
+libfunc store_temp<Unit> = store_temp<Unit>;
+libfunc get_builtin_costs = get_builtin_costs;
+libfunc store_temp<BuiltinCosts> = store_temp<BuiltinCosts>;
+libfunc withdraw_gas_all = withdraw_gas_all;
+libfunc dup<u32> = dup<u32>;
+libfunc store_temp<Snapshot<Array<starkshell::registerMachine::Instruction>>> = store_temp<Snapshot<Array<starkshell::registerMachine::Instruction>>>;
+libfunc function_call<user@core::array::ArrayImpl::<starkshell::registerMachine::Instruction>::at> = function_call<user@core::array::ArrayImpl::<starkshell::registerMachine::Instruction>::at>;
+libfunc enum_match<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>> = enum_match<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>>;
+libfunc struct_deconstruct<Tuple<starkshell::registerMachine::Instruction>> = struct_deconstruct<Tuple<starkshell::registerMachine::Instruction>>;
+libfunc rename<starkshell::registerMachine::Instruction> = rename<starkshell::registerMachine::Instruction>;
+libfunc struct_deconstruct<starkshell::registerMachine::Instruction> = struct_deconstruct<starkshell::registerMachine::Instruction>;
+libfunc snapshot_take<u32> = snapshot_take<u32>;
+libfunc struct_construct<core::array::Span::<core::integer::u32>> = struct_construct<core::array::Span::<core::integer::u32>>;
+libfunc store_temp<core::array::Span::<core::integer::u32>> = store_temp<core::array::Span::<core::integer::u32>>;
+libfunc u32_eq = u32_eq;
+libfunc drop<Array<starkshell::registerMachine::Instruction>> = drop<Array<starkshell::registerMachine::Instruction>>;
+libfunc drop<core::array::Span::<core::integer::u32>> = drop<core::array::Span::<core::integer::u32>>;
+libfunc felt252_const<7608749172634509368917718137966347058336479074885854564> = felt252_const<7608749172634509368917718137966347058336479074885854564>;
+libfunc struct_construct<Tuple<Array<u32>, u32, Unit>> = struct_construct<Tuple<Array<u32>, u32, Unit>>;
+libfunc enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 0> = enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>> = store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>;
+libfunc dup<core::array::Span::<core::integer::u32>> = dup<core::array::Span::<core::integer::u32>>;
+libfunc struct_deconstruct<core::array::Span::<core::integer::u32>> = struct_deconstruct<core::array::Span::<core::integer::u32>>;
+libfunc function_call<user@core::integer::U32Div::div> = function_call<user@core::integer::U32Div::div>;
+libfunc enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1> = enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>;
+libfunc function_call<user@core::integer::U32Mul::mul> = function_call<user@core::integer::U32Mul::mul>;
+libfunc rename<RangeCheck> = rename<RangeCheck>;
+libfunc rename<Array<u32>> = rename<Array<u32>>;
+libfunc function_call<user@core::integer::U32Add::add> = function_call<user@core::integer::U32Add::add>;
+libfunc array_new<felt252> = array_new<felt252>;
+libfunc felt252_const<375233589013918064796019> = felt252_const<375233589013918064796019>;
+libfunc array_append<felt252> = array_append<felt252>;
+libfunc struct_construct<core::panics::Panic> = struct_construct<core::panics::Panic>;
+libfunc struct_construct<Tuple<core::panics::Panic, Array<felt252>>> = struct_construct<Tuple<core::panics::Panic, Array<felt252>>>;
+libfunc enum_match<core::result::Result::<core::integer::u32, core::integer::u32>> = enum_match<core::result::Result::<core::integer::u32, core::integer::u32>>;
+libfunc drop<felt252> = drop<felt252>;
+libfunc array_get<u32> = array_get<u32>;
+libfunc struct_construct<Tuple<Box<u32>>> = struct_construct<Tuple<Box<u32>>>;
+libfunc enum_init<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>, 0> = enum_init<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>> = store_temp<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>;
+libfunc felt252_const<1637570914057682275393755530660268060279989363> = felt252_const<1637570914057682275393755530660268060279989363>;
+libfunc enum_init<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>, 1> = enum_init<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>, 1>;
+libfunc function_call<user@core::debug::print_felt252> = function_call<user@core::debug::print_felt252>;
+libfunc function_call<user@core::array::array_at::<starkshell::registerMachine::Instruction>> = function_call<user@core::array::array_at::<starkshell::registerMachine::Instruction>>;
+libfunc enum_match<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>> = enum_match<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>>;
+libfunc struct_deconstruct<Tuple<Box<starkshell::registerMachine::Instruction>>> = struct_deconstruct<Tuple<Box<starkshell::registerMachine::Instruction>>>;
+libfunc unbox<starkshell::registerMachine::Instruction> = unbox<starkshell::registerMachine::Instruction>;
+libfunc struct_construct<Tuple<starkshell::registerMachine::Instruction>> = struct_construct<Tuple<starkshell::registerMachine::Instruction>>;
+libfunc enum_init<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>, 0> = enum_init<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>> = store_temp<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>>;
+libfunc enum_init<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>, 1> = enum_init<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>, 1>;
+libfunc function_call<user@core::integer::U32TryIntoNonZero::try_into> = function_call<user@core::integer::U32TryIntoNonZero::try_into>;
+libfunc enum_match<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>> = enum_match<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>>;
+libfunc struct_deconstruct<Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>> = struct_deconstruct<Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>>;
+libfunc enum_match<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>> = enum_match<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>;
+libfunc u32_safe_divmod = u32_safe_divmod;
+libfunc felt252_const<5420154128225384396790819266608> = felt252_const<5420154128225384396790819266608>;
+libfunc u32_wide_mul = u32_wide_mul;
+libfunc store_temp<u64> = store_temp<u64>;
+libfunc function_call<user@core::integer::DowncastableTryInto::<core::integer::u64, core::integer::u32, core::integer::DowncastableU64U32>::try_into> = function_call<user@core::integer::DowncastableTryInto::<core::integer::u64, core::integer::u32, core::integer::DowncastableU64U32>::try_into>;
+libfunc enum_match<core::option::Option::<core::integer::u32>> = enum_match<core::option::Option::<core::integer::u32>>;
+libfunc felt252_const<155785504327651875780457110017927835511> = felt252_const<155785504327651875780457110017927835511>;
+libfunc u32_overflowing_add = u32_overflowing_add;
+libfunc felt252_const<155785504323917466144735657540098748279> = felt252_const<155785504323917466144735657540098748279>;
+libfunc store_temp<Array<felt252>> = store_temp<Array<felt252>>;
+libfunc print = print;
+libfunc array_get<starkshell::registerMachine::Instruction> = array_get<starkshell::registerMachine::Instruction>;
+libfunc struct_construct<Tuple<Box<starkshell::registerMachine::Instruction>>> = struct_construct<Tuple<Box<starkshell::registerMachine::Instruction>>>;
+libfunc enum_init<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>, 0> = enum_init<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>> = store_temp<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>>;
+libfunc enum_init<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>, 1> = enum_init<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>, 1>;
+libfunc function_call<user@core::integer::u32_as_non_zero> = function_call<user@core::integer::u32_as_non_zero>;
+libfunc enum_match<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>> = enum_match<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>>;
+libfunc struct_deconstruct<Tuple<NonZero<u32>>> = struct_deconstruct<Tuple<NonZero<u32>>>;
+libfunc enum_init<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, 0> = enum_init<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, 0>;
+libfunc struct_construct<Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>> = struct_construct<Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>>;
+libfunc enum_init<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>, 0> = enum_init<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>> = store_temp<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>>;
+libfunc enum_init<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>, 1> = enum_init<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>, 1>;
+libfunc downcast<u64, u32> = downcast<u64, u32>;
+libfunc enum_init<core::option::Option::<core::integer::u32>, 0> = enum_init<core::option::Option::<core::integer::u32>, 0>;
+libfunc store_temp<core::option::Option::<core::integer::u32>> = store_temp<core::option::Option::<core::integer::u32>>;
+libfunc enum_init<core::option::Option::<core::integer::u32>, 1> = enum_init<core::option::Option::<core::integer::u32>, 1>;
+libfunc rename<core::option::Option::<core::integer::u32>> = rename<core::option::Option::<core::integer::u32>>;
+libfunc function_call<user@core::integer::u32_try_as_non_zero> = function_call<user@core::integer::u32_try_as_non_zero>;
+libfunc struct_construct<Tuple<NonZero<u32>>> = struct_construct<Tuple<NonZero<u32>>>;
+libfunc enum_init<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>, 0> = enum_init<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>, 0>;
+libfunc store_temp<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>> = store_temp<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>>;
+libfunc felt252_const<8445148841039306800> = felt252_const<8445148841039306800>;
+libfunc enum_init<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>, 1> = enum_init<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>, 1>;
+libfunc u32_is_zero = u32_is_zero;
+libfunc enum_init<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, 1> = enum_init<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, 1>;
+libfunc store_temp<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>> = store_temp<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>;
+libfunc rename<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>> = rename<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>;
+
+disable_ap_tracking() -> (); // 0
+array_new<starkshell::registerMachine::Instruction>() -> ([2]); // 1
+u32_const<1>() -> ([3]); // 2
+u32_const<0>() -> ([4]); // 3
+u32_const<1>() -> ([5]); // 4
+u32_const<3>() -> ([6]); // 5
+struct_construct<starkshell::registerMachine::Instruction>([3], [4], [5], [6]) -> ([7]); // 6
+store_temp<starkshell::registerMachine::Instruction>([7]) -> ([7]); // 7
+array_append<starkshell::registerMachine::Instruction>([2], [7]) -> ([8]); // 8
+u32_const<3>() -> ([9]); // 9
+u32_const<3>() -> ([10]); // 10
+u32_const<1>() -> ([11]); // 11
+u32_const<4>() -> ([12]); // 12
+struct_construct<starkshell::registerMachine::Instruction>([9], [10], [11], [12]) -> ([13]); // 13
+store_temp<starkshell::registerMachine::Instruction>([13]) -> ([13]); // 14
+array_append<starkshell::registerMachine::Instruction>([8], [13]) -> ([14]); // 15
+u32_const<2>() -> ([15]); // 16
+u32_const<4>() -> ([16]); // 17
+u32_const<2>() -> ([17]); // 18
+u32_const<5>() -> ([18]); // 19
+struct_construct<starkshell::registerMachine::Instruction>([15], [16], [17], [18]) -> ([19]); // 20
+store_temp<starkshell::registerMachine::Instruction>([19]) -> ([19]); // 21
+array_append<starkshell::registerMachine::Instruction>([14], [19]) -> ([20]); // 22
+u32_const<4>() -> ([21]); // 23
+u32_const<5>() -> ([22]); // 24
+u32_const<0>() -> ([23]); // 25
+u32_const<6>() -> ([24]); // 26
+struct_construct<starkshell::registerMachine::Instruction>([21], [22], [23], [24]) -> ([25]); // 27
+store_temp<starkshell::registerMachine::Instruction>([25]) -> ([25]); // 28
+array_append<starkshell::registerMachine::Instruction>([20], [25]) -> ([26]); // 29
+array_new<u32>() -> ([27]); // 30
+u32_const<5>() -> ([28]); // 31
+store_temp<u32>([28]) -> ([28]); // 32
+array_append<u32>([27], [28]) -> ([29]); // 33
+u32_const<3>() -> ([30]); // 34
+store_temp<u32>([30]) -> ([30]); // 35
+array_append<u32>([29], [30]) -> ([31]); // 36
+u32_const<4>() -> ([32]); // 37
+store_temp<u32>([32]) -> ([32]); // 38
+array_append<u32>([31], [32]) -> ([33]); // 39
+store_temp<RangeCheck>([0]) -> ([37]); // 40
+store_temp<GasBuiltin>([1]) -> ([38]); // 41
+store_temp<Array<starkshell::registerMachine::Instruction>>([26]) -> ([39]); // 42
+store_temp<Array<u32>>([33]) -> ([40]); // 43
+function_call<user@starkshell::registerMachine::exec_loop>([37], [38], [39], [40]) -> ([34], [35], [36]); // 44
+enum_match<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>>([36]) { fallthrough([41]) 91([42]) }; // 45
+branch_align() -> (); // 46
+struct_deconstruct<Tuple<Array<u32>>>([41]) -> ([43]); // 47
+snapshot_take<Array<u32>>([43]) -> ([44], [45]); // 48
+array_len<u32>([45]) -> ([46]); // 49
+u32_const<1>() -> ([47]); // 50
+store_temp<RangeCheck>([34]) -> ([50]); // 51
+store_temp<u32>([46]) -> ([51]); // 52
+store_temp<u32>([47]) -> ([52]); // 53
+function_call<user@core::integer::U32Sub::sub>([50], [51], [52]) -> ([48], [49]); // 54
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([49]) { fallthrough([53]) 84([54]) }; // 55
+branch_align() -> (); // 56
+snapshot_take<Array<u32>>([44]) -> ([55], [56]); // 57
+drop<Array<u32>>([55]) -> (); // 58
+struct_deconstruct<Tuple<u32>>([53]) -> ([57]); // 59
+store_temp<RangeCheck>([48]) -> ([60]); // 60
+store_temp<Snapshot<Array<u32>>>([56]) -> ([61]); // 61
+store_temp<u32>([57]) -> ([62]); // 62
+function_call<user@core::array::ArrayImpl::<core::integer::u32>::at>([60], [61], [62]) -> ([58], [59]); // 63
+enum_match<core::panics::PanicResult::<(@core::integer::u32,)>>([59]) { fallthrough([63]) 78([64]) }; // 64
+branch_align() -> (); // 65
+struct_deconstruct<Tuple<u32>>([63]) -> ([65]); // 66
+rename<u32>([65]) -> ([66]); // 67
+store_temp<u32>([66]) -> ([68]); // 68
+function_call<user@core::debug::U32PrintImpl::print>([68]) -> ([67]); // 69
+drop<Unit>([67]) -> (); // 70
+struct_construct<Unit>() -> ([69]); // 71
+struct_construct<Tuple<Unit>>([69]) -> ([70]); // 72
+enum_init<core::panics::PanicResult::<((),)>, 0>([70]) -> ([71]); // 73
+store_temp<RangeCheck>([58]) -> ([72]); // 74
+store_temp<GasBuiltin>([35]) -> ([73]); // 75
+store_temp<core::panics::PanicResult::<((),)>>([71]) -> ([74]); // 76
+return([72], [73], [74]); // 77
+branch_align() -> (); // 78
+enum_init<core::panics::PanicResult::<((),)>, 1>([64]) -> ([75]); // 79
+store_temp<RangeCheck>([58]) -> ([76]); // 80
+store_temp<GasBuiltin>([35]) -> ([77]); // 81
+store_temp<core::panics::PanicResult::<((),)>>([75]) -> ([78]); // 82
+return([76], [77], [78]); // 83
+branch_align() -> (); // 84
+drop<Array<u32>>([44]) -> (); // 85
+enum_init<core::panics::PanicResult::<((),)>, 1>([54]) -> ([79]); // 86
+store_temp<RangeCheck>([48]) -> ([80]); // 87
+store_temp<GasBuiltin>([35]) -> ([81]); // 88
+store_temp<core::panics::PanicResult::<((),)>>([79]) -> ([82]); // 89
+return([80], [81], [82]); // 90
+branch_align() -> (); // 91
+enum_init<core::panics::PanicResult::<((),)>, 1>([42]) -> ([83]); // 92
+store_temp<RangeCheck>([34]) -> ([84]); // 93
+store_temp<GasBuiltin>([35]) -> ([85]); // 94
+store_temp<core::panics::PanicResult::<((),)>>([83]) -> ([86]); // 95
+return([84], [85], [86]); // 96
+disable_ap_tracking() -> (); // 97
+snapshot_take<Array<starkshell::registerMachine::Instruction>>([2]) -> ([4], [5]); // 98
+array_len<starkshell::registerMachine::Instruction>([5]) -> ([6]); // 99
+u32_const<0>() -> ([7]); // 100
+store_temp<RangeCheck>([0]) -> ([11]); // 101
+store_temp<GasBuiltin>([1]) -> ([12]); // 102
+store_temp<u32>([7]) -> ([13]); // 103
+store_temp<u32>([6]) -> ([14]); // 104
+store_temp<Array<u32>>([3]) -> ([15]); // 105
+store_temp<Array<starkshell::registerMachine::Instruction>>([4]) -> ([16]); // 106
+function_call<user@starkshell::registerMachine::exec_loop[expr115]>([11], [12], [13], [14], [15], [16]) -> ([8], [9], [10]); // 107
+enum_match<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([10]) { fallthrough([17]) 119([18]) }; // 108
+branch_align() -> (); // 109
+struct_deconstruct<Tuple<Array<u32>, u32, Unit>>([17]) -> ([19], [20], [21]); // 110
+drop<u32>([20]) -> (); // 111
+drop<Unit>([21]) -> (); // 112
+struct_construct<Tuple<Array<u32>>>([19]) -> ([22]); // 113
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>, 0>([22]) -> ([23]); // 114
+store_temp<RangeCheck>([8]) -> ([24]); // 115
+store_temp<GasBuiltin>([9]) -> ([25]); // 116
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>>([23]) -> ([26]); // 117
+return([24], [25], [26]); // 118
+branch_align() -> (); // 119
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>, 1>([18]) -> ([27]); // 120
+store_temp<RangeCheck>([8]) -> ([28]); // 121
+store_temp<GasBuiltin>([9]) -> ([29]); // 122
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>>([27]) -> ([30]); // 123
+return([28], [29], [30]); // 124
+u32_overflowing_sub([0], [1], [2]) { fallthrough([3], [4]) 131([5], [6]) }; // 125
+branch_align() -> (); // 126
+enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 0>([4]) -> ([7]); // 127
+store_temp<RangeCheck>([3]) -> ([8]); // 128
+store_temp<core::result::Result::<core::integer::u32, core::integer::u32>>([7]) -> ([9]); // 129
+jump() { 135() }; // 130
+branch_align() -> (); // 131
+enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 1>([6]) -> ([10]); // 132
+store_temp<RangeCheck>([5]) -> ([8]); // 133
+store_temp<core::result::Result::<core::integer::u32, core::integer::u32>>([10]) -> ([9]); // 134
+felt252_const<155785504329508738615720351733824384887>() -> ([11]); // 135
+rename<core::result::Result::<core::integer::u32, core::integer::u32>>([9]) -> ([13]); // 136
+store_temp<felt252>([11]) -> ([14]); // 137
+function_call<user@core::result::ResultTraitImpl::<core::integer::u32, core::integer::u32>::expect::<core::integer::u32Drop>>([13], [14]) -> ([12]); // 138
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([12]) { fallthrough([15]) 147([16]) }; // 139
+branch_align() -> (); // 140
+struct_deconstruct<Tuple<u32>>([15]) -> ([17]); // 141
+struct_construct<Tuple<u32>>([17]) -> ([18]); // 142
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 0>([18]) -> ([19]); // 143
+store_temp<RangeCheck>([8]) -> ([20]); // 144
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([19]) -> ([21]); // 145
+return([20], [21]); // 146
+branch_align() -> (); // 147
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1>([16]) -> ([22]); // 148
+store_temp<RangeCheck>([8]) -> ([23]); // 149
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([22]) -> ([24]); // 150
+return([23], [24]); // 151
+store_temp<RangeCheck>([0]) -> ([5]); // 152
+store_temp<Snapshot<Array<u32>>>([1]) -> ([6]); // 153
+store_temp<u32>([2]) -> ([7]); // 154
+function_call<user@core::array::array_at::<core::integer::u32>>([5], [6], [7]) -> ([3], [4]); // 155
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([4]) { fallthrough([8]) 165([9]) }; // 156
+branch_align() -> (); // 157
+struct_deconstruct<Tuple<Box<u32>>>([8]) -> ([10]); // 158
+unbox<u32>([10]) -> ([11]); // 159
+struct_construct<Tuple<u32>>([11]) -> ([12]); // 160
+enum_init<core::panics::PanicResult::<(@core::integer::u32,)>, 0>([12]) -> ([13]); // 161
+store_temp<RangeCheck>([3]) -> ([14]); // 162
+store_temp<core::panics::PanicResult::<(@core::integer::u32,)>>([13]) -> ([15]); // 163
+return([14], [15]); // 164
+branch_align() -> (); // 165
+enum_init<core::panics::PanicResult::<(@core::integer::u32,)>, 1>([9]) -> ([16]); // 166
+store_temp<RangeCheck>([3]) -> ([17]); // 167
+store_temp<core::panics::PanicResult::<(@core::integer::u32,)>>([16]) -> ([18]); // 168
+return([17], [18]); // 169
+u32_to_felt252([0]) -> ([1]); // 170
+store_temp<felt252>([1]) -> ([3]); // 171
+function_call<user@core::debug::Felt252PrintImpl::print>([3]) -> ([2]); // 172
+drop<Unit>([2]) -> (); // 173
+struct_construct<Unit>() -> ([4]); // 174
+store_temp<Unit>([4]) -> ([5]); // 175
+return([5]); // 176
+get_builtin_costs() -> ([6]); // 177
+store_temp<BuiltinCosts>([6]) -> ([6]); // 178
+withdraw_gas_all([0], [1], [6]) { fallthrough([7], [8]) 620([9], [10]) }; // 179
+branch_align() -> (); // 180
+u32_const<1>() -> ([11]); // 181
+store_temp<RangeCheck>([7]) -> ([14]); // 182
+dup<u32>([3]) -> ([3], [15]); // 183
+store_temp<u32>([15]) -> ([15]); // 184
+store_temp<u32>([11]) -> ([16]); // 185
+function_call<user@core::integer::U32Sub::sub>([14], [15], [16]) -> ([12], [13]); // 186
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([13]) { fallthrough([17]) 609([18]) }; // 187
+branch_align() -> (); // 188
+struct_deconstruct<Tuple<u32>>([17]) -> ([19]); // 189
+dup<u32>([2]) -> ([2], [20]); // 190
+u32_overflowing_sub([12], [19], [20]) { fallthrough([21], [22]) 597([23], [24]) }; // 191
+branch_align() -> (); // 192
+drop<u32>([22]) -> (); // 193
+snapshot_take<Array<starkshell::registerMachine::Instruction>>([5]) -> ([25], [26]); // 194
+store_temp<RangeCheck>([21]) -> ([29]); // 195
+store_temp<Snapshot<Array<starkshell::registerMachine::Instruction>>>([26]) -> ([30]); // 196
+dup<u32>([2]) -> ([2], [31]); // 197
+store_temp<u32>([31]) -> ([31]); // 198
+function_call<user@core::array::ArrayImpl::<starkshell::registerMachine::Instruction>::at>([29], [30], [31]) -> ([27], [28]); // 199
+enum_match<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>>([28]) { fallthrough([32]) 586([33]) }; // 200
+branch_align() -> (); // 201
+struct_deconstruct<Tuple<starkshell::registerMachine::Instruction>>([32]) -> ([34]); // 202
+rename<starkshell::registerMachine::Instruction>([34]) -> ([35]); // 203
+struct_deconstruct<starkshell::registerMachine::Instruction>([35]) -> ([36], [37], [38], [39]); // 204
+drop<u32>([39]) -> (); // 205
+snapshot_take<u32>([36]) -> ([40], [41]); // 206
+snapshot_take<Array<u32>>([4]) -> ([42], [43]); // 207
+struct_construct<core::array::Span::<core::integer::u32>>([43]) -> ([44]); // 208
+u32_const<1>() -> ([45]); // 209
+snapshot_take<u32>([45]) -> ([46], [47]); // 210
+drop<u32>([46]) -> (); // 211
+rename<u32>([41]) -> ([48]); // 212
+rename<u32>([47]) -> ([49]); // 213
+store_temp<core::array::Span::<core::integer::u32>>([44]) -> ([44]); // 214
+u32_eq([48], [49]) { fallthrough() 475() }; // 215
+branch_align() -> (); // 216
+snapshot_take<u32>([40]) -> ([50], [51]); // 217
+u32_const<2>() -> ([52]); // 218
+snapshot_take<u32>([52]) -> ([53], [54]); // 219
+drop<u32>([53]) -> (); // 220
+rename<u32>([51]) -> ([55]); // 221
+rename<u32>([54]) -> ([56]); // 222
+u32_eq([55], [56]) { fallthrough() 402() }; // 223
+branch_align() -> (); // 224
+snapshot_take<u32>([50]) -> ([57], [58]); // 225
+u32_const<3>() -> ([59]); // 226
+snapshot_take<u32>([59]) -> ([60], [61]); // 227
+drop<u32>([60]) -> (); // 228
+rename<u32>([58]) -> ([62]); // 229
+rename<u32>([61]) -> ([63]); // 230
+u32_eq([62], [63]) { fallthrough() 329() }; // 231
+branch_align() -> (); // 232
+snapshot_take<u32>([57]) -> ([64], [65]); // 233
+drop<u32>([64]) -> (); // 234
+u32_const<4>() -> ([66]); // 235
+snapshot_take<u32>([66]) -> ([67], [68]); // 236
+drop<u32>([67]) -> (); // 237
+rename<u32>([65]) -> ([69]); // 238
+rename<u32>([68]) -> ([70]); // 239
+u32_eq([69], [70]) { fallthrough() 259() }; // 240
+branch_align() -> (); // 241
+disable_ap_tracking() -> (); // 242
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 243
+drop<u32>([3]) -> (); // 244
+drop<core::array::Span::<core::integer::u32>>([44]) -> (); // 245
+drop<u32>([38]) -> (); // 246
+drop<u32>([37]) -> (); // 247
+felt252_const<7608749172634509368917718137966347058336479074885854564>() -> ([71]); // 248
+store_temp<felt252>([71]) -> ([73]); // 249
+function_call<user@core::debug::Felt252PrintImpl::print>([73]) -> ([72]); // 250
+drop<Unit>([72]) -> (); // 251
+struct_construct<Unit>() -> ([74]); // 252
+struct_construct<Tuple<Array<u32>, u32, Unit>>([42], [2], [74]) -> ([75]); // 253
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 0>([75]) -> ([76]); // 254
+store_temp<RangeCheck>([27]) -> ([77]); // 255
+store_temp<GasBuiltin>([8]) -> ([78]); // 256
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([76]) -> ([79]); // 257
+return([77], [78], [79]); // 258
+branch_align() -> (); // 259
+dup<core::array::Span::<core::integer::u32>>([44]) -> ([44], [80]); // 260
+struct_deconstruct<core::array::Span::<core::integer::u32>>([80]) -> ([81]); // 261
+store_temp<RangeCheck>([27]) -> ([84]); // 262
+store_temp<Snapshot<Array<u32>>>([81]) -> ([85]); // 263
+store_temp<u32>([37]) -> ([86]); // 264
+function_call<user@core::array::array_at::<core::integer::u32>>([84], [85], [86]) -> ([82], [83]); // 265
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([83]) { fallthrough([87]) 316([88]) }; // 266
+branch_align() -> (); // 267
+struct_deconstruct<Tuple<Box<u32>>>([87]) -> ([89]); // 268
+unbox<u32>([89]) -> ([90]); // 269
+struct_deconstruct<core::array::Span::<core::integer::u32>>([44]) -> ([91]); // 270
+store_temp<RangeCheck>([82]) -> ([94]); // 271
+store_temp<Snapshot<Array<u32>>>([91]) -> ([95]); // 272
+store_temp<u32>([38]) -> ([96]); // 273
+function_call<user@core::array::array_at::<core::integer::u32>>([94], [95], [96]) -> ([92], [93]); // 274
+store_temp<u32>([90]) -> ([90]); // 275
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([93]) { fallthrough([97]) 304([98]) }; // 276
+branch_align() -> (); // 277
+struct_deconstruct<Tuple<Box<u32>>>([97]) -> ([99]); // 278
+unbox<u32>([99]) -> ([100]); // 279
+rename<u32>([90]) -> ([101]); // 280
+rename<u32>([100]) -> ([102]); // 281
+store_temp<RangeCheck>([92]) -> ([105]); // 282
+store_temp<u32>([101]) -> ([106]); // 283
+store_temp<u32>([102]) -> ([107]); // 284
+function_call<user@core::integer::U32Div::div>([105], [106], [107]) -> ([103], [104]); // 285
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([104]) { fallthrough([108]) 293([109]) }; // 286
+branch_align() -> (); // 287
+struct_deconstruct<Tuple<u32>>([108]) -> ([110]); // 288
+array_append<u32>([42], [110]) -> ([111]); // 289
+store_temp<RangeCheck>([103]) -> ([112]); // 290
+store_temp<Array<u32>>([111]) -> ([113]); // 291
+jump() { 363() }; // 292
+branch_align() -> (); // 293
+disable_ap_tracking() -> (); // 294
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 295
+drop<u32>([2]) -> (); // 296
+drop<u32>([3]) -> (); // 297
+drop<Array<u32>>([42]) -> (); // 298
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([109]) -> ([114]); // 299
+store_temp<RangeCheck>([103]) -> ([115]); // 300
+store_temp<GasBuiltin>([8]) -> ([116]); // 301
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([114]) -> ([117]); // 302
+return([115], [116], [117]); // 303
+branch_align() -> (); // 304
+disable_ap_tracking() -> (); // 305
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 306
+drop<u32>([2]) -> (); // 307
+drop<u32>([3]) -> (); // 308
+drop<Array<u32>>([42]) -> (); // 309
+drop<u32>([90]) -> (); // 310
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([98]) -> ([118]); // 311
+store_temp<RangeCheck>([92]) -> ([119]); // 312
+store_temp<GasBuiltin>([8]) -> ([120]); // 313
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([118]) -> ([121]); // 314
+return([119], [120], [121]); // 315
+branch_align() -> (); // 316
+disable_ap_tracking() -> (); // 317
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 318
+drop<u32>([2]) -> (); // 319
+drop<u32>([3]) -> (); // 320
+drop<Array<u32>>([42]) -> (); // 321
+drop<core::array::Span::<core::integer::u32>>([44]) -> (); // 322
+drop<u32>([38]) -> (); // 323
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([88]) -> ([122]); // 324
+store_temp<RangeCheck>([82]) -> ([123]); // 325
+store_temp<GasBuiltin>([8]) -> ([124]); // 326
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([122]) -> ([125]); // 327
+return([123], [124], [125]); // 328
+branch_align() -> (); // 329
+drop<u32>([57]) -> (); // 330
+dup<core::array::Span::<core::integer::u32>>([44]) -> ([44], [126]); // 331
+struct_deconstruct<core::array::Span::<core::integer::u32>>([126]) -> ([127]); // 332
+store_temp<RangeCheck>([27]) -> ([130]); // 333
+store_temp<Snapshot<Array<u32>>>([127]) -> ([131]); // 334
+store_temp<u32>([37]) -> ([132]); // 335
+function_call<user@core::array::array_at::<core::integer::u32>>([130], [131], [132]) -> ([128], [129]); // 336
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([129]) { fallthrough([133]) 389([134]) }; // 337
+branch_align() -> (); // 338
+struct_deconstruct<Tuple<Box<u32>>>([133]) -> ([135]); // 339
+unbox<u32>([135]) -> ([136]); // 340
+struct_deconstruct<core::array::Span::<core::integer::u32>>([44]) -> ([137]); // 341
+store_temp<RangeCheck>([128]) -> ([140]); // 342
+store_temp<Snapshot<Array<u32>>>([137]) -> ([141]); // 343
+store_temp<u32>([38]) -> ([142]); // 344
+function_call<user@core::array::array_at::<core::integer::u32>>([140], [141], [142]) -> ([138], [139]); // 345
+store_temp<u32>([136]) -> ([136]); // 346
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([139]) { fallthrough([143]) 377([144]) }; // 347
+branch_align() -> (); // 348
+struct_deconstruct<Tuple<Box<u32>>>([143]) -> ([145]); // 349
+unbox<u32>([145]) -> ([146]); // 350
+rename<u32>([136]) -> ([147]); // 351
+rename<u32>([146]) -> ([148]); // 352
+store_temp<RangeCheck>([138]) -> ([151]); // 353
+store_temp<u32>([147]) -> ([152]); // 354
+store_temp<u32>([148]) -> ([153]); // 355
+function_call<user@core::integer::U32Mul::mul>([151], [152], [153]) -> ([149], [150]); // 356
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([150]) { fallthrough([154]) 366([155]) }; // 357
+branch_align() -> (); // 358
+struct_deconstruct<Tuple<u32>>([154]) -> ([156]); // 359
+array_append<u32>([42], [156]) -> ([157]); // 360
+store_temp<RangeCheck>([149]) -> ([112]); // 361
+store_temp<Array<u32>>([157]) -> ([113]); // 362
+rename<RangeCheck>([112]) -> ([158]); // 363
+rename<Array<u32>>([113]) -> ([159]); // 364
+jump() { 436() }; // 365
+branch_align() -> (); // 366
+disable_ap_tracking() -> (); // 367
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 368
+drop<u32>([2]) -> (); // 369
+drop<u32>([3]) -> (); // 370
+drop<Array<u32>>([42]) -> (); // 371
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([155]) -> ([160]); // 372
+store_temp<RangeCheck>([149]) -> ([161]); // 373
+store_temp<GasBuiltin>([8]) -> ([162]); // 374
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([160]) -> ([163]); // 375
+return([161], [162], [163]); // 376
+branch_align() -> (); // 377
+disable_ap_tracking() -> (); // 378
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 379
+drop<u32>([2]) -> (); // 380
+drop<u32>([3]) -> (); // 381
+drop<Array<u32>>([42]) -> (); // 382
+drop<u32>([136]) -> (); // 383
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([144]) -> ([164]); // 384
+store_temp<RangeCheck>([138]) -> ([165]); // 385
+store_temp<GasBuiltin>([8]) -> ([166]); // 386
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([164]) -> ([167]); // 387
+return([165], [166], [167]); // 388
+branch_align() -> (); // 389
+disable_ap_tracking() -> (); // 390
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 391
+drop<u32>([2]) -> (); // 392
+drop<u32>([3]) -> (); // 393
+drop<Array<u32>>([42]) -> (); // 394
+drop<core::array::Span::<core::integer::u32>>([44]) -> (); // 395
+drop<u32>([38]) -> (); // 396
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([134]) -> ([168]); // 397
+store_temp<RangeCheck>([128]) -> ([169]); // 398
+store_temp<GasBuiltin>([8]) -> ([170]); // 399
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([168]) -> ([171]); // 400
+return([169], [170], [171]); // 401
+branch_align() -> (); // 402
+drop<u32>([50]) -> (); // 403
+dup<core::array::Span::<core::integer::u32>>([44]) -> ([44], [172]); // 404
+struct_deconstruct<core::array::Span::<core::integer::u32>>([172]) -> ([173]); // 405
+store_temp<RangeCheck>([27]) -> ([176]); // 406
+store_temp<Snapshot<Array<u32>>>([173]) -> ([177]); // 407
+store_temp<u32>([37]) -> ([178]); // 408
+function_call<user@core::array::array_at::<core::integer::u32>>([176], [177], [178]) -> ([174], [175]); // 409
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([175]) { fallthrough([179]) 462([180]) }; // 410
+branch_align() -> (); // 411
+struct_deconstruct<Tuple<Box<u32>>>([179]) -> ([181]); // 412
+unbox<u32>([181]) -> ([182]); // 413
+struct_deconstruct<core::array::Span::<core::integer::u32>>([44]) -> ([183]); // 414
+store_temp<RangeCheck>([174]) -> ([186]); // 415
+store_temp<Snapshot<Array<u32>>>([183]) -> ([187]); // 416
+store_temp<u32>([38]) -> ([188]); // 417
+function_call<user@core::array::array_at::<core::integer::u32>>([186], [187], [188]) -> ([184], [185]); // 418
+store_temp<u32>([182]) -> ([182]); // 419
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([185]) { fallthrough([189]) 450([190]) }; // 420
+branch_align() -> (); // 421
+struct_deconstruct<Tuple<Box<u32>>>([189]) -> ([191]); // 422
+unbox<u32>([191]) -> ([192]); // 423
+rename<u32>([182]) -> ([193]); // 424
+rename<u32>([192]) -> ([194]); // 425
+store_temp<RangeCheck>([184]) -> ([197]); // 426
+store_temp<u32>([193]) -> ([198]); // 427
+store_temp<u32>([194]) -> ([199]); // 428
+function_call<user@core::integer::U32Sub::sub>([197], [198], [199]) -> ([195], [196]); // 429
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([196]) { fallthrough([200]) 439([201]) }; // 430
+branch_align() -> (); // 431
+struct_deconstruct<Tuple<u32>>([200]) -> ([202]); // 432
+array_append<u32>([42], [202]) -> ([203]); // 433
+store_temp<RangeCheck>([195]) -> ([158]); // 434
+store_temp<Array<u32>>([203]) -> ([159]); // 435
+rename<RangeCheck>([158]) -> ([204]); // 436
+rename<Array<u32>>([159]) -> ([205]); // 437
+jump() { 509() }; // 438
+branch_align() -> (); // 439
+disable_ap_tracking() -> (); // 440
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 441
+drop<u32>([2]) -> (); // 442
+drop<u32>([3]) -> (); // 443
+drop<Array<u32>>([42]) -> (); // 444
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([201]) -> ([206]); // 445
+store_temp<RangeCheck>([195]) -> ([207]); // 446
+store_temp<GasBuiltin>([8]) -> ([208]); // 447
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([206]) -> ([209]); // 448
+return([207], [208], [209]); // 449
+branch_align() -> (); // 450
+disable_ap_tracking() -> (); // 451
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 452
+drop<u32>([2]) -> (); // 453
+drop<u32>([3]) -> (); // 454
+drop<Array<u32>>([42]) -> (); // 455
+drop<u32>([182]) -> (); // 456
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([190]) -> ([210]); // 457
+store_temp<RangeCheck>([184]) -> ([211]); // 458
+store_temp<GasBuiltin>([8]) -> ([212]); // 459
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([210]) -> ([213]); // 460
+return([211], [212], [213]); // 461
+branch_align() -> (); // 462
+disable_ap_tracking() -> (); // 463
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 464
+drop<u32>([2]) -> (); // 465
+drop<u32>([3]) -> (); // 466
+drop<Array<u32>>([42]) -> (); // 467
+drop<core::array::Span::<core::integer::u32>>([44]) -> (); // 468
+drop<u32>([38]) -> (); // 469
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([180]) -> ([214]); // 470
+store_temp<RangeCheck>([174]) -> ([215]); // 471
+store_temp<GasBuiltin>([8]) -> ([216]); // 472
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([214]) -> ([217]); // 473
+return([215], [216], [217]); // 474
+branch_align() -> (); // 475
+drop<u32>([40]) -> (); // 476
+dup<core::array::Span::<core::integer::u32>>([44]) -> ([44], [218]); // 477
+struct_deconstruct<core::array::Span::<core::integer::u32>>([218]) -> ([219]); // 478
+store_temp<RangeCheck>([27]) -> ([222]); // 479
+store_temp<Snapshot<Array<u32>>>([219]) -> ([223]); // 480
+store_temp<u32>([37]) -> ([224]); // 481
+function_call<user@core::array::array_at::<core::integer::u32>>([222], [223], [224]) -> ([220], [221]); // 482
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([221]) { fallthrough([225]) 573([226]) }; // 483
+branch_align() -> (); // 484
+struct_deconstruct<Tuple<Box<u32>>>([225]) -> ([227]); // 485
+unbox<u32>([227]) -> ([228]); // 486
+struct_deconstruct<core::array::Span::<core::integer::u32>>([44]) -> ([229]); // 487
+store_temp<RangeCheck>([220]) -> ([232]); // 488
+store_temp<Snapshot<Array<u32>>>([229]) -> ([233]); // 489
+store_temp<u32>([38]) -> ([234]); // 490
+function_call<user@core::array::array_at::<core::integer::u32>>([232], [233], [234]) -> ([230], [231]); // 491
+store_temp<u32>([228]) -> ([228]); // 492
+enum_match<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([231]) { fallthrough([235]) 561([236]) }; // 493
+branch_align() -> (); // 494
+struct_deconstruct<Tuple<Box<u32>>>([235]) -> ([237]); // 495
+unbox<u32>([237]) -> ([238]); // 496
+rename<u32>([228]) -> ([239]); // 497
+rename<u32>([238]) -> ([240]); // 498
+store_temp<RangeCheck>([230]) -> ([243]); // 499
+store_temp<u32>([239]) -> ([244]); // 500
+store_temp<u32>([240]) -> ([245]); // 501
+function_call<user@core::integer::U32Add::add>([243], [244], [245]) -> ([241], [242]); // 502
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([242]) { fallthrough([246]) 550([247]) }; // 503
+branch_align() -> (); // 504
+struct_deconstruct<Tuple<u32>>([246]) -> ([248]); // 505
+array_append<u32>([42], [248]) -> ([249]); // 506
+store_temp<RangeCheck>([241]) -> ([204]); // 507
+store_temp<Array<u32>>([249]) -> ([205]); // 508
+u32_const<1>() -> ([250]); // 509
+store_temp<RangeCheck>([204]) -> ([253]); // 510
+store_temp<u32>([2]) -> ([254]); // 511
+store_temp<u32>([250]) -> ([255]); // 512
+function_call<user@core::integer::U32Add::add>([253], [254], [255]) -> ([251], [252]); // 513
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([252]) { fallthrough([256]) 540([257]) }; // 514
+branch_align() -> (); // 515
+disable_ap_tracking() -> (); // 516
+struct_deconstruct<Tuple<u32>>([256]) -> ([258]); // 517
+store_temp<RangeCheck>([251]) -> ([262]); // 518
+store_temp<GasBuiltin>([8]) -> ([263]); // 519
+store_temp<u32>([258]) -> ([264]); // 520
+store_temp<u32>([3]) -> ([265]); // 521
+store_temp<Array<u32>>([205]) -> ([266]); // 522
+store_temp<Array<starkshell::registerMachine::Instruction>>([25]) -> ([267]); // 523
+function_call<user@starkshell::registerMachine::exec_loop[expr115]>([262], [263], [264], [265], [266], [267]) -> ([259], [260], [261]); // 524
+enum_match<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([261]) { fallthrough([268]) 534([269]) }; // 525
+branch_align() -> (); // 526
+struct_deconstruct<Tuple<Array<u32>, u32, Unit>>([268]) -> ([270], [271], [272]); // 527
+struct_construct<Tuple<Array<u32>, u32, Unit>>([270], [271], [272]) -> ([273]); // 528
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 0>([273]) -> ([274]); // 529
+store_temp<RangeCheck>([259]) -> ([275]); // 530
+store_temp<GasBuiltin>([260]) -> ([276]); // 531
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([274]) -> ([277]); // 532
+return([275], [276], [277]); // 533
+branch_align() -> (); // 534
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([269]) -> ([278]); // 535
+store_temp<RangeCheck>([259]) -> ([279]); // 536
+store_temp<GasBuiltin>([260]) -> ([280]); // 537
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([278]) -> ([281]); // 538
+return([279], [280], [281]); // 539
+branch_align() -> (); // 540
+disable_ap_tracking() -> (); // 541
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 542
+drop<Array<u32>>([205]) -> (); // 543
+drop<u32>([3]) -> (); // 544
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([257]) -> ([282]); // 545
+store_temp<RangeCheck>([251]) -> ([283]); // 546
+store_temp<GasBuiltin>([8]) -> ([284]); // 547
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([282]) -> ([285]); // 548
+return([283], [284], [285]); // 549
+branch_align() -> (); // 550
+disable_ap_tracking() -> (); // 551
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 552
+drop<u32>([2]) -> (); // 553
+drop<u32>([3]) -> (); // 554
+drop<Array<u32>>([42]) -> (); // 555
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([247]) -> ([286]); // 556
+store_temp<RangeCheck>([241]) -> ([287]); // 557
+store_temp<GasBuiltin>([8]) -> ([288]); // 558
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([286]) -> ([289]); // 559
+return([287], [288], [289]); // 560
+branch_align() -> (); // 561
+disable_ap_tracking() -> (); // 562
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 563
+drop<u32>([2]) -> (); // 564
+drop<u32>([3]) -> (); // 565
+drop<Array<u32>>([42]) -> (); // 566
+drop<u32>([228]) -> (); // 567
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([236]) -> ([290]); // 568
+store_temp<RangeCheck>([230]) -> ([291]); // 569
+store_temp<GasBuiltin>([8]) -> ([292]); // 570
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([290]) -> ([293]); // 571
+return([291], [292], [293]); // 572
+branch_align() -> (); // 573
+disable_ap_tracking() -> (); // 574
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 575
+drop<u32>([2]) -> (); // 576
+drop<u32>([3]) -> (); // 577
+drop<Array<u32>>([42]) -> (); // 578
+drop<core::array::Span::<core::integer::u32>>([44]) -> (); // 579
+drop<u32>([38]) -> (); // 580
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([226]) -> ([294]); // 581
+store_temp<RangeCheck>([220]) -> ([295]); // 582
+store_temp<GasBuiltin>([8]) -> ([296]); // 583
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([294]) -> ([297]); // 584
+return([295], [296], [297]); // 585
+branch_align() -> (); // 586
+disable_ap_tracking() -> (); // 587
+drop<Array<u32>>([4]) -> (); // 588
+drop<u32>([2]) -> (); // 589
+drop<Array<starkshell::registerMachine::Instruction>>([25]) -> (); // 590
+drop<u32>([3]) -> (); // 591
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([33]) -> ([298]); // 592
+store_temp<RangeCheck>([27]) -> ([299]); // 593
+store_temp<GasBuiltin>([8]) -> ([300]); // 594
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([298]) -> ([301]); // 595
+return([299], [300], [301]); // 596
+branch_align() -> (); // 597
+disable_ap_tracking() -> (); // 598
+drop<u32>([24]) -> (); // 599
+drop<u32>([3]) -> (); // 600
+drop<Array<starkshell::registerMachine::Instruction>>([5]) -> (); // 601
+struct_construct<Unit>() -> ([302]); // 602
+struct_construct<Tuple<Array<u32>, u32, Unit>>([4], [2], [302]) -> ([303]); // 603
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 0>([303]) -> ([304]); // 604
+store_temp<RangeCheck>([23]) -> ([305]); // 605
+store_temp<GasBuiltin>([8]) -> ([306]); // 606
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([304]) -> ([307]); // 607
+return([305], [306], [307]); // 608
+branch_align() -> (); // 609
+disable_ap_tracking() -> (); // 610
+drop<u32>([3]) -> (); // 611
+drop<Array<u32>>([4]) -> (); // 612
+drop<u32>([2]) -> (); // 613
+drop<Array<starkshell::registerMachine::Instruction>>([5]) -> (); // 614
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([18]) -> ([308]); // 615
+store_temp<RangeCheck>([12]) -> ([309]); // 616
+store_temp<GasBuiltin>([8]) -> ([310]); // 617
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([308]) -> ([311]); // 618
+return([309], [310], [311]); // 619
+branch_align() -> (); // 620
+disable_ap_tracking() -> (); // 621
+drop<u32>([3]) -> (); // 622
+drop<Array<starkshell::registerMachine::Instruction>>([5]) -> (); // 623
+drop<Array<u32>>([4]) -> (); // 624
+drop<u32>([2]) -> (); // 625
+array_new<felt252>() -> ([312]); // 626
+felt252_const<375233589013918064796019>() -> ([313]); // 627
+store_temp<felt252>([313]) -> ([313]); // 628
+array_append<felt252>([312], [313]) -> ([314]); // 629
+struct_construct<core::panics::Panic>() -> ([315]); // 630
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([315], [314]) -> ([316]); // 631
+enum_init<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>, 1>([316]) -> ([317]); // 632
+store_temp<RangeCheck>([9]) -> ([318]); // 633
+store_temp<GasBuiltin>([10]) -> ([319]); // 634
+store_temp<core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>>([317]) -> ([320]); // 635
+return([318], [319], [320]); // 636
+enum_match<core::result::Result::<core::integer::u32, core::integer::u32>>([0]) { fallthrough([2]) 644([3]) }; // 637
+branch_align() -> (); // 638
+drop<felt252>([1]) -> (); // 639
+struct_construct<Tuple<u32>>([2]) -> ([4]); // 640
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 0>([4]) -> ([5]); // 641
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([5]) -> ([6]); // 642
+return([6]); // 643
+branch_align() -> (); // 644
+drop<u32>([3]) -> (); // 645
+array_new<felt252>() -> ([7]); // 646
+array_append<felt252>([7], [1]) -> ([8]); // 647
+struct_construct<core::panics::Panic>() -> ([9]); // 648
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([9], [8]) -> ([10]); // 649
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1>([10]) -> ([11]); // 650
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([11]) -> ([12]); // 651
+return([12]); // 652
+array_get<u32>([0], [1], [2]) { fallthrough([3], [4]) 660([5]) }; // 653
+branch_align() -> (); // 654
+struct_construct<Tuple<Box<u32>>>([4]) -> ([6]); // 655
+enum_init<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>, 0>([6]) -> ([7]); // 656
+store_temp<RangeCheck>([3]) -> ([8]); // 657
+store_temp<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([7]) -> ([9]); // 658
+return([8], [9]); // 659
+branch_align() -> (); // 660
+array_new<felt252>() -> ([10]); // 661
+felt252_const<1637570914057682275393755530660268060279989363>() -> ([11]); // 662
+store_temp<felt252>([11]) -> ([11]); // 663
+array_append<felt252>([10], [11]) -> ([12]); // 664
+struct_construct<core::panics::Panic>() -> ([13]); // 665
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([13], [12]) -> ([14]); // 666
+enum_init<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>, 1>([14]) -> ([15]); // 667
+store_temp<RangeCheck>([5]) -> ([16]); // 668
+store_temp<core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>>([15]) -> ([17]); // 669
+return([16], [17]); // 670
+store_temp<felt252>([0]) -> ([2]); // 671
+function_call<user@core::debug::print_felt252>([2]) -> ([1]); // 672
+drop<Unit>([1]) -> (); // 673
+struct_construct<Unit>() -> ([3]); // 674
+store_temp<Unit>([3]) -> ([4]); // 675
+return([4]); // 676
+store_temp<RangeCheck>([0]) -> ([5]); // 677
+store_temp<Snapshot<Array<starkshell::registerMachine::Instruction>>>([1]) -> ([6]); // 678
+store_temp<u32>([2]) -> ([7]); // 679
+function_call<user@core::array::array_at::<starkshell::registerMachine::Instruction>>([5], [6], [7]) -> ([3], [4]); // 680
+enum_match<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>>([4]) { fallthrough([8]) 690([9]) }; // 681
+branch_align() -> (); // 682
+struct_deconstruct<Tuple<Box<starkshell::registerMachine::Instruction>>>([8]) -> ([10]); // 683
+unbox<starkshell::registerMachine::Instruction>([10]) -> ([11]); // 684
+struct_construct<Tuple<starkshell::registerMachine::Instruction>>([11]) -> ([12]); // 685
+enum_init<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>, 0>([12]) -> ([13]); // 686
+store_temp<RangeCheck>([3]) -> ([14]); // 687
+store_temp<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>>([13]) -> ([15]); // 688
+return([14], [15]); // 689
+branch_align() -> (); // 690
+enum_init<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>, 1>([9]) -> ([16]); // 691
+store_temp<RangeCheck>([3]) -> ([17]); // 692
+store_temp<core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>>([16]) -> ([18]); // 693
+return([17], [18]); // 694
+store_temp<u32>([2]) -> ([4]); // 695
+function_call<user@core::integer::U32TryIntoNonZero::try_into>([4]) -> ([3]); // 696
+enum_match<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>>([3]) { fallthrough([5]) 722([6]) }; // 697
+branch_align() -> (); // 698
+struct_deconstruct<Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>>([5]) -> ([7]); // 699
+enum_match<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>([7]) { fallthrough([8]) 709([9]) }; // 700
+branch_align() -> (); // 701
+u32_safe_divmod([0], [1], [8]) -> ([10], [11], [12]); // 702
+drop<u32>([12]) -> (); // 703
+struct_construct<Tuple<u32>>([11]) -> ([13]); // 704
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 0>([13]) -> ([14]); // 705
+store_temp<RangeCheck>([10]) -> ([15]); // 706
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([14]) -> ([16]); // 707
+return([15], [16]); // 708
+branch_align() -> (); // 709
+drop<Unit>([9]) -> (); // 710
+drop<u32>([1]) -> (); // 711
+array_new<felt252>() -> ([17]); // 712
+felt252_const<5420154128225384396790819266608>() -> ([18]); // 713
+store_temp<felt252>([18]) -> ([18]); // 714
+array_append<felt252>([17], [18]) -> ([19]); // 715
+struct_construct<core::panics::Panic>() -> ([20]); // 716
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([20], [19]) -> ([21]); // 717
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1>([21]) -> ([22]); // 718
+store_temp<RangeCheck>([0]) -> ([23]); // 719
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([22]) -> ([24]); // 720
+return([23], [24]); // 721
+branch_align() -> (); // 722
+drop<u32>([1]) -> (); // 723
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1>([6]) -> ([25]); // 724
+store_temp<RangeCheck>([0]) -> ([26]); // 725
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([25]) -> ([27]); // 726
+return([26], [27]); // 727
+u32_wide_mul([1], [2]) -> ([3]); // 728
+store_temp<RangeCheck>([0]) -> ([6]); // 729
+store_temp<u64>([3]) -> ([7]); // 730
+function_call<user@core::integer::DowncastableTryInto::<core::integer::u64, core::integer::u32, core::integer::DowncastableU64U32>::try_into>([6], [7]) -> ([4], [5]); // 731
+enum_match<core::option::Option::<core::integer::u32>>([5]) { fallthrough([8]) 739([9]) }; // 732
+branch_align() -> (); // 733
+struct_construct<Tuple<u32>>([8]) -> ([10]); // 734
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 0>([10]) -> ([11]); // 735
+store_temp<RangeCheck>([4]) -> ([12]); // 736
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([11]) -> ([13]); // 737
+return([12], [13]); // 738
+branch_align() -> (); // 739
+drop<Unit>([9]) -> (); // 740
+array_new<felt252>() -> ([14]); // 741
+felt252_const<155785504327651875780457110017927835511>() -> ([15]); // 742
+store_temp<felt252>([15]) -> ([15]); // 743
+array_append<felt252>([14], [15]) -> ([16]); // 744
+struct_construct<core::panics::Panic>() -> ([17]); // 745
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([17], [16]) -> ([18]); // 746
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1>([18]) -> ([19]); // 747
+store_temp<RangeCheck>([4]) -> ([20]); // 748
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([19]) -> ([21]); // 749
+return([20], [21]); // 750
+u32_overflowing_add([0], [1], [2]) { fallthrough([3], [4]) 757([5], [6]) }; // 751
+branch_align() -> (); // 752
+enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 0>([4]) -> ([7]); // 753
+store_temp<RangeCheck>([3]) -> ([8]); // 754
+store_temp<core::result::Result::<core::integer::u32, core::integer::u32>>([7]) -> ([9]); // 755
+jump() { 761() }; // 756
+branch_align() -> (); // 757
+enum_init<core::result::Result::<core::integer::u32, core::integer::u32>, 1>([6]) -> ([10]); // 758
+store_temp<RangeCheck>([5]) -> ([8]); // 759
+store_temp<core::result::Result::<core::integer::u32, core::integer::u32>>([10]) -> ([9]); // 760
+felt252_const<155785504323917466144735657540098748279>() -> ([11]); // 761
+rename<core::result::Result::<core::integer::u32, core::integer::u32>>([9]) -> ([13]); // 762
+store_temp<felt252>([11]) -> ([14]); // 763
+function_call<user@core::result::ResultTraitImpl::<core::integer::u32, core::integer::u32>::expect::<core::integer::u32Drop>>([13], [14]) -> ([12]); // 764
+enum_match<core::panics::PanicResult::<(core::integer::u32,)>>([12]) { fallthrough([15]) 773([16]) }; // 765
+branch_align() -> (); // 766
+struct_deconstruct<Tuple<u32>>([15]) -> ([17]); // 767
+struct_construct<Tuple<u32>>([17]) -> ([18]); // 768
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 0>([18]) -> ([19]); // 769
+store_temp<RangeCheck>([8]) -> ([20]); // 770
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([19]) -> ([21]); // 771
+return([20], [21]); // 772
+branch_align() -> (); // 773
+enum_init<core::panics::PanicResult::<(core::integer::u32,)>, 1>([16]) -> ([22]); // 774
+store_temp<RangeCheck>([8]) -> ([23]); // 775
+store_temp<core::panics::PanicResult::<(core::integer::u32,)>>([22]) -> ([24]); // 776
+return([23], [24]); // 777
+array_new<felt252>() -> ([1]); // 778
+array_append<felt252>([1], [0]) -> ([2]); // 779
+store_temp<Array<felt252>>([2]) -> ([2]); // 780
+print([2]) -> (); // 781
+struct_construct<Unit>() -> ([3]); // 782
+store_temp<Unit>([3]) -> ([4]); // 783
+return([4]); // 784
+array_get<starkshell::registerMachine::Instruction>([0], [1], [2]) { fallthrough([3], [4]) 792([5]) }; // 785
+branch_align() -> (); // 786
+struct_construct<Tuple<Box<starkshell::registerMachine::Instruction>>>([4]) -> ([6]); // 787
+enum_init<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>, 0>([6]) -> ([7]); // 788
+store_temp<RangeCheck>([3]) -> ([8]); // 789
+store_temp<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>>([7]) -> ([9]); // 790
+return([8], [9]); // 791
+branch_align() -> (); // 792
+array_new<felt252>() -> ([10]); // 793
+felt252_const<1637570914057682275393755530660268060279989363>() -> ([11]); // 794
+store_temp<felt252>([11]) -> ([11]); // 795
+array_append<felt252>([10], [11]) -> ([12]); // 796
+struct_construct<core::panics::Panic>() -> ([13]); // 797
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([13], [12]) -> ([14]); // 798
+enum_init<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>, 1>([14]) -> ([15]); // 799
+store_temp<RangeCheck>([5]) -> ([16]); // 800
+store_temp<core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>>([15]) -> ([17]); // 801
+return([16], [17]); // 802
+store_temp<u32>([0]) -> ([2]); // 803
+function_call<user@core::integer::u32_as_non_zero>([2]) -> ([1]); // 804
+enum_match<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>>([1]) { fallthrough([3]) 813([4]) }; // 805
+branch_align() -> (); // 806
+struct_deconstruct<Tuple<NonZero<u32>>>([3]) -> ([5]); // 807
+enum_init<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, 0>([5]) -> ([6]); // 808
+struct_construct<Tuple<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>>([6]) -> ([7]); // 809
+enum_init<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>, 0>([7]) -> ([8]); // 810
+store_temp<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>>([8]) -> ([9]); // 811
+return([9]); // 812
+branch_align() -> (); // 813
+enum_init<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>, 1>([4]) -> ([10]); // 814
+store_temp<core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>>([10]) -> ([11]); // 815
+return([11]); // 816
+downcast<u64, u32>([0], [1]) { fallthrough([2], [3]) 823([4]) }; // 817
+branch_align() -> (); // 818
+enum_init<core::option::Option::<core::integer::u32>, 0>([3]) -> ([5]); // 819
+store_temp<RangeCheck>([2]) -> ([6]); // 820
+store_temp<core::option::Option::<core::integer::u32>>([5]) -> ([7]); // 821
+jump() { 828() }; // 822
+branch_align() -> (); // 823
+struct_construct<Unit>() -> ([8]); // 824
+enum_init<core::option::Option::<core::integer::u32>, 1>([8]) -> ([9]); // 825
+store_temp<RangeCheck>([4]) -> ([6]); // 826
+store_temp<core::option::Option::<core::integer::u32>>([9]) -> ([7]); // 827
+rename<RangeCheck>([6]) -> ([10]); // 828
+rename<core::option::Option::<core::integer::u32>>([7]) -> ([11]); // 829
+return([10], [11]); // 830
+store_temp<u32>([0]) -> ([2]); // 831
+function_call<user@core::integer::u32_try_as_non_zero>([2]) -> ([1]); // 832
+enum_match<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>([1]) { fallthrough([3]) 839([4]) }; // 833
+branch_align() -> (); // 834
+struct_construct<Tuple<NonZero<u32>>>([3]) -> ([5]); // 835
+enum_init<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>, 0>([5]) -> ([6]); // 836
+store_temp<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>>([6]) -> ([7]); // 837
+return([7]); // 838
+branch_align() -> (); // 839
+drop<Unit>([4]) -> (); // 840
+array_new<felt252>() -> ([8]); // 841
+felt252_const<8445148841039306800>() -> ([9]); // 842
+store_temp<felt252>([9]) -> ([9]); // 843
+array_append<felt252>([8], [9]) -> ([10]); // 844
+struct_construct<core::panics::Panic>() -> ([11]); // 845
+struct_construct<Tuple<core::panics::Panic, Array<felt252>>>([11], [10]) -> ([12]); // 846
+enum_init<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>, 1>([12]) -> ([13]); // 847
+store_temp<core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>>([13]) -> ([14]); // 848
+return([14]); // 849
+u32_is_zero([0]) { fallthrough() 856([1]) }; // 850
+branch_align() -> (); // 851
+struct_construct<Unit>() -> ([2]); // 852
+enum_init<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, 1>([2]) -> ([3]); // 853
+store_temp<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>([3]) -> ([4]); // 854
+jump() { 859() }; // 855
+branch_align() -> (); // 856
+enum_init<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>, 0>([1]) -> ([5]); // 857
+store_temp<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>([5]) -> ([4]); // 858
+rename<core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>>([4]) -> ([6]); // 859
+return([6]); // 860
+
+starkshell::registerMachine::main@0([0]: RangeCheck, [1]: GasBuiltin) -> (RangeCheck, GasBuiltin, core::panics::PanicResult::<((),)>);
+starkshell::registerMachine::exec_loop@97([0]: RangeCheck, [1]: GasBuiltin, [2]: Array<starkshell::registerMachine::Instruction>, [3]: Array<u32>) -> (RangeCheck, GasBuiltin, core::panics::PanicResult::<(core::array::Array::<core::integer::u32>,)>);
+core::integer::U32Sub::sub@125([0]: RangeCheck, [1]: u32, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(core::integer::u32,)>);
+core::array::ArrayImpl::<core::integer::u32>::at@152([0]: RangeCheck, [1]: Snapshot<Array<u32>>, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(@core::integer::u32,)>);
+core::debug::U32PrintImpl::print@170([0]: u32) -> (Unit);
+starkshell::registerMachine::exec_loop[expr115]@177([0]: RangeCheck, [1]: GasBuiltin, [2]: u32, [3]: u32, [4]: Array<u32>, [5]: Array<starkshell::registerMachine::Instruction>) -> (RangeCheck, GasBuiltin, core::panics::PanicResult::<(core::array::Array::<core::integer::u32>, core::integer::u32, ())>);
+core::result::ResultTraitImpl::<core::integer::u32, core::integer::u32>::expect::<core::integer::u32Drop>@637([0]: core::result::Result::<core::integer::u32, core::integer::u32>, [1]: felt252) -> (core::panics::PanicResult::<(core::integer::u32,)>);
+core::array::array_at::<core::integer::u32>@653([0]: RangeCheck, [1]: Snapshot<Array<u32>>, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(core::box::Box::<@core::integer::u32>,)>);
+core::debug::Felt252PrintImpl::print@671([0]: felt252) -> (Unit);
+core::array::ArrayImpl::<starkshell::registerMachine::Instruction>::at@677([0]: RangeCheck, [1]: Snapshot<Array<starkshell::registerMachine::Instruction>>, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(@starkshell::registerMachine::Instruction,)>);
+core::integer::U32Div::div@695([0]: RangeCheck, [1]: u32, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(core::integer::u32,)>);
+core::integer::U32Mul::mul@728([0]: RangeCheck, [1]: u32, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(core::integer::u32,)>);
+core::integer::U32Add::add@751([0]: RangeCheck, [1]: u32, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(core::integer::u32,)>);
+core::debug::print_felt252@778([0]: felt252) -> (Unit);
+core::array::array_at::<starkshell::registerMachine::Instruction>@785([0]: RangeCheck, [1]: Snapshot<Array<starkshell::registerMachine::Instruction>>, [2]: u32) -> (RangeCheck, core::panics::PanicResult::<(core::box::Box::<@starkshell::registerMachine::Instruction>,)>);
+core::integer::U32TryIntoNonZero::try_into@803([0]: u32) -> (core::panics::PanicResult::<(core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>,)>);
+core::integer::DowncastableTryInto::<core::integer::u64, core::integer::u32, core::integer::DowncastableU64U32>::try_into@817([0]: RangeCheck, [1]: u64) -> (RangeCheck, core::option::Option::<core::integer::u32>);
+core::integer::u32_as_non_zero@831([0]: u32) -> (core::panics::PanicResult::<(core::zeroable::NonZero::<core::integer::u32>,)>);
+core::integer::u32_try_as_non_zero@850([0]: u32) -> (core::option::Option::<core::zeroable::NonZero::<core::integer::u32>>);
