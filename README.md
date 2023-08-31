@@ -3,8 +3,10 @@
 </p>
 <h1 align="center"> StarkShell </h1>
 
-This repository contains StarkShell, an on-chain virtual machine (VM), and its surrounding code base for a modular smart contract system.
-It can be used for both on-chain development as well as exploratory testing.
+StarkShell is a virtual machine (VM) implemented inside a Cairo smart contract. This VM is Turing complete, has an on-chain interpreter and can execute a sequence of chained transactions. These are transactions where the output of one transaction can be directly processed as input for the next one, supporting additional logic as loops and conditions in between them.
+
+This repository is currently undergoing a refactoring and upgrading process (to the latest version of Cairo).
+
 
 ## Features
 
