@@ -1,56 +1,36 @@
+#[derive(Copy, Drop, Serde)]
+struct Instruction {
+    target: u32,
+    selector: felt252,
+    src1: u32,
+    src2: u32,
+    dest: u32
+}
+
 #[starknet::interface]
-trait IRegisterMachine<T> {
-    fn initialize(self: @T) -> u32;
+trait IRegisterMachine<TContractState> {
+    fn execute(self: @TContractState, program: Array<Instruction>, registers: Array<u32>) -> felt252;
 }
 
 #[starknet::contract]
 mod registerMachine {
-
-    use debug::PrintTrait;
-    use array::ArrayTrait;
+    
+    use super::{IRegisterMachine, Instruction};
 
     #[storage]
     struct Storage {}
 
-    #[derive(Copy, Drop)]
-    struct Instruction {
-        target: u32,
-        selector: felt252,
-        src1: u32,
-        src2: u32,
-        dest: u32
-    }
-
     #[external(v0)]
-    impl RegisterMachine of super::IRegisterMachine<ContractState> {
+    impl RegisterMachine of IRegisterMachine<ContractState> {
 
-        fn initialize(self: @ContractState) -> u32 {
+        fn execute(self: @ContractState, program: Array<Instruction>, registers: Array<u32>) -> felt252 {
 
-            let mut program: Array<Instruction> = ArrayTrait::new();
-            let i1 = Instruction { target: 0, selector: 'ADD', src1: 0, src2: 1, dest: 3 };
-            let i2 = Instruction { target: 0, selector: 'MUL', src1: 3, src2: 1, dest: 4 };
-            let i3 = Instruction { target: 0, selector: 'SUB', src1: 4, src2: 2, dest: 5 };
-            let i4 = Instruction { target: 0, selector: 'DIV', src1: 5, src2: 0, dest: 6 };
-            let i5 = Instruction { target: 0, selector: 'REM', src1: 6, src2: 1, dest: 7 };
-            program.append(i1);
-            program.append(i2);
-            program.append(i3);
-            program.append(i4);
-            program.append(i5);
-
-            let mut registers: Array<u32> = ArrayTrait::new();
-            registers.append(5);
-            registers.append(3);
-            registers.append(4);
-
-            let result_registers = exec_loop(program, registers);
-            let result_len = result_registers.len();
-            let result = *result_registers.at(result_len - 1);
+            let result = exec_loop(program, registers);
             result
         }
     }
 
-    fn exec_loop(program: Array<Instruction>, mut registers: Array<u32>) -> Array<u32> {
+    fn exec_loop(program: Array<Instruction>, mut registers: Array<u32>) -> felt252 {
 
         let mut program_len = program.len();
         let mut pc: usize = 0;
@@ -96,16 +76,20 @@ mod registerMachine {
                     let mut res = val1 % val2;
                     registers.append(res);
                 } else {
-                    'Selector not supported'.print();
+                    'Selector not supported';
                     break;
                 }
             } else {
-                'Only internal supported yet'.print();
+                'Only internal supported yet';
                 break;
             }
 
             pc += 1;
         };
-        registers
+
+        let registers_len = registers.len();
+        let last_register = *registers.at(registers_len - 1);
+        let last_register_felt252: felt252 = last_register.into();
+        last_register_felt252
     }
 }
